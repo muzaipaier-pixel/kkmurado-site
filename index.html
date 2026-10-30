@@ -83,9 +83,36 @@ footer{text-align:center;padding:40px 20px 60px;font-size:12px;color:var(--mut)}
 .mob-cta.show{transform:none}
 @media(min-width:860px){.links{display:flex}.hero{grid-template-columns:1.1fr .9fr}.about{grid-template-columns:1fr 1fr}.grid{grid-template-columns:repeat(3,1fr);gap:22px}.info{grid-template-columns:1fr 1fr}.mob-cta{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}html{scroll-behavior:auto}}
+
+.svc{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:36px}
+.svc .glass{padding:26px 24px;border-radius:24px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.svc .glass::before{content:"";position:absolute;inset:-1px;border-radius:24px;padding:1px;background:linear-gradient(135deg,rgba(255,143,184,.6),transparent 40%,rgba(255,211,92,.4));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.svc .ic{font-size:30px;width:56px;height:56px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(135deg,rgba(255,143,184,.25),rgba(139,47,98,.35))}
+.svc h3{margin:0;font-size:20px}.svc .tag{font-size:12px;letter-spacing:.12em;color:var(--pink)}
+.svc p{margin:0;color:var(--mut);font-size:14px;line-height:1.75}
+.svc ul{margin:0;padding-left:18px;color:var(--txt);font-size:13.5px;line-height:1.8}
+.svc .btn{margin-top:auto;align-self:flex-start;padding:11px 18px;font-size:13px;white-space:nowrap}
+#chatFab{position:fixed;right:20px;bottom:20px;z-index:9998;width:62px;height:62px;border-radius:50%;border:0;cursor:pointer;font-size:26px;background:linear-gradient(135deg,var(--pink),var(--plum));color:#fff;box-shadow:0 12px 40px -6px rgba(255,143,184,.7)}
+#chatFab::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(255,143,184,.5);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{transform:scale(.9);opacity:1}100%{transform:scale(1.35);opacity:0}}
+#chatP{position:fixed;right:20px;bottom:96px;z-index:9999;width:360px;max-width:calc(100vw - 24px);height:520px;max-height:calc(100vh - 130px);display:none;flex-direction:column;border-radius:24px;overflow:hidden;background:rgba(34,16,28,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--line);box-shadow:0 30px 80px -20px rgba(0,0,0,.7)}
+#chatP.open{display:flex}
+#chatP .hd{padding:16px 18px;background:linear-gradient(135deg,rgba(255,143,184,.25),rgba(139,47,98,.4));display:flex;align-items:center;gap:10px}
+#chatP .hd b{flex:1}#chatP .hd small{display:block;font-weight:400;color:var(--mut);font-size:12px}
+#chatP .x{background:none;border:0;color:var(--txt);font-size:20px;cursor:pointer}
+#chatB{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.mg{max-width:80%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.mg.c{align-self:flex-end;background:linear-gradient(135deg,var(--yellow),#ffb3cf);color:#1a0b16;border-bottom-right-radius:6px}
+.mg.s{align-self:flex-start;background:var(--glass);border:1px solid var(--line);border-bottom-left-radius:6px}
+#chatP form{padding:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+#chatP input,#chatP textarea{width:100%;box-sizing:border-box;background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--txt);border-radius:14px;padding:10px 12px;font:inherit;font-size:14px;resize:none}
+#chatP .row{display:flex;gap:8px}#chatP .row textarea{flex:1}#chatP .row button{border:0;border-radius:14px;padding:0 16px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--yellow),#ffb3cf);color:#1a0b16}
+#chatErr{color:#ff9db0;font-size:12px;min-height:0}
+@media(max-width:760px){#chatFab{bottom:84px;right:14px;width:56px;height:56px}#chatP{left:12px;right:12px;width:auto;bottom:150px;height:calc(100vh - 180px)}}
+html,body{overflow-x:clip}
 </style></head><body>
 <div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div><div class="grain"></div>
-<nav><a class="logo d" href="#">M <b>Stand</b></a><div class="links"><a href="#about">About</a><a href="#menu">Menu</a><a href="#access">Access</a><a href="#company">Company</a></div><a class="btn sm" href="https://order.kkmurado.com">オンライン注文</a></nav>
+<nav><a class="logo d" href="#">M <b>Stand</b></a><div class="links"><a href="#about">About</a><a href="#menu">Menu</a><a href="#services">Order</a><a href="#access">Access</a><a href="#company">Company</a></div><a class="btn sm" href="https://order.kkmurado.com">オンライン注文</a></nav>
 
 <header class="hero">
  <div>
@@ -127,6 +154,18 @@ footer{text-align:center;padding:40px 20px 60px;font-size:12px;color:var(--mut)}
  <div class="center rv"><a class="btn" href="https://order.kkmurado.com">全メニューを見て注文する →</a></div>
 </section>
 
+<section id="services">
+ <div class="eyebrow d rv">Order &amp; Services</div><h2 class="rv">ご注文・サービス</h2>
+ <p class="rv" style="color:var(--mut);max-width:640px">シーンに合わせて、いちばん便利な方法をお選びください。</p>
+ <div class="svc">
+  <div class="glass rv" style="--d:0s"><div class="ic">📱</div><div class="tag d">IN STORE</div><h3>店頭スマホ注文</h3><p>店内・店頭のQRコードから、その場でスマホ注文。お支払いは店頭で、できあがりをお呼び出しします。</p><ul><li>今お店の前にいるとき</li><li>並ばずに注文したいとき</li></ul><a class="btn" href="https://order.kkmurado.com" target="_blank" rel="noopener">スマホで注文 →</a></div>
+  <div class="glass rv" style="--d:0.08s"><div class="ic">🛵</div><div class="tag d">DELIVERY</div><h3>Uber Eats 配達</h3><p>ご自宅やオフィスまでお届けします。Uber Eatsアプリでご注文・お支払いいただけます。</p><ul><li>お店まで行けないとき</li><li>おうち・職場でゆっくり楽しみたいとき</li><li>配達料・お届け時間はアプリでご確認ください</li></ul><a class="btn" href="https://www.ubereats.com/jp/store/%E3%82%A8%E3%83%A0-%E3%82%B9%E3%82%BF%E3%83%B3%E3%83%88-m-stand/uZXQD-OoRt6Z8nKJGpW4Fg" target="_blank" rel="noopener">Uber Eatsで注文 →</a></div>
+  <div class="glass rv" style="--d:0.16s"><div class="ic">🛍️</div><div class="tag d">PICK UP</div><h3>オンライン注文（店頭受け取り）</h3><p>Square オンラインストアで事前に注文・お支払い。お店に着いたらすぐに受け取れます。</p><ul><li>来店前に注文を済ませたいとき</li><li>事前にオンライン決済したいとき</li><li>受け取りは店頭カウンターで</li></ul><a class="btn" href="https://mstandikebukuro.square.site" target="_blank" rel="noopener">オンラインで注文 →</a></div>
+  <div class="glass rv" style="--d:0.24s"><div class="ic">⏰</div><div class="tag d">RESERVE</div><h3>予約注文（受け取り時間指定）</h3><p>受け取りたい時間を指定して、前もってご注文いただけます。まとめ買いや差し入れにも便利です。</p><ul><li>帰り道に決まった時間で受け取りたいとき</li><li>複数杯をまとめて注文したいとき</li><li>注文画面で受け取り日時を選択してください</li></ul><a class="btn" href="https://mstandikebukuro.square.site" target="_blank" rel="noopener">時間を指定して予約 →</a></div>
+  <div class="glass rv" style="--d:0.32s"><div class="ic">🎁</div><div class="tag d">GIFT CARD</div><h3>ギフトカード・チャージ</h3><p>M Stand で使えるデジタルギフトカード。メールで贈れるほか、ご自身用にチャージしてお得にご利用いただけます。</p><ul><li>大切な人へのちょっとしたプレゼントに</li><li>よく来店される方のチャージ用に</li><li>店頭のお会計でご利用いただけます</li></ul><a class="btn" href="https://app.squareup.com/gift/MLP8SFCN6960P/order" target="_blank" rel="noopener">ギフトカードを購入 →</a></div>
+ </div>
+</section>
+
 <section id="access">
  <div class="eyebrow d rv">Access</div><h2 class="rv">店舗情報</h2>
  <div class="info">
@@ -151,6 +190,26 @@ const m=document.querySelector('.mob-cta');addEventListener('scroll',()=>m.class
 if(R||!matchMedia('(hover:hover)').matches)return;
 document.querySelectorAll('.card').forEach(c=>{c.addEventListener('pointermove',e=>{const b=c.getBoundingClientRect(),x=(e.clientX-b.left)/b.width,y=(e.clientY-b.top)/b.height;c.style.transform=`rotateY(${(x-.5)*12}deg) rotateX(${(.5-y)*12}deg)`;c.style.setProperty('--mx',x*100+'%');c.style.setProperty('--my',y*100+'%')});c.addEventListener('pointerleave',()=>c.style.transform='')});
 const v=document.querySelector('[data-parallax]');addEventListener('scroll',()=>{v.style.translate=`0 ${scrollY*.12}px`},{passive:true});
+})();
+</script>
+<button id="chatFab" aria-label="オンライン相談">💬</button>
+<div id="chatP" role="dialog" aria-label="オンライン相談"><div class="hd"><span style="font-size:24px">💬</span><b>オンライン相談<small>M Stand スタッフがお返事します（営業時間内）</small></b><button class="x" id="chatX" aria-label="閉じる">✕</button></div>
+<div id="chatB"><div class="mg s">こんにちは！M Stand です🧋<br>ご予約・まとめ注文・メニューなど、お気軽にどうぞ。</div></div>
+<form id="chatF"><input id="chatN" maxlength="40" placeholder="お名前（任意）"><input name="hp" id="chatHp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true"><div class="row"><textarea id="chatT" rows="2" maxlength="500" placeholder="メッセージを入力…" required></textarea><button>送信</button></div><div id="chatErr"></div></form></div>
+<script>
+(()=>{const q=new URLSearchParams(location.search);const API=(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&q.get('chatapi'))||'https://order.kkmurado.com';
+const $=i=>document.getElementById(i),P=$('chatP'),B=$('chatB');let S={};try{S=JSON.parse(localStorage.msChat||'{}')}catch(e){}
+let since=0,seen=new Set(),tm=null;
+const add=m=>{const k=m.at+m.f+m.t;if(seen.has(k))return;seen.add(k);const d=document.createElement('div');d.className='mg '+m.f;d.textContent=m.t;B.appendChild(d);B.scrollTop=1e6;since=Math.max(since,m.at)};
+const poll=async()=>{if(!S.cid)return;try{const r=await fetch(API+'/api/sitechat/poll?cid='+S.cid+'&token='+S.token+'&since='+since);if(r.status===404){S={};localStorage.removeItem('msChat');return}const j=await r.json();(j.msgs||[]).forEach(add)}catch(e){}};
+const open=o=>{P.classList.toggle('open',o);clearInterval(tm);if(o){poll();tm=setInterval(poll,5000)}};
+$('chatFab').onclick=()=>open(!P.classList.contains('open'));$('chatX').onclick=()=>open(false);
+if(S.name)$('chatN').value=S.name;
+$('chatF').onsubmit=async e=>{e.preventDefault();const t=$('chatT').value.trim();if(!t)return;$('chatErr').textContent='';
+ try{const r=await fetch(API+'/api/sitechat/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cid:S.cid,token:S.token,name:$('chatN').value,text:t,hp:$('chatHp').value})});const j=await r.json();
+  if(!r.ok){$('chatErr').textContent=j.error||'送信できませんでした';return}
+  S={cid:j.cid||S.cid,token:j.token||S.token,name:$('chatN').value};localStorage.msChat=JSON.stringify(S);$('chatT').value='';poll()}catch(e){$('chatErr').textContent='通信エラーです。もう一度お試しください'}};
+$('chatT').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))$('chatF').requestSubmit()});
 })();
 </script>
 </body></html>
