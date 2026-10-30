@@ -369,7 +369,7 @@ const hideG=()=>{g.hidden=true;try{sessionStorage.msGreetX='1'}catch(e){}};
 if(!gx&&!q.has('nogreet'))setTimeout(()=>{if(!document.getElementById('chatP').classList.contains('open'))g.hidden=false},q.has('greetnow')?300:4000);
 $('greetX').onclick=e=>{e.stopPropagation();hideG()};g.onclick=()=>{hideG();__chatOpen(true)};fab.addEventListener('click',hideG);
 // ---- nav: chat links, mobile sheet, active section
-const sh=$('sheet'),bg=$('burger');const tog=o=>{sh.classList.toggle('open',o);bg.setAttribute('aria-expanded',o);sh.setAttribute('aria-hidden',!o);document.body.style.overflow=o?'hidden':''};
+const sh=$('sheet'),bg=$('burger');const tog=o=>{sh.classList.toggle('open',o);bg.setAttribute('aria-expanded',o);sh.setAttribute('aria-hidden',!o);document.body.style.overflow=o?'hidden':'';if(o)g.hidden=true};
 bg.onclick=()=>tog(!sh.classList.contains('open'));
 document.querySelectorAll('a.navchat').forEach(a=>a.onclick=e=>{e.preventDefault();tog(false);hideG();__chatOpen(true)});
 sh.querySelectorAll('.in>a:not(.navchat)').forEach(a=>a.addEventListener('click',()=>tog(false)));
