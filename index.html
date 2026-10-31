@@ -973,4 +973,4 @@ function load(){const l=L();if(!G[l])fetch(A+'/api/site/place?lang='+l).then(r=>
 fetch(A+'/api/site/popular?period=month').then(r=>r.ok?r.json():null).then(d=>{if(d&&d.source==='square'&&d.period==='month'){P=d;top5()}}).catch(()=>{});
 fetch(A+'/api/site/pairings').then(r=>r.ok?r.json():null).then(d=>{if(d&&d.source==='square'){R=d;enjoy()}}).catch(()=>{});
 load();new MutationObserver(load).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});})()</script><script>(()=>{const g=document.getElementById('greet');if(!g)return;const m=matchMedia('(max-width:860px)').matches;let seen=0;try{seen=sessionStorage.getItem('gr1')}catch(e){}
-if(m&&seen){g.remove();return}try{sessionStorage.setItem('gr1','1')}catch(e){}if(m)setTimeout(()=>{g.hidden=true},4000)})()</script></body></html>
+if(m&&seen){g.remove();return}try{sessionStorage.setItem('gr1','1')}catch(e){}if(m)setTimeout(()=>{g.hidden=true},9000)})()</script></body></html>
