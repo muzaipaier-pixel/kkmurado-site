@@ -980,9 +980,14 @@ const sh=$('sheet'),bg=$('burger');const tog=o=>{sh.classList.toggle('open',o);b
 bg.onclick=()=>tog(!sh.classList.contains('open'));
 document.querySelectorAll('a.navchat').forEach(a=>a.onclick=e=>{e.preventDefault();tog(false);hideG();__chatOpen(true)});
 sh.querySelectorAll('.in>a:not(.navchat)').forEach(a=>a.addEventListener('click',()=>tog(false)));
+const navB=()=>document.querySelector('nav').getBoundingClientRect().bottom;
+const go=(id,sm)=>{const s=$(id);if(!s)return;const t=s.querySelector('.eyebrow')||s.querySelector('h2')||s;const y=Math.max(0,scrollY+t.getBoundingClientRect().top-navB()-14);scrollTo({top:y,behavior:sm&&!matchMedia('(prefers-reduced-motion: reduce)').matches?'smooth':'auto'});
+ clearTimeout(go.t);go.t=setTimeout(()=>{const d=t.getBoundingClientRect().top-navB()-14;if(Math.abs(d)>4&&innerHeight+scrollY<document.documentElement.scrollHeight-2)scrollTo({top:scrollY+d,behavior:'auto'})},sm?1100:300)};
+document.querySelectorAll('nav .lk a[href^="#"]:not(.navchat),#sheet .in>a[href^="#"]:not(.navchat)').forEach(a=>a.addEventListener('click',e=>{const id=a.getAttribute('href').slice(1);if(!$(id))return;e.preventDefault();tog(false);history.replaceState(null,'','#'+id);requestAnimationFrame(()=>go(id,true))}));
+if(/^#(menu|status|services|access|company)$/.test(location.hash))addEventListener('load',()=>go(location.hash.slice(1),false));
 sh.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.l,true)));
 const secs=['menu','status','services','access','company'].map(i=>$(i)).filter(Boolean);
-const mark=()=>{const y=innerHeight*.35;let cur=null;secs.forEach(s=>{const r=s.getBoundingClientRect();if(r.top<=y&&r.bottom>y)cur=s.id});
+const mark=()=>{const y=navB()+innerHeight*.25;let cur=null;secs.forEach(s=>{const r=s.getBoundingClientRect();if(r.top<=y&&r.bottom>y)cur=s.id});if(innerHeight+scrollY>=document.documentElement.scrollHeight-4){const l=secs[secs.length-1];if(l.getBoundingClientRect().top<innerHeight*.8)cur=l.id}
  document.querySelectorAll('nav .lk a,#sheet .in>a').forEach(a=>a.classList.toggle('on',!!cur&&a.getAttribute('href')==='#'+cur))};
 addEventListener('scroll',mark,{passive:true});mark();
 if(location.hash==='#chat')setTimeout(()=>__chatOpen(true),300);
