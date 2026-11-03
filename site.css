@@ -827,3 +827,167 @@ html:lang(ko) figure.isnew .nwtag::after{content:"✨ 신메뉴"}
 @media (prefers-reduced-motion: reduce){
   .hero h1 .nw,.hero h1 .g{animation:none}
 }
+
+/* ---- GLOW preview: dynamic light edition (no emoji stickers) ----
+   Flowing pastel light on tags, breathing glow orbs in the hero, twinkles,
+   a light sheen sweeping the order button, gingham tapes, stitched outlines. */
+.eyebrow,.hd .tag{
+  position:relative;
+  background-image:linear-gradient(115deg,#ffb9d9,#ffd9a8,#fff3a0,#a9ecd2,#a8d4ff,#d3b8ff,#ffb9d9)!important;
+  background-size:300% 100%;
+  animation:mstand-flow 14s ease-in-out infinite}
+#status .eyebrow,#status .hd .tag{animation-delay:-3s}
+#services .eyebrow,#services .hd .tag{animation-delay:-6s}
+#access .eyebrow,#access .hd .tag{animation-delay:-2s}
+#reviews .eyebrow,#reviews .hd .tag{animation-delay:-8s}
+#news .eyebrow,#news .hd .tag{animation-delay:-5s}
+#enjoy .eyebrow,#enjoy .hd .tag{animation-delay:-9s}
+#gift .eyebrow,#gift .hd .tag{animation-delay:-4s}
+#cards2 .eyebrow,#cards2 .hd .tag{animation-delay:-7s}
+@keyframes mstand-flow{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+.eyebrow::before,.hd .tag::before{
+  content:"";position:absolute;top:-10px;left:50%;width:66px;height:17px;z-index:2;
+  transform:translateX(-50%) rotate(-3deg);border-radius:2px;opacity:.9;pointer-events:none;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.55) 0 9px,transparent 9px 18px),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.55) 0 9px,transparent 9px 18px),
+    linear-gradient(rgba(255,140,185,.5),rgba(255,140,185,.5));
+  box-shadow:0 1px 3px rgba(43,29,58,.12)}
+#menu h2::before,#status h2::before,#services h2::before,#access h2::before,#reviews h2::before,
+#news h2::before,#enjoy h2::before,#gift h2::before,#cards2 h2::before{
+  content:"✦ ";color:#f5a623;-webkit-text-fill-color:#f5a623;font-size:.62em;vertical-align:.55em}
+#menu h2::after,#status h2::after,#services h2::after,#access h2::after,#reviews h2::after,
+#news h2::after,#enjoy h2::after,#gift h2::after,#cards2 h2::after{
+  content:"♡";display:inline-block;color:var(--pink);-webkit-text-fill-color:var(--pink);
+  font-size:.5em;vertical-align:.95em;margin-left:.12em;
+  animation:mstand-bob 2.2s ease-in-out infinite alternate}
+#menu h2::after{color:#b18cff;-webkit-text-fill-color:#b18cff}
+#status h2::after{color:#25b98c;-webkit-text-fill-color:#25b98c}
+#access h2::after{color:#5aa2ef;-webkit-text-fill-color:#5aa2ef}
+#news h2::after{color:#ff8a5c;-webkit-text-fill-color:#ff8a5c}
+#gift h2::after{color:#38b6d9;-webkit-text-fill-color:#38b6d9}
+.hero{position:relative;overflow:hidden}
+.hero .hwrap,.hero .facts{position:relative;z-index:2}
+.hero::before,.hero::after{
+  content:"";position:absolute;border-radius:50%;pointer-events:none;z-index:0;
+  filter:blur(6px)}
+.hero::before{
+  width:420px;height:420px;top:-120px;right:-90px;
+  background:radial-gradient(circle,rgba(255,170,205,.55) 0%,rgba(255,205,225,.25) 45%,rgba(255,205,225,0) 70%);
+  animation:mstand-orb 11s ease-in-out infinite alternate}
+.hero::after{
+  width:380px;height:380px;bottom:-140px;left:-100px;
+  background:radial-gradient(circle,rgba(160,225,255,.5) 0%,rgba(215,240,255,.22) 45%,rgba(215,240,255,0) 70%);
+  animation:mstand-orb 13s ease-in-out infinite alternate-reverse}
+@keyframes mstand-orb{from{transform:translate(0,0) scale(1);opacity:.75}to{transform:translate(-34px,26px) scale(1.13);opacity:1}}
+.hero .blob.b2::before,.hero .blob.b2::after,.hero .blob.b3::before{
+  position:absolute;color:#fff;pointer-events:none;z-index:3;
+  text-shadow:0 0 10px rgba(255,190,90,.9),0 0 3px rgba(255,190,90,.9);
+  animation:mstand-twinkle 2.8s ease-in-out infinite}
+.hero .blob.b2::before{content:"✦";top:12%;right:16%;font-size:21px}
+.hero .blob.b2::after{content:"✦";top:30%;right:5%;font-size:14px;animation-delay:1.2s}
+.hero .blob.b3::before{content:"✦";top:4%;left:14%;font-size:16px;animation-delay:.6s}
+@keyframes mstand-twinkle{0%,100%{opacity:.25;transform:scale(.75) rotate(0deg)}50%{opacity:1;transform:scale(1.15) rotate(20deg)}}
+.hero h1 .g{animation:mstand-bob 2.8s ease-in-out infinite alternate,mstand-glow 3.4s ease-in-out infinite}
+@keyframes mstand-glow{0%,100%{text-shadow:0 0 6px rgba(255,120,175,.15)}50%{text-shadow:0 0 22px rgba(255,120,175,.5)}}
+.hero a.pill{position:relative;overflow:hidden;outline:2px dashed rgba(255,255,255,.95);outline-offset:-7px}
+.hero a.pill::before{
+  content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:45%;pointer-events:none;
+  background:linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.55) 50%,rgba(255,255,255,0) 100%);
+  transform:translateX(-220%) skewX(-18deg);
+  animation:mstand-sheen 4.6s ease-in-out infinite}
+@keyframes mstand-sheen{0%,55%{transform:translateX(-220%) skewX(-18deg)}85%,100%{transform:translateX(320%) skewX(-18deg)}}
+.hero a.pill::after{content:" ♡"}
+.hero .facts::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,#ff8fbf,#ffd76e,#7fe3c0,#8fc7ff,#c9a2ff,#ff8fbf);
+  background-size:200% 100%;animation:mstand-flow 9s linear infinite}
+#services .card,.xc,#enjoy .pr>*{position:relative}
+#services .card::before,.xc::before,#enjoy .pr>*::before{
+  content:"";position:absolute;top:-9px;left:38px;width:74px;height:18px;z-index:3;
+  transform:rotate(-4deg);border-radius:2px;opacity:.92;pointer-events:none;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.55) 0 9px,transparent 9px 18px),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.55) 0 9px,transparent 9px 18px),
+    linear-gradient(rgba(255,140,185,.5),rgba(255,140,185,.5));
+  box-shadow:0 1px 3px rgba(43,29,58,.14)}
+#services .card:nth-child(2)::before,.xc:nth-child(2)::before,#enjoy .pr>*:nth-child(2)::before{
+  transform:rotate(3deg);
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.55) 0 9px,transparent 9px 18px),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.55) 0 9px,transparent 9px 18px),
+    linear-gradient(rgba(90,215,175,.5),rgba(90,215,175,.5))}
+#services .card:nth-child(3)::before,.xc:nth-child(3)::before,#enjoy .pr>*:nth-child(3)::before{
+  transform:rotate(-2deg);
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.55) 0 9px,transparent 9px 18px),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.55) 0 9px,transparent 9px 18px),
+    linear-gradient(rgba(255,190,60,.5),rgba(255,190,60,.5))}
+#services .card::after,.xc::after{
+  content:"♡";position:absolute;right:16px;bottom:12px;font-size:17px;
+  color:var(--pink);opacity:.75;pointer-events:none}
+#services .card .lnk{outline:2px dashed rgba(255,140,185,.7);outline-offset:-6px}
+.xtag{position:relative}
+.xtag::before{
+  content:"";position:absolute;top:-7px;left:50%;width:40px;height:11px;z-index:2;
+  transform:translateX(-50%) rotate(-4deg);border-radius:2px;opacity:.9;pointer-events:none;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.55) 0 6px,transparent 6px 12px),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.55) 0 6px,transparent 6px 12px),
+    linear-gradient(rgba(255,140,185,.5),rgba(255,140,185,.5))}
+#menu{background-image:radial-gradient(rgba(255,140,185,.16) 3px,transparent 3.6px);background-size:34px 34px;animation:mstand-dots 46s linear infinite}
+@keyframes mstand-dots{from{background-position:0 0}to{background-position:340px 170px}}
+footer::before{
+  content:"♡ ✦ ♡ ✦ ♡";display:block;text-align:center;font-size:17px;color:#ff9ec7;
+  letter-spacing:.5em;margin:0 0 14px;opacity:.95}
+@media (prefers-reduced-motion: reduce){
+  .eyebrow,.hd .tag,.hero::before,.hero::after,.hero .blob.b2::before,.hero .blob.b2::after,
+  .hero .blob.b3::before,.hero h1 .g,.hero a.pill::before,.hero .facts::before,#menu,
+  #menu h2::after,#status h2::after,#services h2::after,#access h2::after,#reviews h2::after,
+  #news h2::after,#enjoy h2::after,#gift h2::after,#cards2 h2::after{animation:none}
+}
+
+/* ---- GLOW v2: every key text moves, each in its own way ---- */
+section h2{animation:mstand-floaty 5.4s ease-in-out infinite}
+#status h2{animation-duration:6.2s;animation-delay:-1.4s}
+#services h2{animation-duration:5.8s;animation-delay:-2.2s}
+#access h2{animation-duration:6.6s;animation-delay:-.8s}
+#reviews h2{animation-duration:5.2s;animation-delay:-3s}
+#news h2{animation-duration:6.4s;animation-delay:-1.8s}
+#enjoy h2{animation-duration:5.6s;animation-delay:-2.6s}
+#gift h2{animation-duration:6.8s;animation-delay:-.4s}
+#cards2 h2{animation-duration:5.3s;animation-delay:-1.1s}
+@keyframes mstand-floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+#services .card h3,.xc h3{animation:mstand-rock 6s ease-in-out infinite;transform-origin:left bottom}
+#services .card:nth-child(2) h3,.xc:nth-child(2) h3{animation-delay:-2s}
+#services .card:nth-child(3) h3,.xc:nth-child(3) h3{animation-delay:-4s}
+@keyframes mstand-rock{0%,100%{transform:rotate(-.7deg)}50%{transform:rotate(.7deg) translateY(-2px)}}
+.hero .facts b,#status .v.num,#reviews .grv-h b{display:inline-block;animation:mstand-beat 2.8s ease-in-out infinite}
+#status .v.num{animation-delay:-.9s}
+#reviews .grv-h b{animation-delay:-1.7s}
+@keyframes mstand-beat{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+#menu figure .nm,#nowName{animation:mstand-glowink 3.6s ease-in-out infinite}
+@keyframes mstand-glowink{0%,100%{text-shadow:0 0 0 rgba(255,150,200,0)}50%{text-shadow:0 0 16px rgba(255,150,200,.65)}}
+nav .lk a{display:inline-block;animation:mstand-navbob 4.4s ease-in-out infinite}
+nav .lk a:nth-child(2){animation-delay:-1.1s}
+nav .lk a:nth-child(3){animation-delay:-2.2s}
+nav .lk a:nth-child(4){animation-delay:-3.3s}
+nav .lk a:nth-child(5){animation-delay:-.6s}
+@keyframes mstand-navbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.eyebrow,.hd .tag{animation:mstand-flow 14s ease-in-out infinite,mstand-bob2 5.2s ease-in-out infinite}
+@keyframes mstand-bob2{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+.xtag{display:inline-block;animation:mstand-bob2 4.6s ease-in-out infinite}
+.lnk{position:relative;overflow:hidden}
+.lnk::before,a.cta::before{
+  content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:40%;pointer-events:none;z-index:1;
+  background:linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.5) 50%,rgba(255,255,255,0) 100%);
+  transform:translateX(-240%) skewX(-18deg);
+  animation:mstand-sheen 5.8s ease-in-out infinite}
+a.cta{position:relative;overflow:hidden}
+#services .card:nth-child(2) .lnk::before{animation-delay:1.4s}
+#services .card:nth-child(3) .lnk::before{animation-delay:2.8s}
+footer::before{animation:mstand-twinkle 3.2s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){
+  section h2,#services .card h3,.xc h3,.hero .facts b,#status .v.num,#reviews .grv-h b,
+  #menu figure .nm,#nowName,nav .lk a,.xtag,.lnk::before,a.cta::before,footer::before{animation:none}
+}
