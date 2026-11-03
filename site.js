@@ -324,3 +324,6 @@ document.addEventListener('click',function(e){var t=e.target;var a=t&&t.closest?
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scan); else scan();
   try { new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
 })();
+
+/* Prepaid card surfaces -> Square gift purchase page */
+document.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)return;if(t.closest('a,button'))return;if(t.closest('[data-gift]')){window.open('https://app.squareup.com/gift/MLP8SFCN6960P/order','_blank','noopener')}else if(t.closest('[data-loyal]')){window.open('https://app.squareup.com/loyalty/MLP8SFCN6960P','_blank','noopener')}},true);
