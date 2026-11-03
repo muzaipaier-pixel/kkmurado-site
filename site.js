@@ -151,7 +151,7 @@ const nn=el.closest('.show')?document.getElementById('nowName'):null;
 let it=[],n=0,cur=0,pos=0,cw=300,sp=180,drag=null,timer=null,hold=null,vis=false,raf=0,built=-1;
 const wrap=v=>{v=((v%n)+n)%n;return v>n/2?v-n:v};
 function collect(){it=[...el.children].filter(c=>c!==d);n=it.length;it.forEach(c=>{if(c._ci)return;c._ci=1;c.classList.add('ci');c.querySelectorAll('img').forEach(im=>{im.loading='eager';im.decoding='async';im.draggable=false;im.addEventListener('load',measure,{once:true})});
- c.addEventListener('click',e=>{if(el._moved){e.preventDefault();e.stopPropagation();return}const o=wrap(it.indexOf(c)-cur);if(o){e.preventDefault();go(cur+o);pause()}})});
+ c.addEventListener('click',e=>{if(el._moved){e.preventDefault();e.stopPropagation();return}if(e.target.closest('a'))return;const o=wrap(it.indexOf(c)-cur);if(o){e.preventDefault();go(cur+o);pause()}})});
  if(built!==n){built=n;d.innerHTML='';if(n>9){d.className='cfd cnt';d.innerHTML='<button class="pv" aria-label="prev">‹</button><span></span><button class="nx" aria-label="next">›</button>';d.querySelector('.pv').onclick=e=>{e.stopPropagation();go(cur-1);pause()};d.querySelector('.nx').onclick=e=>{e.stopPropagation();go(cur+1);pause()}}else{d.className='cfd';it.forEach((_,i)=>{const b=document.createElement('button');b.setAttribute('aria-label',i+1+'');b.onclick=()=>{go(i);pause()};d.appendChild(b)})}}}
 function measure(){if(!n)return;cw=it[0].offsetWidth||cw;sp=Math.min(cw*.62,innerWidth*.3);let h=0;it.forEach(c=>{if(c.style.display!=='none')h=Math.max(h,c.offsetHeight)});if(h)el.style.height=(h+48)+'px'}
 function paint(f){for(let i=0;i<n;i++){const c=it[i],o=wrap(i-f),a=Math.abs(o);
@@ -199,7 +199,7 @@ document.addEventListener('click',e=>{const b=e.target.closest(Q);if(!b||e.defau
  const di=b.getAttribute('data-i')||'';
  if(di==='rvb1'||di==='igb'){const r=b.getBoundingClientRect();burst(e.clientX||r.left+r.width/2,e.clientY||r.top+r.height/2);return}
  const h=b.getAttribute('href')||'';if(b.target==='_blank'||!/^https:\/\/order\.kkmurado\.com/.test(h)||RM)return;
- e.preventDefault();b.classList.add('mf','ld');setTimeout(()=>{b.classList.replace('ld','ok');setTimeout(()=>{location.href=h},220)},380)},false);
+ e.preventDefault();b.classList.add('mf','ld');setTimeout(()=>{b.classList.replace('ld','ok');setTimeout(()=>{location.href=h},140)},200)},false);
 addEventListener('pageshow',()=>document.querySelectorAll('.mf').forEach(b=>b.classList.remove('mf','ld','ok')));
 document.querySelectorAll('.lang').forEach(g=>{const j=document.createElement('span');j.className='lj';j.innerHTML='<i></i>';g.prepend(j);let first=true;
  const mv=()=>{const a=g.querySelector('button[aria-pressed=true]');if(!a||!a.offsetWidth){j.style.opacity=0;return}j.style.opacity=1;j.style.width=a.offsetWidth+'px';j.style.transform='translateX('+a.offsetLeft+'px)';if(!first&&!RM){j.classList.remove('sq');void j.offsetWidth;j.classList.add('sq')}first=false};
