@@ -995,3 +995,7 @@ footer::before{animation:mstand-twinkle 3.2s ease-in-out infinite}
 /* ---- fix: facts numbers must stay block (captions sit below, not beside) ---- */
 .hero .facts b{display:block}
 .hero .facts::before{left:18px;right:18px}
+
+/* ---- zh handwriting display font: 小赖字体 Xiaolai (OFL 1.1, free for commercial use) ---- */
+@font-face{font-family:'XiaolaiHW';src:url('xiaolai.woff2') format('woff2');font-display:swap}
+html:lang(zh) :is(h1,h2,h3,h4,.serif,.disp,.eyebrow,.hd.tag),html:lang(zh) #menu .nm,html:lang(zh) #nowName,html:lang(zh) a.cta,html:lang(zh) .lnk{font-family:'XiaolaiHW','ZCOOL KuaiLe',sans-serif!important;font-weight:400!important}
