@@ -307,6 +307,7 @@ document.addEventListener('click',function(e){var t=e.target;var a=t&&t.closest?
   }, true);
   function cover(el) {
     if (!el || el.__hapC) return; el.__hapC = 1;
+    try { if (el.tagName === 'A' || el.tagName === 'BUTTON' || el.hasAttribute('onclick')) return; } catch (e) {}
     try { if (el.querySelector('button,a,input,select,textarea,[onclick]')) return; } catch (e) {}
     try { if (getComputedStyle(el).position === 'static') el.style.position = 'relative'; } catch (e) {}
     var sw = document.createElement('input');
