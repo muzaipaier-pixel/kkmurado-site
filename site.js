@@ -262,3 +262,6 @@ run();new MutationObserver(run).observe(document.body,{childList:true,subtree:tr
 ;
 (()=>{const fit=()=>document.querySelectorAll('.ci figcaption .nm').forEach(e=>{e.style.fontSize='';e.classList.remove('fit-x');let f=parseFloat(getComputedStyle(e).fontSize),n=0;while(e.scrollWidth>e.clientWidth+1&&f>11&&n++<12){f-=1;e.style.fontSize=f+'px'}if(e.scrollWidth>e.clientWidth+1)e.classList.add('fit-x')});
 let t;const go=()=>{clearTimeout(t);t=setTimeout(fit,120)};addEventListener('load',go);addEventListener('resize',go);new MutationObserver(go).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});(window.__relang||[]).push&&window.__relang.push(go);setTimeout(fit,1500)})()
+
+/* Pass the site language to the order page (one language logic everywhere) */
+document.addEventListener('click',function(e){var t=e.target;var a=t&&t.closest?t.closest('a[href*="order.kkmurado.com"]'):null;if(!a)return;try{var u=new URL(a.href);var l=(document.documentElement.lang||'ja').slice(0,2);if(['ja','zh','en','ko'].indexOf(l)<0)l='ja';u.searchParams.set('lang',l);a.href=u.toString()}catch(_){}},true);
