@@ -327,3 +327,50 @@ document.addEventListener('click',function(e){var t=e.target;var a=t&&t.closest?
 
 /* Prepaid card surfaces -> Square gift purchase page */
 document.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)return;if(t.closest('a,button'))return;if(t.closest('[data-gift]')){window.open('https://app.squareup.com/gift/MLP8SFCN6960P/order','_blank','noopener')}else if(t.closest('[data-loyal]')){window.open('https://app.squareup.com/loyalty/MLP8SFCN6960P','_blank','noopener')}},true);
+
+/* Googly eyes + language hint (preview build) */
+(()=>{const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cups=document.querySelector('.cups');
+if(cups&&!RM){
+  const pairs=[];
+  const place=()=>{pairs.forEach(p=>{const r=p.img.getBoundingClientRect(),w=cups.getBoundingClientRect();p.el.style.left=(r.left-w.left+r.width/2)+'px';p.el.style.top=(r.top-w.top+r.height*.34)+'px'})};
+  cups.querySelectorAll('img').forEach((img,k)=>{
+    const ge=document.createElement('span');ge.className='ge'+(k===1||k===2?' big':'');
+    ge.innerHTML='<span class="eye"><i></i></span><span class="eye"><i></i></span>';
+    ge.querySelectorAll('.eye')[1].style.animationDelay=(k*0.7)+'s';
+    cups.appendChild(ge);pairs.push({img,el:ge});
+  });
+  if(getComputedStyle(cups).position==='static')cups.style.position='relative';
+  place();addEventListener('resize',place);addEventListener('load',place);setTimeout(place,600);setTimeout(place,1800);
+  let px=innerWidth/2,py=220,last=Date.now();
+  const look=()=>{pairs.forEach(p=>{p.el.querySelectorAll('.eye i').forEach(pu=>{const r=pu.parentElement.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;const dx=px-cx,dy=py-cy,d=Math.hypot(dx,dy)||1,m=Math.min(4.6,d/14);pu.style.transform='translate('+(dx/d*m)+'px,'+(dy/d*m)+'px)'})})};
+  addEventListener('pointermove',e=>{px=e.clientX;py=e.clientY;last=Date.now();look()},{passive:true});
+  addEventListener('touchmove',e=>{if(e.touches[0]){px=e.touches[0].clientX;py=e.touches[0].clientY;last=Date.now();look()}},{passive:true});
+  setInterval(()=>{if(Date.now()-last>2600){px=innerWidth*(0.2+Math.random()*0.6);py=140+Math.random()*300;look()}},2400);
+  look();
+}
+/* language hint bubble */
+const el=document.getElementById('lhint');
+if(el){
+  const T={ja:'言語の切り替えはココだよ！',zh:'切换语言在这里哦！',en:'Switch language here!',ko:'언어 전환은 여기예요!'};
+  let seen=false;try{seen=!!localStorage.getItem('ms_lh_site')}catch(e){}
+  if(!seen){
+    const lang=()=> (document.documentElement.lang||'ja').slice(0,2);
+    const hide=set=>{el.hidden=true;if(set){try{localStorage.setItem('ms_lh_site','1')}catch(e){}}};
+    setTimeout(()=>{
+      const lg=document.querySelector('nav .lang');
+      const bg=document.getElementById('burger');
+      const anchor=(lg&&lg.offsetParent&&lg.getBoundingClientRect().width>40)?lg:bg;
+      if(!anchor)return;
+      const r=anchor.getBoundingClientRect();
+      el.textContent=T[lang()]||T.ja;
+      el.style.top=(r.bottom+12)+'px';
+      el.style.right=Math.max(8,innerWidth-r.right+2)+'px';
+      el.hidden=false;el.classList.add('pop');
+      setTimeout(()=>hide(true),9000);
+    },1200);
+    el.addEventListener('click',()=>hide(true));
+    document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.lang button,#burger'))hide(true)},true);
+  }
+}
+})();
