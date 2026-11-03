@@ -1003,3 +1003,4 @@ html:lang(zh) :is(h1,h2,h3,h4,.serif,.disp,.eyebrow,.hd.tag),html:lang(zh) #menu
 /* zh handwriting weight boost for Xiaolai (stroke-fatten) */
 html:lang(zh) :is(h1,h2,h3,h4,.disp),html:lang(zh) #nowName{-webkit-text-stroke:1.5px currentColor}
 html:lang(zh) :is(.eyebrow,.hd.tag),html:lang(zh) #menu .nm,html:lang(zh) a.cta,html:lang(zh) .lnk{-webkit-text-stroke:.8px currentColor}
+html:lang(zh) h1 .g,html:lang(zh) h1 .g *{-webkit-text-stroke:1.5px currentColor}
