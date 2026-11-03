@@ -266,22 +266,23 @@ let t;const go=()=>{clearTimeout(t);t=setTimeout(fit,120)};addEventListener('loa
 /* Pass the site language to the order page (one language logic everywhere) */
 document.addEventListener('click',function(e){var t=e.target;var a=t&&t.closest?t.closest('a[href*="order.kkmurado.com"]'):null;if(!a)return;try{var u=new URL(a.href);var l=(document.documentElement.lang||'ja').slice(0,2);if(['ja','zh','en','ko'].indexOf(l)<0)l='ja';u.searchParams.set('lang',l);a.href=u.toString()}catch(_){}},true);
 
-/* Tap feedback v2 (overlay switch for iOS 26.5+, same helper as order page) */
-/* Tap feedback v2.
-   iOS 17.4-26.4: a programmatic switch toggle fires the Taptic tick; iOS 26.5+ only fires
-   on a REAL tap of the switch, so on iOS an invisible switch is laid over key elements and
-   the user's own tap toggles it (click still bubbles to the element). Android: vibrate. */
+/* Tap feedback v3 (leaf-only overlay, same helper as order page) */
+/* Tap feedback v3.
+   iOS: an invisible <input switch> is laid over LEAF interactive elements only, so the
+   user's real tap toggles it (fires on iOS 17.4 through 26.5+; programmatic label click
+   covers older paths). Containers with interactive children are never covered.
+   Android: navigator.vibrate. Disable with localStorage ms_haptics=0. */
 (function () {
-  if (window.__msHap2) return; window.__msHap2 = 1;
+  if (window.__msHap3) return; window.__msHap3 = 1;
   var off = false; try { off = localStorage.getItem('ms_haptics') === '0'; } catch (e) {}
   if (off) return;
-  var SEL = 'button,a.cta,.lnk,.lgbtn,.tab,.opt,.paym,.card,.go,.pill,#ptbtn,#pay,#bar';
+  var SEL = 'button,a.cta,.lnk,.lgbtn,.tab,.opt>div,.paym,.card,.go,.pill,#ptbtn,#pay,#bar';
   var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (!isIOS) {
     document.addEventListener('click', function (e) {
       var t = e.target;
-      if (t && t.closest && t.closest(SEL)) { try { navigator.vibrate && navigator.vibrate(8); } catch (err) {} }
+      if (t && t.closest && (t.closest(SEL) || t.closest('.opt'))) { try { navigator.vibrate && navigator.vibrate(8); } catch (err) {} }
     }, true);
     return;
   }
@@ -302,10 +303,11 @@ document.addEventListener('click',function(e){var t=e.target;var a=t&&t.closest?
   }
   document.addEventListener('click', function (e) {
     var t = e.target;
-    if (t && t.closest && t.closest(SEL) && !t.closest('input[switch]')) tick();
+    if (t && t.closest && (t.closest(SEL) || t.closest('.opt')) && !t.closest('input[switch]')) tick();
   }, true);
   function cover(el) {
     if (!el || el.__hapC) return; el.__hapC = 1;
+    try { if (el.querySelector('button,a,input,select,textarea,[onclick]')) return; } catch (e) {}
     try { if (getComputedStyle(el).position === 'static') el.style.position = 'relative'; } catch (e) {}
     var sw = document.createElement('input');
     sw.type = 'checkbox'; sw.setAttribute('switch', ''); sw.tabIndex = -1;
