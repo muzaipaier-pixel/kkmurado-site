@@ -701,3 +701,118 @@ html:lang(zh) body #sheet .in>a{font-family:"ZCOOL KuaiLe","M PLUS Rounded 1c",s
 html:lang(en) body #sheet .in>a{font-family:Fredoka,"M PLUS Rounded 1c",sans-serif!important;font-weight:700!important}
 html body #enjoy img.cut{max-height:200px!important;width:auto!important;max-width:100%!important;margin:0 auto;display:block}
 html body #top5 img.cut{max-height:220px!important}
+
+/* ============================================================
+   design-v2 PREVIEW overrides — 2026-11-04
+   Scope: consistency + bug fixes INSIDE the existing cute style.
+   Palette, macaron colors and deep-purple ink are NOT changed.
+   Fonts: serif headings -> the site's own rounded cute fonts.
+   ============================================================ */
+
+/* ---- Batch 1a: headings use the cute rounded fonts (per language) ---- */
+h1,h2,.xc h3,.card h3,.min,.show .now b{
+  font-family:"M PLUS Rounded 1c","Zen Maru Gothic","ZCOOL KuaiLe",Fredoka,sans-serif!important;
+  letter-spacing:.02em!important;
+}
+html:lang(zh) h1,html:lang(zh) h2,html:lang(zh) .xc h3,html:lang(zh) .card h3,html:lang(zh) .min,html:lang(zh) .show .now b{
+  font-family:"ZCOOL KuaiLe","M PLUS Rounded 1c","Zen Maru Gothic",sans-serif!important;
+  letter-spacing:.02em!important;
+}
+html:lang(en) h1,html:lang(en) h2,html:lang(en) .xc h3,html:lang(en) .card h3,html:lang(en) .min,html:lang(en) .show .now b{
+  font-family:Fredoka,"M PLUS Rounded 1c","Zen Maru Gothic",sans-serif!important;
+  letter-spacing:.01em!important;
+}
+html:lang(ja) #sheet .in>a{font-family:"M PLUS Rounded 1c","Zen Maru Gothic",sans-serif!important;letter-spacing:.02em!important}
+html:lang(zh) #sheet .in>a{font-family:"ZCOOL KuaiLe","M PLUS Rounded 1c",sans-serif!important;letter-spacing:.02em!important}
+html:lang(en) #sheet .in>a{font-family:Fredoka,"M PLUS Rounded 1c",sans-serif!important;letter-spacing:.01em!important}
+
+/* ---- Batch 1b: body font goes rounded for ja / en (zh keeps Noto Sans SC body, ZCOOL headings) ---- */
+html:lang(ja) body{font-family:"Zen Maru Gothic","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif!important}
+html:lang(en) body{font-family:Nunito,"M PLUS Rounded 1c",sans-serif!important}
+
+/* ---- Batch 1c: type scale — lift the tiniest UI text one step (11px -> 12px, 12px -> 13px) ---- */
+.xtag{font-size:12px!important}
+.lang{font-size:12px!important}
+.t5 small{font-size:12px!important}
+.show figcaption .no{font-size:12px!important}
+.mg .tg{font-size:12px!important}
+#greet .gx{font-size:12px!important}
+.mg.a .al{font-size:12px!important}
+.gm .att{font-size:12px!important}
+.wph small{font-size:12px!important}
+.wlad small{font-size:12px!important}
+nav .wrap{font-size:13px}
+footer{font-size:13px}
+.upd{font-size:13px}
+.card .tag{font-size:12.5px}
+.show figcaption small{font-size:12.5px}
+.co dd small,.info dd small{font-size:12.5px}
+
+/* ---- Batch 1d: one pill shape for every pill/button; one card radius (26px, already the site standard) ---- */
+.cta,.xbtn,.pill,.chip,.mob-cta,.lang button,#burger{border-radius:999px!important}
+.pr .c,.t5 .c{border-radius:22px!important}
+
+/* ---- Batch 1e: order-method cards — equal height, link becomes a real pill button pinned to the bottom ---- */
+.svc .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;align-items:stretch}
+.svc .card{display:flex;flex-direction:column;height:100%}
+.svc .card a.lnk{
+  margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;
+  background:#fff;border:3px solid var(--ink);border-radius:999px;padding:8px 18px;
+  font-weight:800;text-decoration:none;box-shadow:3px 3px 0 var(--ink);
+}
+.svc .card a.lnk:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+
+/* ---- Batch 2a: burger duplicates the full nav links on desktop — keep it for small screens only ---- */
+@media(min-width:1081px){html body nav #burger{display:none!important}}
+
+/* ---- Batch 2b: Live Status detail values were nearly invisible — ink color + weight ---- */
+.sts .sc .lb{color:#5a4a6a!important;font-weight:700}
+.sts .sc .v{color:var(--ink)!important;font-weight:800}
+.sts .so,.sts .ch{color:#3a2c4a!important}
+
+/* ---- Batch 2c: enjoy (おすすめの飲み方) — from wide rows to proper equal-height cards, bigger photos ---- */
+#enjoy .pr .c{display:flex;flex-direction:column;height:100%}
+#enjoy .pr .row{flex-direction:column;align-items:stretch;gap:10px}
+#enjoy .pr .row img{width:100%;aspect-ratio:4/3;object-fit:cover}
+#enjoy .pr p{flex:1}
+
+/* ---- Batch 2d: cards equal height; card buttons align at the bottom ---- */
+.xgrid{align-items:stretch}
+.xc{display:flex;flex-direction:column}
+.xc .xbtn{margin-top:auto;align-self:flex-start}
+.grv-l{align-items:stretch}
+.grv-c{height:100%}
+
+/* ---- Batch 2e: Instagram card — photo strip fills the empty right side ---- */
+.xc.ig{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;align-items:center}
+.xc.ig .xbtn{margin-top:14px}
+.ig-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ig-photos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:14px;border:2px solid var(--ink);display:block}
+@media(max-width:720px){.xc.ig{grid-template-columns:1fr}}
+
+/* ---- Batch 2f: payment card — from screenshot-in-a-box to a tight card in the site system ---- */
+.info .paybox{
+  background:#fff!important;border:3px solid var(--ink);border-radius:26px;
+  box-shadow:4px 4px 0 var(--ink);padding:18px 22px;max-width:780px;margin:0 auto;
+}
+.info .pay figcaption{text-align:center;font-weight:800;color:var(--ink);font-size:15px}
+.info .pay p{text-align:center}
+
+/* ---- Batch 2g: map — drop the grey/dark filter so the map reads bright inside its ink frame ---- */
+.info .map{filter:none!important}
+
+/* ---- design-v2 preview: Korean (ko) fonts — Jua headings (cute rounded), Gowun Dodum body ---- */
+html:lang(ko) h1,html:lang(ko) h2,html:lang(ko) .xc h3,html:lang(ko) .card h3,html:lang(ko) .min,html:lang(ko) .show .now b{
+  font-family:Jua,"M PLUS Rounded 1c",sans-serif!important;letter-spacing:0!important;font-weight:400!important;
+}
+html:lang(ko) #sheet .in>a{font-family:Jua,"M PLUS Rounded 1c",sans-serif!important}
+html:lang(ko) body{font-family:"Gowun Dodum","Noto Sans KR","M PLUS Rounded 1c",sans-serif!important}
+
+/* ---- design-v2 preview fix: services grid must override the original card spans ---- */
+.svc .cards{grid-template-columns:repeat(3,1fr)!important}
+.svc .card{grid-column:auto!important}
+@media(max-width:1000px){.svc .cards{grid-template-columns:repeat(2,1fr)!important}}
+@media(max-width:620px){.svc .cards{grid-template-columns:1fr!important}}
+
+/* KO badge */
+html:lang(ko) figure.isnew .nwtag::after{content:"✨ 신메뉴"}
