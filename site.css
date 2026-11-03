@@ -991,3 +991,7 @@ footer::before{animation:mstand-twinkle 3.2s ease-in-out infinite}
   section h2,#services .card h3,.xc h3,.hero .facts b,#status .v.num,#reviews .grv-h b,
   #menu figure .nm,#nowName,nav .lk a,.xtag,.lnk::before,a.cta::before,footer::before{animation:none}
 }
+
+/* ---- fix: facts numbers must stay block (captions sit below, not beside) ---- */
+.hero .facts b{display:block}
+.hero .facts::before{left:18px;right:18px}
