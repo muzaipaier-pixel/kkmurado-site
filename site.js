@@ -26,7 +26,7 @@ window.__tick=tick;if(R)sp.forEach(s=>s.classList.add('on'));else{addEventListen
 (()=>{const q=new URLSearchParams(location.search);const API=(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&q.get('chatapi'))||'https://order.kkmurado.com';
 const TX={ja:['こんにちは！M Stand です🧋\nご予約・まとめ注文・メニューなど、お気軽にどうぞ。','原文を表示','メッセージを入力…','送信'],zh:['你好！这里是 M Stand 🧋\n预约、批量订购、菜单等都可以咨询。','显示原文','输入消息…','发送'],en:["Hi! This is M Stand 🧋\nAsk us anything — reservations, bulk orders, the menu.",'Show original','Type a message…','Send'],ko:['안녕하세요! M Stand입니다🧋\n예약·단체 주문·메뉴 등 편하게 문의하세요.','원문 보기','메시지를 입력하세요…','보내기']};let t=TX.ja;
 const $=i=>document.getElementById(i),P=$('chatP'),B=$('chatB');const NM={ja:['お名前（任意）','閉じる','ご相談'],zh:['您的名字（选填）','关闭','咨询'],en:['Your name (optional)','Close','Chat'],ko:['이름 (선택)','닫기','상담']};
-window.__chatLang=l=>{t=TX[l]||TX.ja;$('hello').textContent=t[0];$('chatT').placeholder=t[2];$('chatF').querySelector('button').textContent=t[3];const n=NM[l]||NM.ja;$('chatN').placeholder=n[0];$('chatX').setAttribute('aria-label',n[1]);$('chatFab').setAttribute('aria-label',n[2]);P.setAttribute('aria-label',n[2]);document.querySelectorAll('#chatB .tg').forEach(b=>b.textContent=t[1])};__chatLang(curLang());
+window.__chatLang=l=>{t=TX[l]||TX.ja;$('hello').textContent=t[0];$('chatT').placeholder=t[2];$('chatF').querySelector('button').textContent=t[3];const n=NM[l]||NM.ja;$('chatN').placeholder=n[0];$('chatN').setAttribute('aria-label',n[0]);$('chatT').setAttribute('aria-label',t[2]);$('chatX').setAttribute('aria-label',n[1]);$('chatFab').setAttribute('aria-label',n[2]);P.setAttribute('aria-label',n[2]);document.querySelectorAll('#chatB .tg').forEach(b=>b.textContent=t[1])};__chatLang(curLang());
 let S={};try{S=JSON.parse(localStorage.msChat||'{}')}catch(e){}let since=0,seen=new Set(),tm=null;
 const add=m=>{const k=m.at+m.f;if(seen.has(k))return;seen.add(k);const d=document.createElement('div');d.className='mg '+m.f;d.textContent=m.t;
  if(m.orig){const b=document.createElement('button');b.type='button';b.className='tg';b.textContent=t[1];const o=document.createElement('div');o.className='og';o.textContent=m.orig;b.onclick=()=>d.classList.toggle('so');d.append(b,o)}
@@ -127,7 +127,7 @@ const hideG=()=>{g.hidden=true;try{sessionStorage.msGreetX='1'}catch(e){}};
 if(!gx&&!q.has('nogreet'))setTimeout(()=>{if(!document.getElementById('chatP').classList.contains('open'))g.hidden=false},q.has('greetnow')?300:4000);
 $('greetX').onclick=e=>{e.stopPropagation();hideG()};g.onclick=()=>{hideG();__chatOpen(true)};fab.addEventListener('click',hideG);
 // ---- nav: chat links, mobile sheet, active section
-const sh=$('sheet'),bg=$('burger');const tog=o=>{sh.classList.toggle('open',o);bg.setAttribute('aria-expanded',o);sh.setAttribute('aria-hidden',!o);document.body.style.overflow=o?'hidden':'';if(o)g.hidden=true};
+const sh=$('sheet'),bg=$('burger');const tog=o=>{sh.classList.toggle('open',o);bg.setAttribute('aria-expanded',o);sh.setAttribute('aria-hidden',!o);sh.inert=!o;document.body.style.overflow=o?'hidden':'';if(o)g.hidden=true};
 bg.onclick=()=>tog(!sh.classList.contains('open'));
 document.querySelectorAll('a.navchat').forEach(a=>a.onclick=e=>{e.preventDefault();tog(false);hideG();__chatOpen(true)});
 sh.querySelectorAll('.in>a:not(.navchat)').forEach(a=>a.addEventListener('click',()=>tog(false)));
@@ -156,7 +156,7 @@ function collect(){it=[...el.children].filter(c=>c!==d);n=it.length;it.forEach(c
 function measure(){if(!n)return;cw=it[0].offsetWidth||cw;sp=Math.min(cw*.62,innerWidth*.3);let h=0;it.forEach(c=>{if(c.style.display!=='none')h=Math.max(h,c.offsetHeight)});if(h)el.style.height=(h+48)+'px'}
 function paint(f){for(let i=0;i<n;i++){const c=it[i],o=wrap(i-f),a=Math.abs(o);
  if(a>3){if(c._far!==1){c._far=1;c.style.display='none';c.classList.remove('wc')}continue}
- if(c._far!==0){c._far=0;c.style.display='';const im=c.querySelector('img[data-src]');if(im){im.src=im.dataset.src;im.removeAttribute('data-src')}}
+ if(c._far!==0){c._far=0;c.style.display=''}
  c.classList.toggle('wc',a<2.5);
  c.style.transform=`translateX(-50%) translate3d(${(o*sp).toFixed(1)}px,0,${(-a*170).toFixed(0)}px) rotateY(${(-Math.max(-1,Math.min(1,o))*(R?0:38)).toFixed(1)}deg) scale(${(1-Math.min(a,2)*.06).toFixed(3)})`;
  c.style.opacity=a>2.2?0:(1-Math.min(a,2)*.22).toFixed(3);c.style.zIndex=100-Math.round(a*10);c.classList.toggle('front',a<.5)}}
@@ -350,7 +350,7 @@ if(flags.eyes!==false&&cups&&!RM){
   const look=()=>{pairs.forEach(p=>{p.el.querySelectorAll('.eye i').forEach(pu=>{const r=pu.parentElement.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;const dx=px-cx,dy=py-cy,d=Math.hypot(dx,dy)||1,m=Math.min(4.6,d/14);pu.style.transform='translate('+(dx/d*m)+'px,'+(dy/d*m)+'px)'})})};
   addEventListener('pointermove',e=>{px=e.clientX;py=e.clientY;last=Date.now();look()},{passive:true});
   addEventListener('touchmove',e=>{if(e.touches[0]){px=e.touches[0].clientX;py=e.touches[0].clientY;last=Date.now();look()}},{passive:true});
-  setInterval(()=>{if(Date.now()-last>2600){px=innerWidth*(0.2+Math.random()*0.6);py=140+Math.random()*300;look()}},2400);
+  setInterval(()=>{if(document.hidden)return;if(Date.now()-last>2600){px=innerWidth*(0.2+Math.random()*0.6);py=140+Math.random()*300;look()}},2400);
   look();
 }
 /* language hint bubble */
@@ -428,7 +428,7 @@ let px=innerWidth/2,py=210,last=Date.now();
 const look=()=>{pupils.forEach(pu=>{const r=pu.parentElement.getBoundingClientRect();if(!r.width)return;const cx=r.left+r.width/2,cy=r.top+r.height/2,dx=px-cx,dy=py-cy,d=Math.hypot(dx,dy)||1,m=Math.min(4.6,d/14);pu.style.transform='translate('+(dx/d*m)+'px,'+(dy/d*m)+'px)'})};
 addEventListener('pointermove',e=>{px=e.clientX;py=e.clientY;last=Date.now();look()},{passive:true});
 addEventListener('touchmove',e=>{if(e.touches[0]){px=e.touches[0].clientX;py=e.touches[0].clientY;last=Date.now();look()}},{passive:true});
-setInterval(()=>{if(Date.now()-last>2600){px=innerWidth*(0.2+Math.random()*0.6);py=140+Math.random()*320;look()}},2400);
+setInterval(()=>{if(document.hidden)return;if(Date.now()-last>2600){px=innerWidth*(0.2+Math.random()*0.6);py=140+Math.random()*320;look()}},2400);
 look()}
 function spark(fr,n){for(let i=0;i<n;i++){const s=document.createElement('span');s.className='spark'+(n>1?(i===0?' s2':' s3'):'');s.textContent='✦';fr.appendChild(s);setTimeout(()=>{s.remove()},730)}}
 /* ---- long-press inflate + explosion ---- */
