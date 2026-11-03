@@ -1007,3 +1007,13 @@ html:lang(zh) h1 .g,html:lang(zh) h1 .g *{-webkit-text-stroke:1.5px currentColor
 
 /* Prepaid card surfaces are clickable to the purchase page */
 [data-gift],[data-loyal]{cursor:pointer}
+
+/* Header fit for tablets (2026-11-04): no wrapping in the top bar; nav links hand over to the burger menu below 1151px; burger hides on wide screens */
+nav .wrap{flex-wrap:nowrap}
+nav .lk{flex-wrap:nowrap}
+nav .lk a{white-space:nowrap}
+nav .lang{flex-wrap:nowrap;flex:none}
+nav .lang button{white-space:nowrap}
+nav .cta{white-space:nowrap;flex:none}
+@media(max-width:1150px){nav .lk{display:none!important}}
+@media(min-width:1151px){#burger{display:none!important}}
