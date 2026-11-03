@@ -266,32 +266,59 @@ let t;const go=()=>{clearTimeout(t);t=setTimeout(fit,120)};addEventListener('loa
 /* Pass the site language to the order page (one language logic everywhere) */
 document.addEventListener('click',function(e){var t=e.target;var a=t&&t.closest?t.closest('a[href*="order.kkmurado.com"]'):null;if(!a)return;try{var u=new URL(a.href);var l=(document.documentElement.lang||'ja').slice(0,2);if(['ja','zh','en','ko'].indexOf(l)<0)l='ja';u.searchParams.set('lang',l);a.href=u.toString()}catch(_){}},true);
 
-/* Tap feedback: iOS switch tick / Android vibrate on key elements (same helper as the order page) */
-/* Tap feedback: iOS gets the system switch tick, Android vibrates briefly, elsewhere a no-op.
-   Fires only on key interactive elements. Disable with localStorage ms_haptics=0. */
+/* Tap feedback v2 (overlay switch for iOS 26.5+, same helper as order page) */
+/* Tap feedback v2.
+   iOS 17.4-26.4: a programmatic switch toggle fires the Taptic tick; iOS 26.5+ only fires
+   on a REAL tap of the switch, so on iOS an invisible switch is laid over key elements and
+   the user's own tap toggles it (click still bubbles to the element). Android: vibrate. */
 (function () {
-  if (window.__msHap) return; window.__msHap = 1;
+  if (window.__msHap2) return; window.__msHap2 = 1;
   var off = false; try { off = localStorage.getItem('ms_haptics') === '0'; } catch (e) {}
   if (off) return;
-  var lab = null;
-  function ensure() {
-    if (lab) return lab;
-    lab = document.createElement('label');
-    lab.setAttribute('aria-hidden', 'true');
-    lab.style.cssText = 'position:fixed;right:0;bottom:0;width:2px;height:2px;opacity:0;overflow:hidden;pointer-events:none;z-index:-1';
-    var sw = document.createElement('input');
-    sw.type = 'checkbox'; sw.setAttribute('switch', ''); sw.tabIndex = -1;
-    sw.style.cssText = 'width:1px;height:1px;opacity:0';
-    lab.appendChild(sw); document.body.appendChild(lab);
-    return lab;
-  }
-  window.MS_HAP = function () {
-    try { if (navigator.vibrate) { navigator.vibrate(8); return; } } catch (e) {}
-    try { ensure().click(); } catch (e) {}
-  };
   var SEL = 'button,a.cta,.lnk,.lgbtn,.tab,.opt,.paym,.card,.go,.pill,#ptbtn,#pay,#bar';
+  var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (!isIOS) {
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t && t.closest && t.closest(SEL)) { try { navigator.vibrate && navigator.vibrate(8); } catch (err) {} }
+    }, true);
+    return;
+  }
+  var lab = null;
+  function tick() {
+    try {
+      if (!lab) {
+        lab = document.createElement('label');
+        lab.setAttribute('aria-hidden', 'true');
+        lab.style.cssText = 'position:fixed;right:0;bottom:0;width:2px;height:2px;opacity:0;overflow:hidden;pointer-events:none;z-index:-1';
+        var s = document.createElement('input');
+        s.type = 'checkbox'; s.setAttribute('switch', ''); s.tabIndex = -1;
+        s.style.cssText = 'width:1px;height:1px;opacity:0';
+        lab.appendChild(s); document.body.appendChild(lab);
+      }
+      lab.click();
+    } catch (e) {}
+  }
   document.addEventListener('click', function (e) {
     var t = e.target;
-    if (t && t.closest && t.closest(SEL)) MS_HAP();
+    if (t && t.closest && t.closest(SEL) && !t.closest('input[switch]')) tick();
   }, true);
+  function cover(el) {
+    if (!el || el.__hapC) return; el.__hapC = 1;
+    try { if (getComputedStyle(el).position === 'static') el.style.position = 'relative'; } catch (e) {}
+    var sw = document.createElement('input');
+    sw.type = 'checkbox'; sw.setAttribute('switch', ''); sw.tabIndex = -1;
+    sw.setAttribute('aria-hidden', 'true');
+    sw.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;z-index:5;-webkit-tap-highlight-color:transparent';
+    el.appendChild(sw);
+  }
+  var scanning = false;
+  function scan() {
+    if (scanning) return; scanning = true;
+    try { document.querySelectorAll(SEL).forEach(cover); } catch (e) {}
+    scanning = false;
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scan); else scan();
+  try { new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
 })();
