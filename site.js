@@ -265,3 +265,33 @@ let t;const go=()=>{clearTimeout(t);t=setTimeout(fit,120)};addEventListener('loa
 
 /* Pass the site language to the order page (one language logic everywhere) */
 document.addEventListener('click',function(e){var t=e.target;var a=t&&t.closest?t.closest('a[href*="order.kkmurado.com"]'):null;if(!a)return;try{var u=new URL(a.href);var l=(document.documentElement.lang||'ja').slice(0,2);if(['ja','zh','en','ko'].indexOf(l)<0)l='ja';u.searchParams.set('lang',l);a.href=u.toString()}catch(_){}},true);
+
+/* Tap feedback: iOS switch tick / Android vibrate on key elements (same helper as the order page) */
+/* Tap feedback: iOS gets the system switch tick, Android vibrates briefly, elsewhere a no-op.
+   Fires only on key interactive elements. Disable with localStorage ms_haptics=0. */
+(function () {
+  if (window.__msHap) return; window.__msHap = 1;
+  var off = false; try { off = localStorage.getItem('ms_haptics') === '0'; } catch (e) {}
+  if (off) return;
+  var lab = null;
+  function ensure() {
+    if (lab) return lab;
+    lab = document.createElement('label');
+    lab.setAttribute('aria-hidden', 'true');
+    lab.style.cssText = 'position:fixed;right:0;bottom:0;width:2px;height:2px;opacity:0;overflow:hidden;pointer-events:none;z-index:-1';
+    var sw = document.createElement('input');
+    sw.type = 'checkbox'; sw.setAttribute('switch', ''); sw.tabIndex = -1;
+    sw.style.cssText = 'width:1px;height:1px;opacity:0';
+    lab.appendChild(sw); document.body.appendChild(lab);
+    return lab;
+  }
+  window.MS_HAP = function () {
+    try { if (navigator.vibrate) { navigator.vibrate(8); return; } } catch (e) {}
+    try { ensure().click(); } catch (e) {}
+  };
+  var SEL = 'button,a.cta,.lnk,.lgbtn,.tab,.opt,.paym,.card,.go,.pill,#ptbtn,#pay,#bar';
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t && t.closest && t.closest(SEL)) MS_HAP();
+  }, true);
+})();
