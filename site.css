@@ -816,3 +816,14 @@ html:lang(ko) body{font-family:"Gowun Dodum","Noto Sans KR","M PLUS Rounded 1c",
 
 /* KO badge */
 html:lang(ko) figure.isnew .nwtag::after{content:"✨ 신메뉴"}
+
+/* ---- small animations only (owner approved 2026-11-04: motion, no visual changes) ----
+   Hero title chunks gently float; the pink accent line gently bobs. */
+.hero h1 .nw{display:inline-block;animation:mstand-float 3.4s ease-in-out infinite}
+.hero h1 .nw:nth-child(2){animation-delay:.55s}
+@keyframes mstand-float{0%,100%{transform:rotate(-.8deg) translateY(0)}50%{transform:rotate(.6deg) translateY(-4px)}}
+.hero h1 .g{display:inline-block;animation:mstand-bob 2.8s ease-in-out infinite alternate}
+@keyframes mstand-bob{from{transform:rotate(-1.6deg) translateY(0)}to{transform:rotate(-1.1deg) translateY(-5px)}}
+@media (prefers-reduced-motion: reduce){
+  .hero h1 .nw,.hero h1 .g{animation:none}
+}
