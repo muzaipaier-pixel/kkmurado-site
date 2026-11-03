@@ -328,10 +328,13 @@ document.addEventListener('click',function(e){var t=e.target;var a=t&&t.closest?
 /* Prepaid card surfaces -> Square gift purchase page */
 document.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)return;if(t.closest('a,button'))return;if(t.closest('[data-gift]')){window.open('https://app.squareup.com/gift/MLP8SFCN6960P/order','_blank','noopener')}else if(t.closest('[data-loyal]')){window.open('https://app.squareup.com/loyalty/MLP8SFCN6960P','_blank','noopener')}},true);
 
-/* Googly eyes + language hint (preview build) */
-(()=>{const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* Googly eyes + language hint (preview build) -- GATED (control-panel build):
+   the body no longer runs immediately; it is assigned to window.__startEyesBubble
+   and started by the site-content module appended at the end of this file,
+   honouring flags {bubble, eyes} (defaults: both on). */
+window.__startEyesBubble=function(flags){flags=flags||{};const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const cups=document.querySelector('.cups');
-if(cups&&!RM){
+if(flags.eyes!==false&&cups&&!RM){
   const pairs=[];
   const place=()=>{pairs.forEach(p=>{const r=p.img.getBoundingClientRect(),w=cups.getBoundingClientRect();p.el.style.left=(r.left-w.left+r.width/2)+'px';p.el.style.top=(r.top-w.top+r.height*.34)+'px'})};
   cups.querySelectorAll('img').forEach((img,k)=>{
@@ -351,7 +354,7 @@ if(cups&&!RM){
 }
 /* language hint bubble */
 const el=document.getElementById('lhint');
-if(el){
+if(flags.bubble!==false&&el){
   const T={ja:'言語の切り替えはココだよ！',zh:'切换语言在这里哦！',en:'Switch language here!',ko:'언어 전환은 여기예요!'};
   let seen=false;try{seen=!!localStorage.getItem('ms_lh_site')}catch(e){}
   if(!seen){
@@ -373,7 +376,7 @@ if(el){
     document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.lang button,#burger'))hide(true)},true);
   }
 }
-})();
+};
 
 /* Fruit characters: opening + scatter + googly eyes (preview build) */
 (()=>{const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -434,4 +437,127 @@ fr.style.transition='transform .78s cubic-bezier(.45,-.05,.3,1)';fr.style.transf
 setTimeout(()=>{clearFlight(fr);placeInSlot(fr)},810+i*45)})}
 intro.addEventListener('click',scatter);
 setTimeout(scatter,2150);
+})();
+
+/* ===== Control-panel site content (appended module) =====
+   Fetches /api/site/content from the queue app and, ONLY on success:
+   - re-renders the #news picks grid from picks[]
+   - shows a dismissible announcement bar from notice
+   - starts the gated eyes/bubble via window.__startEyesBubble honouring flags
+   On ANY failure/invalid data: does nothing at all (static page stays exactly
+   as-is; eyes/bubble are started with defaults by the 900ms timer below).
+   API base: ?api= override; localhost -> http://localhost:8899;
+   otherwise https://order.kkmurado.com (same convention as other modules). */
+(function(){
+  var DEFAULT_FLAGS={bubble:true,eyes:true};
+  var started=false;
+  function startEyesBubble(flags){
+    if(started)return;started=true;
+    try{if(typeof window.__startEyesBubble==='function')window.__startEyesBubble(flags||DEFAULT_FLAGS);}catch(e){}
+  }
+  /* flags must resolve fast; after 900ms fall back to defaults (both on) */
+  var flagTimer=setTimeout(function(){startEyesBubble(DEFAULT_FLAGS);},900);
+
+  function apiBase(){
+    try{var q=new URLSearchParams(location.search).get('api');if(q)return q.replace(/\/+$/,'');}catch(e){}
+    var h=location.hostname;
+    if(h==='localhost'||h==='127.0.0.1')return 'http://localhost:8899';
+    return 'https://order.kkmurado.com';
+  }
+  var API=apiBase();
+
+  function lang(){
+    if(typeof window.curLang==='function'){try{return window.curLang();}catch(e){}}
+    return (document.documentElement.lang||'ja').slice(0,2);
+  }
+  var IX={ja:0,zh:1,en:2,ko:3};
+  var ID2PK={
+    'LC3N5VCAXVLZPG5G7C3OSPPS':'pk1',
+    'FACTRGBWXKSU3ABNN3ZCUQCA':'pk2',
+    'OOLXSGGZBD5WZ6WCIQJ2M6AT':'pk3',
+    'DF5RR3YVHUHO25CHQVA72LJH':'pk4',
+    '7ZZVZTEDKLJCP6KI2UT2OGCV':'pk5'
+  };
+  function dictText(key,l){
+    try{
+      var d=window.I18N&&window.I18N[key];
+      if(!d)return '';
+      var v=d[IX[l]!=null?IX[l]:0];
+      return v||d[0]||'';
+    }catch(e){return '';}
+  }
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  var DATA=null;
+
+  function pickDesc(p,l){
+    var d=p.desc||{};
+    if(d[l])return d[l];
+    var pk=ID2PK[p.id];
+    if(pk){var s=dictText(pk+'p',l);if(s)return s;}
+    return d.ja||'';
+  }
+  function renderPicks(){
+    if(!DATA||!Array.isArray(DATA.picks)||!DATA.picks.length)return;
+    var grid=null;
+    document.querySelectorAll('.xgrid').forEach(function(g){if(!grid&&g.querySelector('.xc.pk'))grid=g;});
+    if(!grid){var cfx=document.querySelector('#news .xgrid');if(cfx)grid=cfx;} /* coverflow fallback: if the carousel already moved/emptied the static cards, render into the carousel container itself; its MutationObserver re-layouts the new cards */
+    if(!grid)return;
+    var tagEl=grid.querySelector('.xc.pk .xtag');
+    var tag=tagEl?tagEl.textContent:'NOVEMBER';
+    var l=lang();
+    var btn=dictText('pkb',l)||'スマホで注文';
+    var keepCf=grid.querySelector('.cfd');
+    grid.innerHTML=DATA.picks.map(function(p){
+      var nm=(p.name&&(p.name[l]||p.name.ja))||'';
+      return '<div class="xc pk"><span class="xtag">'+esc(tag)+'</span>'
+        +(p.img?'<img src="'+esc(p.img)+'" alt="'+esc(nm)+'" loading="lazy">':'')
+        +'<h3>'+esc(nm)+'</h3><p>'+esc(pickDesc(p,l))+'</p>'
+        +'<a class="xbtn" href="https://order.kkmurado.com/?item='+encodeURIComponent(p.id)+'">'+esc(btn)+'</a></div>';
+    }).join('');
+    if(keepCf)grid.appendChild(keepCf); /* keep the carousel pagination node alive across the re-render (the coverflow module owns it) */
+  }
+
+  function renderNotice(){
+    var old=document.getElementById('msNotice');
+    if(old)old.remove();
+    if(!DATA||!DATA.notice)return;
+    var l=lang();
+    var txt=DATA.notice[l]||DATA.notice.ja||'';
+    if(!txt)return;
+    try{if(sessionStorage.getItem('ms_notice_off')==='1')return;}catch(e){}
+    var hero=document.querySelector('.hero');
+    if(!hero)return;
+    var bar=document.createElement('div');
+    bar.id='msNotice';bar.className='ms-notice';
+    bar.innerHTML='<span class="ms-notice-tx"></span><button type="button" class="ms-notice-x" aria-label="close">×</button>';
+    bar.querySelector('.ms-notice-tx').textContent=txt;
+    bar.querySelector('.ms-notice-x').addEventListener('click',function(){
+      bar.remove();
+      try{sessionStorage.setItem('ms_notice_off','1');}catch(e){}
+    });
+    hero.insertBefore(bar,hero.firstChild);
+  }
+
+  function renderAll(){renderPicks();renderNotice();}
+
+  var ctrl=('AbortController' in window)?new AbortController():null;
+  var to=setTimeout(function(){try{ctrl&&ctrl.abort();}catch(e){}},1500);
+  fetch(API+'/api/site/content',ctrl?{signal:ctrl.signal}:undefined).then(function(r){
+    clearTimeout(to);
+    if(!r.ok)throw new Error('http '+r.status);
+    return r.json();
+  }).then(function(d){
+    if(!d||typeof d!=='object')throw new Error('invalid');
+    DATA=d;
+    var fl=d.flags||{};
+    clearTimeout(flagTimer);
+    startEyesBubble({bubble:fl.bubble!==false,eyes:fl.eyes!==false});
+    renderAll();
+    if(window.__relang)window.__relang.push(function(){renderAll();});
+  }).catch(function(){
+    /* total fallback: static page untouched; eyes/bubble start with defaults
+       via the 900ms flagTimer above. */
+    clearTimeout(to);
+  });
 })();
