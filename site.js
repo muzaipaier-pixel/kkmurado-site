@@ -751,3 +751,41 @@ scatterTimer=setTimeout(scatter,4700);
     clearTimeout(to);
   });
 })();
+
+/* Website stats beacon (self-hosted; appended module, touches nothing else):
+   one "view" per page open + clicks on key outbound links, counted as daily
+   aggregates by POST /api/track on the shop's own app. No cookies, no ids,
+   no personal data. Silent on failure, never blocks navigation. */
+(function(){try{
+  var EP='https://order.kkmurado.com/api/track';
+  var LANGS=['ja','zh','en','ko'];
+  function lang(){try{var l=(document.documentElement.lang||'ja').slice(0,2);return LANGS.indexOf(l)>=0?l:'ja';}catch(e){return 'ja';}}
+  function send(t,k){
+    try{
+      var d=JSON.stringify({t:t,k:k||'',lang:lang()});
+      /* text/plain blob keeps the cross-origin beacon a "simple request"
+         (no CORS preflight); the server parses the JSON body as-is. */
+      if(navigator.sendBeacon&&navigator.sendBeacon(EP,new Blob([d],{type:'text/plain;charset=UTF-8'})))return;
+      fetch(EP,{method:'POST',body:d,mode:'no-cors',keepalive:true}).catch(function(){});
+    }catch(e){}
+  }
+  send('view','');
+  document.addEventListener('click',function(e){
+    try{
+      /* The iOS haptics module answers a tap on a covered link with a second,
+         synthetic click on its hidden switch input inside the same link.
+         That echo is not another click — never count it. */
+      if(e.target&&e.target.closest&&e.target.closest('input[switch]'))return;
+      var a=e.target&&e.target.closest?e.target.closest('a'):null;
+      if(!a)return;
+      var h=a.getAttribute('href')||'';
+      var k='';
+      if(h.indexOf('tel:')===0)k='tel';
+      else if(h.indexOf('squareup.com/gift')>=0)k='gift';
+      else if(h.indexOf('ubereats.com')>=0)k='uber';
+      else if(h.indexOf('instagram.com')>=0)k='instagram';
+      else if(h.indexOf('order.kkmurado.com')>=0||h.indexOf('square.site')>=0)k='order';
+      if(k)send('click',k);
+    }catch(err){}
+  },true);
+}catch(e){}})();
