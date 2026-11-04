@@ -1174,3 +1174,6 @@ footer::before{content:none}
 @keyframes fdbob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}}
 .flg{width:19px;height:14px;object-fit:cover;border-radius:3px;margin-right:5px;vertical-align:-2px;box-shadow:0 0 0 1px rgba(43,29,58,.28)}
 @media(max-width:600px){.flg{width:15px;height:11px;margin-right:3px}}
+
+/* Transparent icons (2026-11-05 batch 3): remove tile chrome, artwork carries its own shadow */
+.card .ic img,.qsteps .ico img,.wlink .ic img,.fdeco img{border-radius:0;box-shadow:none}
