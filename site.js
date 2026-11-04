@@ -337,7 +337,7 @@ document.addEventListener('click',function(e){var t=e.target;var a=t&&t.closest?
   if (window.__msHap3) return; window.__msHap3 = 1;
   var off = false; try { off = localStorage.getItem('ms_haptics') === '0'; } catch (e) {}
   if (off) return;
-  var SEL = 'button,a.cta,.lnk,.lgbtn,.tab,.opt>div,.paym,.card,.go,.pill,#ptbtn,#pay,#bar';
+  var SEL = 'button,a.cta,.xbtn,.lnk,.lgbtn,.tab,.opt>div,.paym,.card,.go,.pill,#ptbtn,#pay,#bar';
   var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (!isIOS) {
@@ -364,17 +364,38 @@ document.addEventListener('click',function(e){var t=e.target;var a=t&&t.closest?
   }
   document.addEventListener('click', function (e) {
     var t = e.target;
-    if (t && t.closest && (t.closest(SEL) || t.closest('.opt')) && !t.closest('input[switch]')) tick();
+    if (t && t.closest && (t.closest(SEL) || t.closest('.opt')) && !t.closest('input[switch]')) {
+      var h = t.closest('a,button,[onclick]');
+      if (h && h.__hapSw) return; /* a native host toggles its own switch */
+      tick();
+    }
   }, true);
   function cover(el) {
     if (!el || el.__hapC) return; el.__hapC = 1;
-    try { if (el.tagName === 'A' || el.tagName === 'BUTTON' || el.hasAttribute('onclick')) return; } catch (e) {}
+    var native = false;
+    try { native = (el.tagName === 'A' || el.tagName === 'BUTTON' || el.hasAttribute('onclick')); } catch (e) {}
     try { if (el.querySelector('button,a,input,select,textarea,[onclick]')) return; } catch (e) {}
     try { if (getComputedStyle(el).position === 'static') el.style.position = 'relative'; } catch (e) {}
     var sw = document.createElement('input');
     sw.type = 'checkbox'; sw.setAttribute('switch', ''); sw.tabIndex = -1;
     sw.setAttribute('aria-hidden', 'true');
-    sw.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;z-index:5;-webkit-tap-highlight-color:transparent';
+    if (native) {
+      /* Native links/buttons: the real tap must reach the host itself (a cover
+         that takes the tap fires the haptic but swallows navigation — the bug
+         fixed 2026-11-04; skipping the cover entirely left only the synthetic
+         label-click tick, which does not buzz on current iOS). So the switch
+         rides along pointer-events:none and is toggled from the host's own
+         pointerdown — inside the genuine user gesture, on the element itself —
+         while the tap itself proceeds to the host untouched. The click
+         fallback covers keyboard activation (no pointerdown). */
+      sw.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;z-index:5;pointer-events:none;-webkit-tap-highlight-color:transparent';
+      sw.addEventListener('click', function (e) { e.stopPropagation(); });
+      el.__hapSw = sw; el.__hapT = 0;
+      el.addEventListener('pointerdown', function () { el.__hapT = Date.now(); try { sw.click(); } catch (err) {} }, { passive: true });
+      el.addEventListener('click', function () { if (Date.now() - el.__hapT > 600) { try { sw.click(); } catch (err) {} } });
+    } else {
+      sw.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;z-index:5;-webkit-tap-highlight-color:transparent';
+    }
     el.appendChild(sw);
   }
   var scanning = false;
@@ -398,12 +419,26 @@ window.__startEyesBubble=function(flags){flags=flags||{};const RM=matchMedia('(p
 const cups=document.querySelector('.cups');
 if(flags.eyes!==false&&cups&&!RM){
   const pairs=[];
-  const place=()=>{pairs.forEach(p=>{const r=p.img.getBoundingClientRect(),w=cups.getBoundingClientRect();p.el.style.left=(r.left-w.left+r.width/2)+'px';p.el.style.top=(r.top-w.top+r.height*.34)+'px'})};
+  /* Anchor on the cup's own (tilted) axis from layout geometry — NOT the live
+     bounding box: the bbox is inflated by the tilt and contaminated by
+     whichever bob phase the cup is in when sampled, which left the pairs
+     systematically off-centre (worst on the most-tilted cups) and drifting
+     ±8px as the cups bobbed. The pair then rides the cup's own bob animation
+     (same name/duration/timing/delay/--r), centred via negative margins so
+     the animation's transform stays free to move it. */
+  const place=()=>{pairs.forEach(p=>{const img=p.img,cs=getComputedStyle(img),r=parseFloat((cs.getPropertyValue('--r')||'0').replace('deg',''))||0,rad=r*Math.PI/180,cx=img.offsetLeft+img.offsetWidth/2,cy=img.offsetTop+img.offsetHeight/2,dy=(0.34-0.5)*img.offsetHeight;p.el.style.left=(cx-dy*Math.sin(rad))+'px';p.el.style.top=(cy+dy*Math.cos(rad))+'px'})};
+  const ride=p=>{const cs=getComputedStyle(p.img);if(cs.animationName.indexOf('bob')<0)return;const ge=p.el;ge.style.transform='none';ge.style.marginLeft=(-ge.offsetWidth/2)+'px';ge.style.marginTop=(-ge.offsetHeight/2)+'px';ge.style.setProperty('--r',cs.getPropertyValue('--r'));ge.style.animationName=cs.animationName;ge.style.animationDuration=cs.animationDuration;ge.style.animationTimingFunction=cs.animationTimingFunction;ge.style.animationIterationCount=cs.animationIterationCount;ge.style.animationDelay=cs.animationDelay;
+    /* Phase-lock to the cup: a copied delay alone leaves the pair bobbing out
+       of phase (its animation starts when this code runs, the cup's at parse
+       time), so copy the cup animation's current local time via WAAPI. */
+    const sync=()=>{try{const ia=(p.img.getAnimations?p.img.getAnimations():[]).filter(a=>a.animationName==='bob')[0];const ga=(ge.getAnimations?ge.getAnimations():[]).filter(a=>a.animationName==='bob')[0];if(ia&&ga&&ia.currentTime!=null)ga.currentTime=ia.currentTime}catch(e){}};
+    sync();requestAnimationFrame(sync)};
   cups.querySelectorAll('img').forEach((img,k)=>{
     const ge=document.createElement('span');ge.className='ge'+(k===1||k===2?' big':'');
     ge.innerHTML='<span class="eye"><i></i></span><span class="eye"><i></i></span>';
     ge.querySelectorAll('.eye')[1].style.animationDelay=(k*0.7)+'s';
-    cups.appendChild(ge);pairs.push({img,el:ge});
+    cups.appendChild(ge);const pr={img,el:ge};pairs.push(pr);ride(pr);
+    img.addEventListener('load',()=>{ride(pr);place()});
   });
   if(getComputedStyle(cups).position==='static')cups.style.position='relative';
   place();addEventListener('resize',place);addEventListener('load',place);setTimeout(place,600);setTimeout(place,1800);
@@ -579,6 +614,12 @@ const cluster=document.createElement('div');cluster.className='frCluster';
 fruits.forEach((fr,i)=>{const c=CLUSTER[i];fr.style.left=c.left+'px';fr.style.top=c.top+'px';setW(fr,c.w);fr.classList.add('frIn');fr.style.animationDelay=(0.15+i*0.12)+'s';cluster.appendChild(fr)});
 const cap=document.createElement('div');cap.className='frCap';cap.textContent='M Stand';cluster.appendChild(cap);
 intro.appendChild(cluster);document.body.appendChild(intro);
+/* Centre on the VISUAL viewport: position:fixed inset:0 sizes the overlay to
+   the initial containing block, which on iOS Safari is taller than the visible
+   area while the URL toolbar is up — the formation then sits too low. Sync the
+   box to visualViewport and keep it synced as the toolbar collapses. */
+const fitIntro=()=>{const vv=window.visualViewport;if(!vv||!intro.isConnected)return;intro.style.left=vv.offsetLeft+'px';intro.style.top=vv.offsetTop+'px';intro.style.width=vv.width+'px';intro.style.height=vv.height+'px'};
+if(window.visualViewport){fitIntro();visualViewport.addEventListener('resize',fitIntro);visualViewport.addEventListener('scroll',fitIntro)}
 bindLook();startLife();
 let scattered=false,scatterTimer=0;
 function scatter(){if(scattered)return;scattered=true;clearTimeout(scatterTimer);intro.classList.add('off');setTimeout(()=>{intro.remove()},560);
