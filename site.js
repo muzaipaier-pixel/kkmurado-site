@@ -988,3 +988,24 @@ function idleLoop(){
 if(!RM)setTimeout(idleLoop,rnd(3000,5000));
 window.__juiceDebug={tier:tier,counts:function(){return{drops:drops.length,splats:splats.length,drips:drips.length,dripsTotal:dripsTotal,fx:fx.length,running:running}}};
 }catch(e){}})();
+
+/* Icon blink (2026-11-05): icons with a -c (closed-eyes) variant blink at random offsets */
+(function(){try{
+if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+var imgs=[].slice.call(document.querySelectorAll('img[src*="icons/"]')).filter(function(i){return !i.classList.contains('flg')});
+imgs.forEach(function(img){
+ var open=img.getAttribute('src');if(!open||/-c\.png/.test(open))return;
+ var closed=open.replace(/\.png$/,'-c.png'),pre=new Image();
+ pre.onload=function(){
+  var period=2800+Math.random()*3400;
+  function tick(){
+   if(!img.isConnected||document.hidden)return;
+   var r=img.getBoundingClientRect();
+   if(r.bottom<-40||r.top>innerHeight+40)return;
+   img.src=closed;setTimeout(function(){img.src=open},170);
+  }
+  setTimeout(function(){tick();setInterval(tick,period)},Math.random()*period);
+ };
+ pre.src=closed;
+});
+}catch(e){}})();
