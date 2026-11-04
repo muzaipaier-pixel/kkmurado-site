@@ -53,11 +53,35 @@ const TX={ja:{open:'営業中',preparing:'準備中',paused:'ただいま一時�
  zh:{open:'营业中',preparing:'准备中',paused:'暂停营业中',closed:'非营业时间',hours:'营业时间 17:00–次日2:00',busy:{low:'人少',mid:'稍忙',high:'繁忙'},wait:m=>m?`预计等待 约${m}分钟`:'基本无需等待',sold:'已售罄：',sep:'、'},
  en:{open:'Open now',preparing:'Getting ready',paused:'Temporarily paused',closed:'Closed now',hours:'Open daily 5 pm – 2 am',busy:{low:'Not busy',mid:'A little busy',high:'Busy'},wait:m=>m?`Wait about ${m} min`:'Little to no wait',sold:'Sold out: ',sep:', '},ko:{open:'영업 중',preparing:'준비 중',paused:'잠시 쉬는 중',closed:'영업시간 외',hours:'영업시간 17:00~다음 날 2:00',busy:{low:'한산해요',mid:'조금 붐벼요',high:'붐벼요'},wait:m=>m?`대기 시간 약 ${m}분`:'대기 시간 거의 없음',sold:'품절: ',sep:', '}};
 let ST=null;const bar=document.getElementById('stBar'),$=i=>document.getElementById(i);
+/* === Status banner + order-button linkage (2026-11-05) ===
+   Banner + buttons render ONLY the state returned by /api/site/status
+   (open / preparing / paused / closed, mapped 1:1 from the shop backend
+   modes in lib/sitestatus.js). The banner never invents a state; the
+   only derivation is the next-opening TIME when the API omits it
+   (F1 fallback: ST.minsToOpen first, else the daily 17:00 JST opening
+   from the backend business hours). */
+const BNT={ja:{open:'営業中',closed:'お休み中',paused:'一時休止中',preparing:'準備中',until:'本日 深夜2:00まで',today:'本日',tomorrow:'明日',op:(d,t)=>d+' '+t+' 開店',btn:(d,t)=>'お休み中 · '+d+' '+t+' 再来',cta:'休止中',soon:'まもなく再開します'},
+zh:{open:'营业中',closed:'休息中',paused:'暂停营业',preparing:'准备中',until:'今天到凌晨 2:00',today:'今天',tomorrow:'明天',op:(d,t)=>d+' '+t+' 开门',btn:(d,t)=>'休息中 · '+d+' '+t+' 再来',cta:'休息中',soon:'马上恢复营业'},
+en:{open:'Open now',closed:'Closed',paused:'Paused',preparing:'Getting ready',until:'Today · until 2 am',today:'today',tomorrow:'tomorrow',op:(d,t)=>'Opens '+d+' · '+t,btn:(d,t)=>'Closed · back '+d+' '+t,cta:'Closed',soon:'Back soon'},
+ko:{open:'영업 중',closed:'쉬는 중',paused:'잠시 중단',preparing:'준비 중',until:'오늘 새벽 2시까지',today:'오늘',tomorrow:'내일',op:(d,t)=>d+' '+t+' 오픈',btn:(d,t)=>'쉬는 중 · '+d+' '+t+' 만나요',cta:'쉬는 중',soon:'곧 다시 열어요'}};
+const IXL={ja:0,zh:1,en:2,ko:3};
+const jstP=d=>{const o={};new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',hour12:false}).formatToParts(d).forEach(p=>o[p.type]=p.value);return o};
+const nextOpenTs=()=>{if(ST&&ST.minsToOpen!=null)return Date.now()+ST.minsToOpen*60000;const now=new Date(),p=jstP(now),cur=Date.UTC(+p.year,+p.month-1,+p.day,+p.hour%24,+p.minute);let t=Date.UTC(+p.year,+p.month-1,+p.day,17,0);if(cur>=t)t+=864e5;return now.getTime()+(t-cur)};
+const dayLbl=(ts,t)=>{const a=jstP(new Date()),b=jstP(new Date(ts)),da=Date.UTC(+a.year,+a.month-1,+a.day),db=Date.UTC(+b.year,+b.month-1,+b.day);return db===da?t.today:db===da+864e5?t.tomorrow:(+b.month)+'/'+(+b.day)};
+const timeLbl=ts=>{const b=jstP(new Date(ts)),h=+b.hour%24,m=+b.minute;if(L()==='en'){const ap=h>=12?'pm':'am',h12=h%12||12;return h12+(m?':'+String(m).padStart(2,'0'):'')+' '+ap}return h+':'+String(m).padStart(2,'0')};
+const renderBanner=()=>{const bn=$('stBanner');if(!bn||!ST)return;const t=BNT[L()]||BNT.ja,l=L();bn.hidden=false;document.body.classList.add('sb-on');bn.className='stbn '+ST.state;
+ $('stbnMain').textContent=t[ST.state]||t.closed;const ts=nextOpenTs();let sub='';
+ if(ST.state==='open')sub=t.until;else if(ST.state==='paused')sub=t.soon;else sub=t.op(dayLbl(ts,t),timeLbl(ts));
+ $('stbnSub').textContent=sub;const closed=ST.state!=='open',bl=t.btn(dayLbl(ts,t),timeLbl(ts));
+ document.querySelectorAll('a.pill,a.mob-cta').forEach(a=>{a.classList.toggle('is-closed',closed);if(closed)a.textContent=bl;else{const k=a.dataset.i;if(k&&window.I18N&&window.I18N[k])a.textContent=window.I18N[k][IXL[l]||0]}});
+ const cta=document.querySelector('nav .cta');if(cta){cta.classList.toggle('is-closed',closed);cta.textContent=closed?t.cta:window.I18N.cta[IXL[l]||0]}};
+const renderBannerFb=()=>{const bn=$('stBanner');if(!bn||ST)return;const t=TX[L()]||TX.ja;bn.hidden=false;document.body.classList.add('sb-on');bn.className='stbn fb';$('stbnMain').textContent='M Stand';$('stbnSub').textContent=t.hours};
+setTimeout(renderBannerFb,4000);
 const renderSt=()=>{if(!ST)return;const t=TX[L()]||TX.ja,l=L();bar.hidden=false;bar.className='stbar '+ST.state;
  $('stState').textContent=t[ST.state]||t.closed;
- $('stBusy').innerHTML=ST.state==='open'&&ST.busy?`<span class="bz ${ST.busy}">${t.busy[ST.busy]}</span>`:(ST.state!=='open'?esc(t.hours):'');
+ $('stBusy').innerHTML=ST.state==='open'&&t.busy[ST.busy]?`<span class="bz ${ST.busy}">${t.busy[ST.busy]}</span>`:(ST.state!=='open'?esc(t.hours):'');
  $('stWait').textContent=ST.state==='open'&&ST.wait!=null?t.wait(ST.wait):'';
- $('stSold').innerHTML=(ST.state==='open'&&ST.minsToClose!=null?`<span class="xa">${esc(({ja:'あと',zh:'还有',en:'',ko:'마감까지 '})[l]+hm(ST.minsToClose,l)+({ja:'で閉店',zh:'打烊',en:' until close',ko:''})[l])}</span> `:(ST.minsToOpen!=null&&ST.state!=='open'?`<span class="xa">${esc(({ja:'開店まで',zh:'距开门',en:'Opens in ',ko:'개점까지 '})[l]+hm(ST.minsToOpen,l))}</span> `:''))+(ST.channels?`<span class="xu">Uber Eats: ${esc(ST.channels.uber==='online'||ST.channels.uber==='open'?({ja:'受付中',zh:'接单中',en:'accepting',ko:'주문 접수 중'})[l]:({ja:'受付停止',zh:'暂停',en:'not accepting',ko:'주문 일시 중단'})[l])}</span> `:'')+esc(ST.state==='open'&&ST.soldOut&&ST.soldOut.length?t.sold+ST.soldOut.slice(0,6).map(x=>x[l]||x.ja).join(t.sep):'')};
+ $('stSold').innerHTML=(ST.state==='open'&&ST.minsToClose!=null?`<span class="xa">${esc(({ja:'あと',zh:'还有',en:'',ko:'마감까지 '})[l]+hm(ST.minsToClose,l)+({ja:'で閉店',zh:'打烊',en:' until close',ko:''})[l])}</span> `:(ST.minsToOpen!=null&&ST.state!=='open'?`<span class="xa">${esc(({ja:'開店まで',zh:'距开门',en:'Opens in ',ko:'개점까지 '})[l]+hm(ST.minsToOpen,l))}</span> `:''))+(ST.channels?`<span class="xu">Uber Eats: ${esc(ST.channels.uber==='online'||ST.channels.uber==='open'?({ja:'受付中',zh:'接单中',en:'accepting',ko:'주문 접수 중'})[l]:ST.channels.uber==='unknown'?({ja:'確認中',zh:'确认中',en:'Checking',ko:'확인 중'})[l]:({ja:'受付停止',zh:'暂停',en:'not accepting',ko:'주문 일시 중단'})[l])}</span> `:'')+esc(ST.state==='open'&&ST.soldOut&&ST.soldOut.some(x=>x&&(x[l]||x.ja))?t.sold+ST.soldOut.filter(x=>x&&(x[l]||x.ja)).slice(0,6).map(x=>x[l]||x.ja).join(t.sep):'')};
 
 const T2={ja:{busyL:'混雑状況',waitL:'待ち時間の目安',chL:'ご注文方法',soL:'本日の売り切れ',none:'売り切れはありません',min:m=>`約${m}分`,nowait:'ほぼなし',toClose:m=>`閉店まで ${hm(m,'ja')}`,toOpen:m=>`開店まで ${hm(m,'ja')}`,today:'本日 17:00〜翌2:00',ch:{mobile:'スマホ注文',square:'オンライン注文',uber:'Uber Eats'},on:'受付中',off:'受付停止',unk:'確認中',upd:t=>`最終更新 ${t}・1分ごとに自動更新`,na:'—'},
  zh:{busyL:'拥挤程度',waitL:'预计等待',chL:'点单方式',soL:'今日售罄',none:'暂无售罄',min:m=>`约${m}分钟`,nowait:'基本无需等待',toClose:m=>`距打烊 ${hm(m,'zh')}`,toOpen:m=>`距开门 ${hm(m,'zh')}`,today:'今日 17:00–次日2:00',ch:{mobile:'手机点单',square:'线上点单',uber:'Uber Eats'},on:'接单中',off:'暂停接单',unk:'确认中',upd:t=>`最后更新 ${t}・每分钟自动刷新`,na:'—'},
@@ -66,17 +90,17 @@ function hm(m,l){const h=Math.floor(m/60),n=m%60;return l==='en'?(h?h+'h ':'')+n
 const sec=document.getElementById('status');
 const renderSec=()=>{if(!ST||!sec)return;const l=L(),t=T2[l]||T2.ja,b=TX[l]||TX.ja,open=ST.state==='open';sec.className='sts '+ST.state;
  $('sState').textContent=b[ST.state]||b.closed;$('sHours').textContent=t.today;
- $('sCount').textContent=ST.minsToClose!=null&&open?t.toClose(ST.minsToClose):ST.minsToOpen!=null?t.toOpen(ST.minsToOpen):'';
+ $('sCount').textContent=ST.minsToClose!=null&&open?t.toClose(ST.minsToClose):ST.minsToOpen!=null?t.toOpen(ST.minsToOpen):(open?'':t.toOpen(Math.max(0,Math.round((nextOpenTs()-Date.now())/60000))));/*F1: API gave no minsToOpen (e.g. backend closed inside hours) -> derive next 17:00 JST opening*/
  $('sBusyL').textContent=t.busyL;$('sWaitL').textContent=t.waitL;$('sChL').textContent=t.chL;$('sSoL').textContent=t.soL;
- $('sMeter').className='meter '+(open&&ST.busy||'');$('sBusy').textContent=open&&ST.busy?b.busy[ST.busy]:t.na;
- $('sWait').textContent=open&&ST.wait!=null?(ST.wait?t.min(ST.wait):t.nowait):t.na;
+ $('sMeter').className='meter '+(open&&ST.busy||'');$('sBusy').textContent=open&&ST.busy?(b.busy[ST.busy]||t.na):t.na;/*F3 guard: unknown busy value -> na, never 'undefined'*/
+ $('sWait').textContent=open?(ST.wait?t.min(ST.wait):t.nowait):t.na;/*F6: open with no wait estimate -> nowait wording, not a dash*/
  const c=ST.channels||{mobile:open?'open':'closed',square:open?'open':'closed',uber:'unknown'};
  $('sCh').innerHTML=['mobile','square','uber'].map(k=>{const v=c[k],on=v==='open'||v==='online';return `<li><b>${t.ch[k]}</b><span class="${on?'on':''}">${on?t.on:v==='unknown'?t.unk:t.off}</span></li>`}).join('');
- const so=ST.soldOut||[];$('sSo').innerHTML=so.length?so.map(x=>`<figure>${x.img?`<img loading="lazy" src="${esc(x.img)}" alt="">`:''}${esc(x[l]||x.ja)}</figure>`).join(''):`<span class="none">${open?t.none:t.na}</span>`;
+ const so=(ST.soldOut||[]).filter(x=>x&&(x[l]||x.ja));$('sSo').innerHTML=so.length?so.map(x=>`<figure>${x.img?`<img loading="lazy" src="${esc(x.img)}" alt="">`:''}${esc(x[l]||x.ja)}</figure>`).join(''):`<span class="none">${open?t.none:t.na}</span>`;
  const d=new Date(ST.at||Date.now());$('sUpd').textContent=t.upd(d.toLocaleTimeString(l==='zh'?'zh-CN':l==='en'?'en-US':'ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'}))};
-const poll=()=>fetch(API+'/api/site/status').then(r=>r.ok?r.json():null).then(j=>{if(j&&j.state){ST=j;renderSt();renderSec()}}).catch(()=>{});
+const poll=()=>fetch(API+'/api/site/status').then(r=>r.ok?r.json():null).then(j=>{if(j&&j.state){ST=j;renderSt();renderSec();renderBanner()}}).catch(()=>{});
 poll();setInterval(()=>{if(!document.hidden)poll()},60e3);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});
-(window.__relang=window.__relang||[]).push(renderPop,renderSt,renderSec);})();
+(window.__relang=window.__relang||[]).push(renderPop,renderSt,renderSec,renderBanner);})();
 ;
 (()=>{const q=new URLSearchParams(location.search);const API=(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&q.get('chatapi'))||'https://order.kkmurado.com';
 const $=i=>document.getElementById(i),L=()=>curLang(),B=$('chatB'),esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -732,25 +756,30 @@ scatterTimer=setTimeout(scatter,4700);
 
   function renderAll(){renderPicks();renderNotice();}
 
-  var ctrl=('AbortController' in window)?new AbortController():null;
-  var to=setTimeout(function(){try{ctrl&&ctrl.abort();}catch(e){}},1500);
-  fetch(API+'/api/site/content',ctrl?{signal:ctrl.signal}:undefined).then(function(r){
-    clearTimeout(to);
-    if(!r.ok)throw new Error('http '+r.status);
-    return r.json();
-  }).then(function(d){
-    if(!d||typeof d!=='object')throw new Error('invalid');
-    DATA=d;
-    var fl=d.flags||{};
-    clearTimeout(flagTimer);
-    startEyesBubble({bubble:fl.bubble!==false,eyes:fl.eyes!==false});
-    renderAll();
-    if(window.__relang)window.__relang.push(function(){renderAll();});
-  }).catch(function(){
-    /* total fallback: static page untouched; eyes/bubble start with defaults
-       via the 900ms flagTimer above. */
-    clearTimeout(to);
-  });
+  function loadContent(retried){
+    var ctrl=('AbortController' in window)?new AbortController():null;
+    var to=setTimeout(function(){try{ctrl&&ctrl.abort();}catch(e){}},4000);
+    fetch(API+'/api/site/content',ctrl?{signal:ctrl.signal}:undefined).then(function(r){
+      clearTimeout(to);
+      if(!r.ok)throw new Error('http '+r.status);
+      return r.json();
+    }).then(function(d){
+      if(!d||typeof d!=='object')throw new Error('invalid');
+      DATA=d;
+      var fl=d.flags||{};
+      clearTimeout(flagTimer);
+      startEyesBubble({bubble:fl.bubble!==false,eyes:fl.eyes!==false});
+      renderAll();
+      if(window.__relang)window.__relang.push(function(){renderAll();});
+    }).catch(function(){
+      /* total fallback: static page untouched; eyes/bubble start with defaults
+         via the 900ms flagTimer above. F8: retry once on the 60s status-poll
+         cadence so a slow network does not silently lose picks/notice. */
+      clearTimeout(to);
+      if(!retried)setTimeout(function(){loadContent(true);},60000);
+    });
+  }
+  loadContent(false);
 })();
 
 /* Website stats beacon (self-hosted; appended module, touches nothing else):
