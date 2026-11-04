@@ -1177,3 +1177,5 @@ footer::before{content:none}
 
 /* Transparent icons (2026-11-05 batch 3): remove tile chrome, artwork carries its own shadow */
 .card .ic img,.qsteps .ico img,.wlink .ic img,.fdeco img{border-radius:0;box-shadow:none}
+
+.flg{border:1px solid rgba(43,29,58,.28)}
