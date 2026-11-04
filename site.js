@@ -1014,12 +1014,15 @@ imgs.forEach(function(img){
 (function(){try{
 var FRUIT=[['楊枝甘露','f-mango'],['杨枝甘露','f-mango'],['ドラゴン','f-dragonfruit'],['火龙果','f-dragonfruit'],['Dragon','f-dragonfruit'],['ライム','f-lime'],['青柠','f-lime'],['Lime','f-lime'],['柚子','f-yuzu'],['Yuzu','f-yuzu'],['マンゴー','f-mango'],['芒果','f-mango'],['Mango','f-mango'],['망고','f-mango'],['アボカド','f-avocado'],['牛油果','f-avocado'],['Avocado','f-avocado'],['아보카도','f-avocado'],['いちご','f-strawberry'],['ストロベリー','f-strawberry'],['草莓','f-strawberry'],['Strawberry','f-strawberry'],['딸기','f-strawberry'],['ブルーベリー','f-blueberry'],['蓝莓','f-blueberry'],['Blueberry','f-blueberry'],['블루베리','f-blueberry'],['ベリー','f-blueberry'],['莓','f-blueberry'],['Berry','f-blueberry'],['베리','f-blueberry'],['パイナップル','f-pineapple'],['菠萝','f-pineapple'],['Pineapple','f-pineapple'],['파인애플','f-pineapple'],['パッションフルーツ','f-passionfruit'],['百香果','f-passionfruit'],['Passion','f-passionfruit'],['チェリー','f-cherry'],['樱桃','f-cherry'],['Cherry','f-cherry'],['체리','f-cherry'],['ココナッツ','f-coconut'],['椰子','f-coconut'],['Coconut','f-coconut'],['冬瓜','f-wintermelon'],['トウガン','f-wintermelon'],['レモン','f-lemon'],['柠檬','f-lemon'],['Lemon','f-lemon'],['オレンジ','f-orange'],['橙','f-orange'],['Orange','f-orange'],['抹茶','f-matcha'],['Matcha','f-matcha'],['말차','f-matcha'],['タロ','f-taro'],['芋头','f-taro'],['Taro','f-taro'],['타로','f-taro'],['黒糖','f-brownsugar'],['黑糖','f-brownsugar'],['Brown Sugar','f-brownsugar'],['ジャスミン','f-jasmine'],['茉莉','f-jasmine'],['Jasmine','f-jasmine'],['ハイビスカス','f-hibiscus'],['洛神','f-hibiscus'],['Four Seasons','f-sijichun'],['四季春','f-sijichun'],['ロイヤル','f-cow'],['Royal','f-cow']];
 function fruitOf(t){for(var k=0;k<FRUIT.length;k++){if(t.indexOf(FRUIT[k][0])>=0)return FRUIT[k][1]}return null}
+var MIX=['Mixベリー','ミックスベリー','混莓','Mixed Berry','Mix Berry','믹스베리'];
+function fruitList(t){for(var k=0;k<MIX.length;k++){if(t.indexOf(MIX[k])>=0)return['f-blueberry','f-blackberry','f-cranberry']}var f=fruitOf(t);return f?[f]:[]}
 var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 function addBadges(){
  document.querySelectorAll('.xc.pk').forEach(function(c){
   if(c.querySelector('.pkfb'))return;
   var h=c.querySelector('h3');if(!h)return;
-  var f=fruitOf(h.textContent||'');if(!f)return;
+  var fl=fruitList(h.textContent||'');if(!fl.length)return;
+  fl.forEach(function(f){
   var i=document.createElement('img');i.className='pkfb';i.alt='';i.src='icons/'+f+'.png?v=20261105';
   h.appendChild(i);
   if(RM)return;
@@ -1028,6 +1031,7 @@ function addBadges(){
    function tick(){if(!i.isConnected||document.hidden)return;var r=i.getBoundingClientRect();if(r.bottom<-40||r.top>innerHeight+40)return;i.src=closed;setTimeout(function(){i.src=open},170)}
    setTimeout(function(){tick();setInterval(tick,period)},Math.random()*period)};
   pre.src=closed;
+  });
  });
 }
 new MutationObserver(addBadges).observe(document.body,{childList:true,subtree:true});
