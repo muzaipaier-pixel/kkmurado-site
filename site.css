@@ -1179,3 +1179,7 @@ footer::before{content:none}
 .card .ic img,.qsteps .ico img,.wlink .ic img,.fdeco img{border-radius:0;box-shadow:none}
 
 .flg{border:1px solid rgba(43,29,58,.28)}
+
+.xc.pk{position:relative}.pkfb{position:absolute;top:8px;right:8px;width:46px;height:46px;z-index:3;pointer-events:none;filter:drop-shadow(0 3px 5px rgba(43,29,58,.35))}
+
+.pkfb{background:none;border:0;border-radius:0;box-shadow:none}
