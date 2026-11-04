@@ -231,13 +231,74 @@ const T={ja:{t5:'先月の人気ランキング',t5n:m=>m+'月、店頭でいち
 const MN={ja:m=>+m.slice(5)+'',zh:m=>+m.slice(5)+'',ko:m=>+m.slice(5)+'월',en:m=>['January','February','March','April','May','June','July','August','September','October','November','December'][+m.slice(5)-1]};
 const AD={'タピオカ':['タピオカ','珍珠','tapioca pearls','타피오카'],'ナタデココ':['ナタデココ','椰果','nata de coco','나타데코코'],'寒天タピオカ':['寒天タピオカ','寒天晶球','crystal agar pearls','한천 펄']};
 const ad=(s,l)=>{const j=String(s).split('/')[0].trim();const d=AD[j];if(d)return d[{ja:0,zh:1,en:2,ko:3}[l]];const p=String(s).split('/').map(x=>x.trim());return l==='zh'&&p[1]?p[1]:p[0]};
+/* Per-drink enjoy lines (keyed by Japanese drink name; a = classic add-on key as in AD / pairings first token).
+   Used only when the live add-on matches the classic one; otherwise T[l].tip template is the fallback. */
+const TIPX={
+'ロイヤルタピオカミルクティー':{a:'タピオカ',ja:'王道の一杯はタピオカ増量で。濃厚ミルクティーともちもち食感、やっぱりこれが正解。',zh:'经典款就该珍珠加满——浓郁奶茶裹着Q弹珍珠，一口回到最初的心动。',en:'The classic, done right: rich milk tea and extra pearls — maximum chew in every sip.',ko:'왕도 중의 왕도는 타피오카 추가. 진한 밀크티에 쫄깃함을 한가득 더했어요.'},
+'たっぷりマンゴーミルク':{a:'タピオカ',ja:'完熟マンゴーとミルクの甘さに、タピオカの食感。飲むご褒美スイーツです。',zh:'熟芒果的香甜撞上顺滑牛奶，再加珍珠，嚼着喝更过瘾。',en:'Ripe mango and smooth milk were made for pearls — sweet, rich, and fun to chew.',ko:'잘 익은 망고와 부드러운 우유에 타피오카까지. 달콤함에 쫄깃함을 얹었어요.'},
+'上品四季春':{a:'寒天タピオカ',ja:'花の香りがふわり。寒天タピオカのつるんと感が、四季春の爽やかさを引き立てます。',zh:'花香清亮的四季春，配寒天晶球的爽脆，干净里多一点小惊喜。',en:'Floral, clean Four Seasons oolong — crystal agar pearls add a cool little crunch.',ko:'꽃향기 맑은 사계춘에 한천 펄의 탱글함. 깔끔함 속에 작은 반전이 있어요.'},
+'朝露ジャスミン':{a:'タピオカ',ja:'ジャスミンの爽やかな香りにタピオカ。すっきりなのに、物足りなくならない一杯。',zh:'茉莉的清香最怕单调，珍珠一加，香气里多了嚼劲，越喝越有味。',en:'Light, fragrant jasmine with pearls for body — refreshing, but never boring.',ko:'자스민 향은 가볍게, 타피오카로 든든하게. 상큼한데 허전하지 않아요.'},
+'ハイビスカスティー':{a:'ナタデココ',ja:'ルビー色の酸味にナタデココ。ぷるんと弾けて、後味まで鮮やかです。',zh:'红宝石色的洛神花酸爽利落，椰果的弹润刚好把酸收得圆润。',en:'Ruby-red and tart — nata de coco rounds out the hibiscus zing with a juicy pop.',ko:'루비빛 새콤함에 나타데코코의 탱글함. 신맛이 둥글게 마무리돼요.'},
+'台湾トウガン茶':{a:'タピオカ',ja:'冬瓜のやさしい甘さと香ばしさ。タピオカを入れて、台湾の屋台気分。',zh:'冬瓜茶的焦糖甜香温温柔柔，配珍珠，是台湾夜市的经典打开方式。',en:'Gentle, toasty winter melon sweetness — pearls make it a Taiwan night-market classic.',ko:'동과의 은은한 단맛과 고소함. 타피오카를 넣으면 대만 야시장 분위기 그대로.'},
+'黒糖BOBOミルク':{a:'タピオカ',ja:'黒糖の香ばしい甘さにタピオカ増量。もちもち倍増で、飲みごたえ満点です。',zh:'黑糖波波本来就够热闹，再加一份珍珠，Q弹直接翻倍，甜香更浓。',en:'Toasty brown sugar and BOBO pearls — double up, and the chew goes into overdrive.',ko:'흑당의 고소한 단맛에 타피오카 추가. 쫄깃함이 두 배로 늘어나요.'},
+'もちもち抹茶ミルク':{a:'タピオカ',ja:'濃い抹茶とまろやかミルク。もちもちタピオカで、抹茶ラテがもっと楽しく。',zh:'抹茶香浓、牛奶醇厚，这杯的快乐一半在味道，一半在珍珠的嚼劲。',en:'Deep matcha, creamy milk — and pearls doing half the happy work in every sip.',ko:'진한 말차와 부드러운 우유. 쫄깃한 타피오카가 즐거움을 두 배로.'},
+'満杯チェリースムージー':{a:'ナタデココ',ja:'チェリーの甘酸っぱさにナタデココ。果肉感が増して、最後まで飽きません。',zh:'樱桃冰沙酸甜浓烈，椰果一加，果香里多了弹弹的果肉感。',en:'Bold sweet-tart cherry, meet nata de coco — extra fruitiness in every bite.',ko:'체리의 새콤달콤함에 나타데코코. 과육 같은 식감이 더해져요.'},
+'アボカドスムージー':{a:'タピオカ',ja:'なめらかアボカドにタピオカが潜む一杯。時々もちっと、楽しい不意打ち。',zh:'牛油果绵密如丝，珍珠藏在顺滑里，偶尔嚼到一颗，有点小惊喜。',en:'Silky avocado with pearls hiding inside — a chewy little surprise now and then.',ko:'실키한 아보카도 속에 타피오카가 숨어 있어요. 가끔 쫄깃, 작은 서프라이즈.'},
+'たっぷりいちごミルク':{a:'タピオカ',ja:'苺の甘酸っぱさとミルクのやさしさ。タピオカで、甘さにリズムが生まれます。',zh:'草莓果香配牛奶的温柔，珍珠沉在杯底，把甜蜜一口口嚼出来。',en:'Strawberry brightness in gentle milk — pearls give the sweetness a rhythm.',ko:'딸기의 상큼함과 우유의 부드러움. 타피오카가 단맛에 리듬을 더해요.'},
+'柚子ハニーオレンジ':{a:'ナタデココ',ja:'柚子とオレンジの爽やかさ、はちみつの甘さ。ナタデココで香りが長持ち。',zh:'柚子和橙子的清香被蜂蜜裹住，椰果弹润，让果香在嘴里多停一会儿。',en:'Bright yuzu and orange softened with honey — nata de coco keeps the citrus lingering.',ko:'유자와 오렌지의 상큼함에 꿀의 단맛. 나타데코코로 향이 오래 남아요.'},
+'楊枝甘露':{a:'ミニタピオカ',ja:'楊枝甘露の主役はミニタピオカ。マンゴーとポメロの間を、つるんとつなぎます。',zh:'杨枝甘露的灵魂就是西米——芒果、西柚之间，多一勺滑溜溜才正宗。',en:'Sago is the soul of this Hong Kong classic — it keeps mango and pomelo silky.',ko:'양지감로의 주인공은 사고. 망고와 포멜로 사이를 매끈하게 이어줘요.'},
+'爆ライム四季春':{a:'寒天タピオカ',ja:'ライムのキレと四季春の花の香り。寒天タピオカの食感で、さらに爽快。',zh:'青柠的酸爽撞上四季春的花香，寒天晶球脆生生，整杯都醒了。',en:'Lime zing meets floral oolong — crystal agar pearls make the whole cup sparkle.',ko:'라임의 상큼함과 사계춘 꽃향기. 한천 펄이 청량감을 한층 올려요.'},
+'満杯パッションフルーツ':{a:'ナタデココ',ja:'パッションフルーツの酸味とジャスミンの香り。ナタデココは常連さんの定番。',zh:'百香果的酸香配茉莉茶底，椰果是熟客的暗号，弹润里全是热带风。',en:'Tart passion fruit over jasmine tea, with nata de coco for that tropical chew.',ko:'패션후르츠의 새콤함과 자스민 향. 나타데코코는 단골들의 시그니처예요.'},
+'チーズクリームジャスミン':{a:'タピオカ',ja:'ジャスミンの香りに塩味のチーズフォーム。底のタピオカで、花の香りに食感を。',zh:'茉莉的清香托着咸甜奶盖，沉底的珍珠让花香茶也有了嚼头。',en:'Fragrant jasmine and salty-sweet foam, with pearls below — florals, with a chewy finish.',ko:'자스민 향과 짭짤달콤한 치즈 폼. 바닥의 타피오카로 꽃향기에 식감을.'},
+'チーズクリーム四季春':{a:'寒天タピオカ',ja:'四季春の花の香りに、塩味のチーズフォーム。寒天タピオカのつるんと感が名脇役。',zh:'四季春花香清透，盖一层咸甜奶盖，寒天晶球的爽脆把层次拉满。',en:'Floral oolong, a cap of salty-sweet foam, and crystal agar pearls stealing the scene.',ko:'사계춘 꽃향기에 짭짤달콤한 치즈 폼. 한천 펄이 명품 조연이에요.'},
+'チーズクリーム宇治抹茶':{a:'タピオカ',ja:'宇治抹茶のほろ苦さに塩味のフォーム。底のタピオカまで、計算された一杯。',zh:'宇治抹茶的浓醇微苦，遇上咸甜奶盖刚刚好，杯底珍珠收尾最满足。',en:'Bold, bittersweet Uji matcha meets salty-sweet foam — pearls finish it perfectly.',ko:'우지 말차의 쌉쌀함과 짭짤달콤한 폼. 바닥의 타피오카까지 완벽한 한 잔.'},
+'満杯ドラゴンフルーツ':{a:'ナタデココ',ja:'鮮やかな色とは裏腹に、味はすっきり甘い。ナタデココで見た目も食感も華やか。',zh:'火龙果红得张扬，味道却清甜，椰果加进去，颜值和口感一起在线。',en:'Dramatic color, gentle sweetness — nata de coco keeps this dragon fruit cup lively.',ko:'강렬한 색감과 달리 맛은 깔끔하게 달콤. 나타데코코로 식감까지 화려하게.'},
+'ココナッツミルクスムージー':{a:'ナタデココ',ja:'ココナッツ全開の南国感。ナタデココもココナッツ生まれ、相性は言わずもがな。',zh:'椰香浓到像在度假，椰果是椰子的亲戚，双倍椰香，双倍快乐。',en:'Full-on tropical coconut — and nata de coco is family, so the coconut doubles down.',ko:'코코넛 향 가득한 휴양지 무드. 나타데코코도 코코넛 출신이라 찰떡궁합.'},
+'満杯いちごスムージー':{a:'タピオカ',ja:'苺たっぷりの甘酸っぱさ。タピオカが入ると、飲むデザート感がアップ。',zh:'草莓冰沙酸甜浓郁，珍珠沉底慢慢嚼，像把草莓甜品装进了杯子。',en:'A rich, sweet-tart strawberry blast — pearls turn it into a drinkable dessert.',ko:'딸기 가득 새콤달콤. 타피오카가 더해지면 마시는 디저트 완성.'},
+'たっぷりドラゴンミルク':{a:'タピオカ',ja:'ドラゴンフルーツのやさしい甘さとミルク。タピオカでピンクの一杯に食感を。',zh:'火龙果的清甜被牛奶裹得温柔，珍珠一加，好看的粉色里多了嚼劲。',en:'Dragon fruit sweetness in soft milk — pearls add chew to the pretty pink.',ko:'용과의 은은한 단맛과 우유. 타피오카로 예쁜 핑크에 쫄깃함을 더했어요.'},
+'Mixベリーミルク':{a:'タピオカ',ja:'三種のベリーの香りをミルクがまとめます。タピオカで、ベリー感が長続き。',zh:'蓝莓、树莓、黑莓一起上场，牛奶收尾，珍珠负责把莓果香嚼得更久。',en:'Three berries, one smooth milk — pearls make the berry flavor linger longer.',ko:'세 가지 베리의 향을 우유가 감싸요. 타피오카로 베리 맛이 오래 남아요.'},
+'ブルーベリースムージー':{a:'ナタデココ',ja:'ブルーベリーの自然な甘酸っぱさ。ナタデココの食感で、爽やかさに変化を。',zh:'蓝莓的酸甜干净直接，椰果的弹润让这杯冰沙不只是顺滑。',en:'Clean, natural blueberry sweet-tart — nata de coco gives the smoothie a little bounce.',ko:'블루베리의 자연스러운 새콤달콤함. 나타데코코가 상큼함에 변화를 줘요.'},
+'Mixベリースムージー':{a:'ナタデココ',ja:'ベリー総動員の甘酸っぱさ。ナタデココが氷の海でぷるぷる踊ります。',zh:'混合莓果一杯打尽，酸甜层层叠，椰果在冰沙里弹来弹去很热闹。',en:'Every berry in one cup, layered sweet and tart — nata de coco bounces through it all.',ko:'베리 총출동의 새콤달콤함. 나타데코코가 얼음 속에서 통통 튀어요.'},
+'海塩パイナップルスムージー':{a:'ナタデココ',ja:'パイナップルの甘酸っぱさに、海塩がキレを。ナタデココで南国度アップ。',zh:'菠萝的酸甜被一撮海盐提得更鲜，椰果加持，像把海边假期装进杯子。',en:'A pinch of sea salt sharpens the pineapple — nata de coco makes it a beach holiday in a cup.',ko:'파인애플의 새콤달콤함에 해염이 킥을. 나타데코코로 휴양지 감성 완성.'},
+'タロ芋ミルクスムージー':{a:'タピオカ',ja:'ほっくりタロ芋とミルクのなめらかさ。タピオカの食感が、やさしさの合間に。',zh:'芋头绵密香甜，牛奶顺滑，珍珠藏在绵软里，嚼到就是赚到。',en:'Fluffy, naturally sweet taro in silky milk — pearls are the treasure buried inside.',ko:'포근한 타로와 실키한 우유. 타피오카는 부드러움 속에 숨은 보물이에요.'}};
+const tipx=(x,l)=>{const c=x&&x.drink?TIPX[x.drink.ja]:null;return c&&c.a===String(x.addon).split('/')[0].trim()?c[l]:null};
 let P=null,R=null,G={};
+/* Per-drink flavor/texture lines for the TOP5 ranking cards (keyed by Japanese drink name).
+   Missing entry = no extra line on the card (no filler). */
+const FLAV={
+'ロイヤルタピオカミルクティー':{ja:'濃厚ミルクティーともちもちタピオカの王道。',zh:'浓郁奶香配Q弹珍珠，经典珍珠奶茶。',en:'Rich milk tea with chewy pearls — the classic.',ko:'진한 밀크티와 쫄깃한 타피오카의 정석.'},
+'たっぷりマンゴーミルク':{ja:'完熟マンゴーの甘さと、なめらかミルク。',zh:'熟透芒果的香甜，配顺滑牛奶。',en:'Ripe mango sweetness with smooth milk.',ko:'잘 익은 망고의 단맛과 부드러운 우유.'},
+'上品四季春':{ja:'台湾ウーロンの花の香り、すっきり爽やか。',zh:'台湾乌龙纯茶，花香清亮回甘。',en:'Straight Taiwanese oolong — floral and clean.',ko:'대만 우롱 순수 티, 꽃향기 맑고 깔끔.'},
+'朝露ジャスミン':{ja:'ジャスミンの香り爽やか、後味すっきり。',zh:'茉莉绿茶清香醇厚，轻盈爽口。',en:'Fragrant jasmine tea, light and refreshing.',ko:'자스민 향 상큼하고 뒷맛이 깔끔해요.'},
+'ハイビスカスティー':{ja:'ルビー色の酸味、キレのある爽やかさ。',zh:'洛神花酸爽鲜艳，口感干净利落。',en:'Ruby-red hibiscus with a clean, tart bite.',ko:'루비빛 새콤함, 깔끔하고 상쾌해요.'},
+'台湾トウガン茶':{ja:'冬瓜のやさしい甘さと香ばしさ。',zh:'冬瓜的温和甜香，带焦糖气息。',en:'Gentle winter melon sweetness, toasty aroma.',ko:'동과의 은은한 단맛과 고소한 향.'},
+'黒糖BOBOミルク':{ja:'黒糖の香ばしい甘さ、もちもちBOBO。',zh:'黑糖焦香浓郁，波波Q弹牛奶顺滑。',en:'Toasty brown sugar, chewy BOBO, smooth milk.',ko:'흑당의 고소한 단맛과 쫄깃한 보바.'},
+'もちもち抹茶ミルク':{ja:'濃い抹茶とまろやかミルク、もちもち食感。',zh:'抹茶浓醇，牛奶绵厚又有嚼劲。',en:'Rich matcha and creamy milk, with a chewy bite.',ko:'진한 말차와 부드러운 우유, 쫄깃한 식감.'},
+'満杯チェリースムージー':{ja:'チェリーたっぷり、甘酸っぱいスムージー。',zh:'樱桃满杯，酸甜浓烈的果香冰沙。',en:'Loaded with cherries — sweet, tart, fruity.',ko:'체리 가득, 새콤달콤한 스무디.'},
+'アボカドスムージー':{ja:'アボカドなめらか、やさしい甘さ。',zh:'牛油果打得绵密如丝，甜味温和。',en:'Silky, creamy avocado with gentle sweetness.',ko:'아보카도 실키하고 은은하게 달콤해요.'},
+'たっぷりいちごミルク':{ja:'苺の甘酸っぱさとミルクのまろやかさ。',zh:'草莓果香浓郁，牛奶温柔顺滑。',en:'Rich strawberry flavor in gentle, smooth milk.',ko:'딸기의 상큼함과 우유의 부드러움.'},
+'柚子ハニーオレンジ':{ja:'柚子とオレンジの香り、はちみつの甘さ。',zh:'柚子橙香清新，蜂蜜甜得温和。',en:'Bright yuzu and orange with gentle honey.',ko:'유자와 오렌지 향에 꿀의 은은한 단맛.'},
+'楊枝甘露':{ja:'マンゴー、ポメロ、サゴの香港スイーツ。',zh:'芒果西柚配西米，港式经典甜品。',en:'Mango, pomelo and sago — the Hong Kong classic.',ko:'망고, 포멜로, 사고의 홍콩 디저트.'},
+'爆ライム四季春':{ja:'ライムの酸味と四季春の花の香り。',zh:'青柠酸爽配四季春花香，清新醒神。',en:'Zesty lime with floral Four Seasons oolong.',ko:'라임의 상큼함과 사계춘 꽃향기.'},
+'満杯パッションフルーツ':{ja:'パッションフルーツの酸味とジャスミン香。',zh:'百香果酸香配茉莉茶，清爽热带风。',en:'Tart passion fruit with fragrant jasmine tea.',ko:'패션후르츠의 새콤함과 자스민 향.'},
+'チーズクリームジャスミン':{ja:'ジャスミン茶に塩味のチーズフォーム。',zh:'茉莉清香，盖一层咸甜芝士奶盖。',en:'Fragrant jasmine under salty-sweet cheese foam.',ko:'자스민 티 위에 짭짤달콤한 치즈 폼.'},
+'チーズクリーム四季春':{ja:'四季春の花の香りにチーズフォーム。',zh:'四季春花香，配咸甜浓郁奶盖。',en:'Floral oolong topped with rich cheese foam.',ko:'사계춘 꽃향기에 진한 치즈 폼.'},
+'チーズクリーム宇治抹茶':{ja:'宇治抹茶のほろ苦さとチーズフォーム。',zh:'宇治抹茶浓醇微苦，奶盖咸甜。',en:'Bold Uji matcha under creamy cheese foam.',ko:'우지 말차의 쌉쌀함과 치즈 폼.'},
+'満杯ドラゴンフルーツ':{ja:'ドラゴンフルーツの爽やかな甘さ。',zh:'火龙果清甜爽口，颜色超抢眼。',en:'Dragon fruit — refreshing, gently sweet, vivid.',ko:'용과의 깔끔한 단맛, 색감도 강렬.'},
+'ココナッツミルクスムージー':{ja:'ココナッツ香る南国スムージー。',zh:'椰香浓郁，热带风的顺滑冰沙。',en:'Rich coconut aroma in a tropical smoothie.',ko:'코코넛 향 가득한 열대 스무디.'},
+'満杯いちごスムージー':{ja:'苺たっぷり、甘酸っぱいスムージー。',zh:'满满草莓打成冰沙，酸甜浓郁。',en:'Loaded with strawberries, sweet and tart.',ko:'딸기 가득, 새콤달콤한 스무디.'},
+'たっぷりドラゴンミルク':{ja:'ドラゴンフルーツとミルクのやさしい甘さ。',zh:'火龙果清甜配牛奶，温柔粉嫩。',en:'Gentle dragon fruit sweetness with milk.',ko:'용과의 은은한 단맛과 우유.'},
+'Mixベリーミルク':{ja:'三種ベリーの香りとミルクのコク。',zh:'三种莓果的果香，牛奶顺滑收尾。',en:'Blueberry, raspberry and blackberry with milk.',ko:'세 가지 베리의 향과 우유의 풍미.'},
+'ブルーベリースムージー':{ja:'ブルーベリーの自然な甘酸っぱさ。',zh:'整杯蓝莓果香，酸甜清爽自然。',en:'Natural blueberry sweetness with a fresh tartness.',ko:'블루베리의 자연스러운 새콤달콤함.'},
+'Mixベリースムージー':{ja:'ベリー総動員、甘酸っぱく爽やか。',zh:'混合莓果层层酸甜，清爽过瘾。',en:'Layers of mixed berries — sweet, tart, refreshing.',ko:'베리 총출동, 새콤달콤하고 상쾌해요.'},
+'海塩パイナップルスムージー':{ja:'パイナップルの甘酸っぱさに海塩のキレ。',zh:'菠萝酸甜配海盐提鲜，热带清爽。',en:'Sweet-tart pineapple lifted by sea salt.',ko:'파인애플 새콤달콤함에 해염의 킥.'},
+'タロ芋ミルクスムージー':{ja:'ほっくりタロ芋とミルクのなめらかさ。',zh:'芋头绵密香甜，牛奶浓厚顺滑。',en:'Fluffy taro and silky milk — rich and creamy.',ko:'포근한 타로와 실키한 우유.'}};
 function top5(){const el=document.getElementById('top5');if(!P||!P.items||P.items.length<5){el.hidden=true;return}const l=L(),t=T[l];
- el.innerHTML='<div class="stk-h"><span class="xtag">RANKING</span><h3>'+t.t5+'</h3></div><p class="stk-n">'+t.t5n(MN[l](P.month))+'</p><div class="t5">'+P.items.slice(0,5).map((x,i)=>'<div class="c"><span class="rk">'+(i+1)+'</span><img src="'+E(x.img)+'" alt="'+E(x.name[l]||x.name.en)+'" loading="lazy"><b>'+E(x.name[l]||x.name.en)+'</b>'+(l!=='en'?'<small>'+E(x.name.en)+'</small>':'')+'</div>').join('')+'</div>';el.hidden=false;
+ el.innerHTML='<div class="stk-h"><span class="xtag">RANKING</span><h3>'+t.t5+'</h3></div><p class="stk-n">'+t.t5n(MN[l](P.month))+'</p><div class="t5">'+P.items.slice(0,5).map((x,i)=>'<div class="c"><span class="rk">'+(i+1)+'</span><img src="'+E(x.img)+'" alt="'+E(x.name[l]||x.name.en)+'" loading="lazy"><b>'+E(x.name[l]||x.name.en)+'</b>'+(FLAV[x.name.ja]?'<small>'+E(FLAV[x.name.ja][l])+'</small>':'')+(l!=='en'?'<small>'+E(x.name.en)+'</small>':'')+'</div>').join('')+'</div>';el.hidden=false;
  const h=document.querySelector('[data-i=pkh]');if(h)h.textContent=t.nh}
 function enjoy(){const s=document.getElementById('enjoy');if(!R||!R.tips||!R.tips.length){s.hidden=true;return}const l=L(),t=T[l];
  s.querySelector('[data-i=enp]').textContent=t.enp;s.querySelector('[data-i=enc]').textContent=t.enc;
- document.getElementById('enjoyT').innerHTML=R.tips.map(x=>{const a=ad(x.addon,l);return '<div class="c"><div class="row">'+(x.img?'<img src="'+E(x.img)+'" alt="" loading="lazy">':'')+'<div><b>'+E(x.drink[l]||x.drink.en)+'</b><span class="add">＋ '+E(a)+'</span></div></div><p>'+E(t.tip(x.drink[l]||x.drink.en,a))+'</p></div>'}).join('');
+ document.getElementById('enjoyT').innerHTML=R.tips.map(x=>{const a=ad(x.addon,l);return '<div class="c"><div class="row">'+(x.img?'<img src="'+E(x.img)+'" alt="" loading="lazy">':'')+'<div><b>'+E(x.drink[l]||x.drink.en)+'</b><span class="add">＋ '+E(a)+'</span></div></div><p>'+E(tipx(x,l)||t.tip(x.drink[l]||x.drink.en,a))+'</p></div>'}).join('');
  const C=document.getElementById('enjoyC');C.innerHTML=(R.combos||[]).map(p=>'<div class="c">'+p.map(x=>(x.img?'<img src="'+E(x.img)+'" alt="" loading="lazy">':'')+'<b>'+E(x[l])+'</b>').join('<span class="pl">＋</span>')+'</div>').join('');C.previousElementSibling.hidden=!(R.combos||[]).length;s.hidden=false}
 function gmap(){const el=document.getElementById('gmap'),l=L(),d=G[l],t=T[l];if(!d){el.hidden=true;return}
  const bd=['dineIn','takeout','delivery','vegetarian'].filter(k=>d[k]).map(k=>t.b[k]);if(d.pay&&d.pay.acceptsNfc)bd.push(t.b.nfc);if(d.pay&&d.pay.acceptsCreditCards)bd.push(t.b.card);
