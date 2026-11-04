@@ -789,3 +789,12 @@ scatterTimer=setTimeout(scatter,4700);
     }catch(err){}
   },true);
 }catch(e){}})();
+
+/* ===== IMAGE SAVE GUARD (2026-11-05): content images only =====
+   Right-click / drag protection scoped to content images. Interactive
+   elements are excluded first and never intercepted: .fruit sprites and
+   .cups (hero cups + googly eyes) keep their tap / drag / long-press
+   behaviour exactly as before; click and touch are never blocked. */
+document.addEventListener('contextmenu',function(e){var t=e.target;if(!t||!t.closest)return;if(t.closest('.fruit,.cups'))return;if(t.closest('img'))e.preventDefault()});
+document.addEventListener('dragstart',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&!t.closest('.cups'))e.preventDefault()});
+document.querySelectorAll('img').forEach(function(im){if(!im.closest('.cups'))im.draggable=false});
