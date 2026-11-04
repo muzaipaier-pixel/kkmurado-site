@@ -995,7 +995,7 @@ if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)ret
 var imgs=[].slice.call(document.querySelectorAll('img[src*="icons/"]')).filter(function(i){return !i.classList.contains('flg')});
 imgs.forEach(function(img){
  var open=img.getAttribute('src');if(!open||/-c\.png/.test(open))return;
- var closed=open.replace(/\.png$/,'-c.png'),pre=new Image();
+ var closed=open.replace(/\.png(\?.*)?$/,'-c.png$1'),pre=new Image();
  pre.onload=function(){
   var period=2800+Math.random()*3400;
   function tick(){
