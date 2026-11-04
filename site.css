@@ -1037,7 +1037,7 @@ nav .cta{white-space:nowrap;flex:none}
 
 /* ===== FRUIT CHARACTERS v2 (preview build: ~2x bigger + drag / double-tap / idle life / scroll tilt) ===== */
 .fruit{position:absolute;z-index:6;cursor:grab;-webkit-tap-highlight-color:transparent;pointer-events:none;touch-action:none;transform:rotate(var(--tilt,0deg)) translateY(var(--bob,0px));transition:transform .35s ease}
-.fruit .fin{position:relative;animation:frBob 2.8s ease-in-out infinite}
+.fruit .fin{display:block;position:relative;animation:frBob 2.8s ease-in-out infinite}
 .fruit svg{display:block;width:100%;height:auto;filter:drop-shadow(3px 4px 0 rgba(43,29,58,.16))}
 .fruit .ge{position:absolute;left:50%;transform:translate(-50%,-50%);display:flex;gap:calc(var(--fw,120px)*.047);pointer-events:none;z-index:2}
 .fruit .ge .eye{width:calc(var(--fw,120px)*.219);height:calc(var(--fw,120px)*.281);background:#fff;border:max(1.8px,calc(var(--fw,120px)*.031)) solid #2b1d3a;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 rgba(43,29,58,.85);animation:geBlink 5.1s ease-in-out infinite}
