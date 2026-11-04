@@ -542,6 +542,7 @@ fr.classList.add('defl');requestAnimationFrame(()=>requestAnimationFrame(()=>{f.
 function cancelHold(){if(!hold)return;cancelAnimationFrame(hold.raf);const fr=hold.fr;hold=null;fr.classList.remove('hold');const f=finOf(fr);if(f)f.style.transform=''}
 function respawn(fr){fr.classList.remove('gone');fr.style.pointerEvents='auto';if(!RM){fr.classList.add('respawn');setTimeout(()=>{fr.classList.remove('respawn')},640)}}
 function explode(fr){fr.classList.remove('hold');const f=finOf(fr);const r=fr.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;const col=JUICE[fr.dataset.fid]||'#ffb703';
+try{window.__juiceBlast&&window.__juiceBlast(cx,cy,col,fr.dataset.fid)}catch(e){}
 if(f&&!RM)f.style.transform='scale(3.15)';
 setTimeout(()=>{fr.classList.add('gone');fr.style.pointerEvents='none';if(f)f.style.transform=''},RM?0:70);
 setTimeout(()=>respawn(fr),1050);
@@ -798,3 +799,163 @@ scatterTimer=setTimeout(scatter,4700);
 document.addEventListener('contextmenu',function(e){var t=e.target;if(!t||!t.closest)return;if(t.closest('.fruit'))return;if(t.closest('img'))e.preventDefault()});
 document.addEventListener('dragstart',function(e){var t=e.target;if(t&&t.tagName==='IMG')e.preventDefault()});
 document.querySelectorAll('img').forEach(function(im){im.draggable=false});
+
+/* ===== FRUIT JUICE GLASS (2026-11-05, appended module) =====
+   The "glass layer" for the fruit explosions. A single fixed canvas
+   (#juiceGlass, pointer-events:none) renders, in the bursting fruit's own
+   juice colour: a centre flash + streaks, ~300 ballistic drops, splats
+   that stick anywhere on the glass, slow elegant drips that leave a
+   fading wet trail, and stains that linger at low alpha and fade away
+   over ~40s. The only hook into the existing code is one line inside
+   explode() (Fruit characters v2) calling
+   window.__juiceBlast(cx, cy, colour, fruitId) at the burst point.
+   rAF runs ONLY while something is on the glass (a splat-only tail is
+   throttled to ~25fps); an idle page pays zero. All tuning lives in
+   window.JUICE_CFG, including the per-viewport liveliness tiers:
+   wide screens get frequent idle squash-life, phones stay quiet while
+   reading (no idle tricks, suppressed around scrolling) but a guest's
+   own long-press still explodes at full count. Under
+   prefers-reduced-motion the blast is minimised and idle life is off. */
+(function(){try{
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var CFG={
+  tiers:[
+    {minW:1024,particles:300,splats:26,idleEvery:[2400,5000],idleOn:true},
+    {minW:768, particles:230,splats:21,idleEvery:[4500,8500],idleOn:true},
+    {minW:0,   particles:300,splats:24,idleEvery:[0,0],      idleOn:false}
+  ],
+  rmParticles:36,rmSplats:6,rmFadeMs:6000,rmAlpha:0.25,
+  splatAlpha:0.32,dripAlpha:0.20,splatFadeMs:38000,
+  dripChance:0.32,dripSpeed:[13,26],dripLen:[60,170],
+  gravity:1500,idleScrollQuietMs:3500
+};
+window.JUICE_CFG=CFG;
+function tier(){var w=innerWidth;for(var i=0;i<CFG.tiers.length;i++){if(w>=CFG.tiers[i].minW)return CFG.tiers[i]}return CFG.tiers[CFG.tiers.length-1]}
+function rnd(a,b){return a+Math.random()*(b-a)}
+function shade(hex,f){var n=parseInt(hex.slice(1),16);if(isNaN(n))return hex;var r=Math.min(255,((n>>16)&255)*f),g=Math.min(255,((n>>8)&255)*f),b=Math.min(255,(n&255)*f);return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')'}
+var cv=document.createElement('canvas');cv.id='juiceGlass';cv.setAttribute('aria-hidden','true');
+(document.body||document.documentElement).appendChild(cv);
+var ctx=cv.getContext('2d');
+var VW=0,VH=0;
+function size(){var dpr=Math.min(window.devicePixelRatio||1,2);VW=innerWidth;VH=innerHeight;cv.width=Math.round(VW*dpr);cv.height=Math.round(VH*dpr);cv.style.width=VW+'px';cv.style.height=VH+'px';ctx.setTransform(dpr,0,0,dpr,0,0)}
+size();addEventListener('resize',size);
+var drops=[],splats=[],drips=[],fx=[];
+var running=false,lastT=0,lastSplatDraw=0,lastBlastAt=0,lastScrollAt=0;
+addEventListener('scroll',function(){lastScrollAt=Date.now()},{passive:true});
+function blobPath(r){var p=new Path2D();var n=9+((Math.random()*3)|0);var pts=[];for(var i=0;i<n;i++){var a=i/n*Math.PI*2;var rr=r*(0.72+Math.random()*0.5);pts.push([Math.cos(a)*rr,Math.sin(a)*rr*0.86])}
+p.moveTo((pts[0][0]+pts[n-1][0])/2,(pts[0][1]+pts[n-1][1])/2);
+for(var j=0;j<n;j++){var q=pts[(j+1)%n];p.quadraticCurveTo(pts[j][0],pts[j][1],(pts[j][0]+q[0])/2,(pts[j][1]+q[1])/2)}
+p.closePath();return p}
+var UNIT=blobPath(1);
+function splatAlphaAt(s,now){var age=now-s.born;if(age<0)return 0;if(age<s.holdMs)return s.alpha;var k=1-(age-s.holdMs)/s.fadeMs;return k<=0?0:s.alpha*k}
+function addSplat(x,y,r,col,now,thin){
+  var s={x:x,y:y,r:r,path:blobPath(r),col:col,born:now,
+    alpha:(RM?CFG.rmAlpha:CFG.splatAlpha)*(thin?0.55:1),
+    holdMs:RM?CFG.rmFadeMs*0.4:CFG.splatFadeMs*0.5,
+    fadeMs:(RM?CFG.rmFadeMs*0.6:CFG.splatFadeMs)*rnd(0.85,1.2),dripAt:0};
+  if(!RM&&!thin&&Math.random()<CFG.dripChance&&r>=13&&y<VH-90)s.dripAt=now+rnd(500,2600);
+  if(splats.length>=110)return;
+  splats.push(s);
+}
+var dripsTotal=0;
+function spawnDrip(s,now){if(drips.length>=14)return;dripsTotal++;drips.push({x:s.x+rnd(-s.r*0.3,s.r*0.3),top:s.y+s.r*0.4,y:s.y+s.r*0.4,col:s.col,speed:rnd(CFG.dripSpeed[0],CFG.dripSpeed[1]),maxLen:rnd(CFG.dripLen[0],CFG.dripLen[1]),travel:0,w:rnd(2.2,4.6),born:now,stampAt:0,endAt:0})}
+function landDrop(d,now){
+  if(RM){if(!d.mist&&Math.random()<0.25)addSplat(d.x,Math.min(d.y,VH-4),8+d.r*2.4,d.col,now,false);return}
+  if(d.mist||Math.random()>=0.8)return;
+  addSplat(d.x,Math.min(d.y,VH-4),9+d.r*3+rnd(0,13),d.col,now,false);
+  if(Math.random()<0.4){var m=2+((Math.random()*3)|0);for(var i=0;i<m;i++)addSplat(d.x+rnd(-64,64),d.y+rnd(-52,52),rnd(2,6),d.col,now,true)}
+}
+window.__juiceBlast=function(cx,cy,col,fid){
+  lastBlastAt=Date.now();
+  var now=performance.now(),t=tier();
+  var n=RM?CFG.rmParticles:t.particles;
+  fx.push({type:'flash',x:cx,y:cy,col:col,born:now,life:RM?180:280,r1:RM?60:150});
+  if(!RM)for(var s=0;s<10;s++)fx.push({type:'streak',x:cx,y:cy,ang:Math.random()*Math.PI*2,len:rnd(70,170),col:col,born:now,life:rnd(180,260)});
+  var dark=shade(col,0.8),lite=shade(col,1.12);
+  for(var i=0;i<n;i++){
+    var mist=i>=n*0.82;
+    var lob=!mist&&Math.random()<0.26; /* lobbed high: dies near its apex so the top of the glass gets stained too */
+    var ang,sp,life;
+    if(lob){ang=-Math.PI*(0.15+Math.random()*0.7);sp=rnd(700,1250);life=rnd(0.5,0.95)}
+    else if(mist){ang=Math.random()*Math.PI*2;sp=rnd(420,980);life=rnd(0.35,0.7)}
+    else{ang=Math.random()*Math.PI*2;sp=240+Math.pow(Math.random(),1.6)*980;life=rnd(0.85,1.75)}
+    var roll=Math.random();
+    drops.push({x:cx,y:cy,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-(lob?0:140),
+      r:mist?rnd(1,2.2):rnd(2,6.8),
+      col:roll<0.18?dark:(roll>0.86?lite:col),
+      age:0,life:life,mist:mist});
+  }
+  wake();
+};
+function wake(){if(!running){running=true;lastT=performance.now();requestAnimationFrame(tick)}}
+function tick(now){
+  if(!running)return;
+  var dt=Math.min(0.05,(now-lastT)/1000||0.016);lastT=now;
+  var onlySplats=!drops.length&&!drips.length&&!fx.length;
+  if(onlySplats&&now-lastSplatDraw<40){requestAnimationFrame(tick);return}
+  lastSplatDraw=now;
+  ctx.clearRect(0,0,VW,VH);
+  /* centre flash + streaks */
+  fx=fx.filter(function(f){return now-f.born<f.life});
+  fx.forEach(function(f){var k=(now-f.born)/f.life;
+    if(f.type==='flash'){ctx.save();ctx.translate(f.x,f.y);var r=f.r1*(0.35+0.65*k);ctx.scale(r,r);ctx.globalAlpha=0.5*(1-k);ctx.fillStyle=f.col;ctx.fill(UNIT);ctx.restore()}
+    else{ctx.save();ctx.globalAlpha=0.3*(1-k);ctx.strokeStyle=f.col;ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(f.x,f.y);ctx.lineTo(f.x+Math.cos(f.ang)*f.len*k,f.y+Math.sin(f.ang)*f.len*k);ctx.stroke();ctx.restore()}
+  });
+  /* flying drops */
+  for(var i=drops.length-1;i>=0;i--){var d=drops[i];d.age+=dt;d.vy+=CFG.gravity*dt;d.x+=d.vx*dt;d.y+=d.vy*dt;
+    if(d.y>=VH-4&&d.vy>0){landDrop(d,now);drops.splice(i,1);continue}
+    if(d.age>=d.life){landDrop(d,now);drops.splice(i,1);continue}
+    var sp=Math.hypot(d.vx,d.vy),st=Math.min(0.85,sp/1500),an=Math.atan2(d.vy,d.vx);
+    ctx.save();ctx.translate(d.x,d.y);ctx.rotate(an);ctx.globalAlpha=d.mist?0.75:0.95;ctx.fillStyle=d.col;
+    ctx.beginPath();ctx.ellipse(0,0,d.r*(1+st),d.r*(1-st*0.45),0,0,Math.PI*2);ctx.fill();ctx.restore();
+  }
+  /* splats (and their drip spawning) */
+  splats=splats.filter(function(s){return splatAlphaAt(s,now)>0.003});
+  splats.forEach(function(s){
+    if(s.dripAt&&now>=s.dripAt){s.dripAt=0;spawnDrip(s,now)}
+    var a=splatAlphaAt(s,now);if(a<=0)return;
+    ctx.save();ctx.translate(s.x,s.y);ctx.globalAlpha=a;ctx.fillStyle=s.col;ctx.fill(s.path);ctx.restore();
+  });
+  /* drips: a head sliding down, a wet line behind it, stamps left as residue */
+  for(var j=drips.length-1;j>=0;j--){var dr=drips[j];
+    if(!dr.endAt){
+      dr.travel+=dr.speed*dt;dr.speed=Math.min(34,dr.speed+3.2*dt);dr.y=dr.top+dr.travel;
+      if(now-dr.stampAt>90){dr.stampAt=now;addSplat(dr.x,dr.y,dr.w*0.9,dr.col,now,true)}
+      if(dr.travel>=dr.maxLen||dr.y>=VH-8)dr.endAt=now;
+    }else{
+      dr.y+=300*dt;
+      if(now-dr.endAt>650){drips.splice(j,1);continue}
+    }
+    var fade=dr.endAt?Math.max(0,1-(now-dr.endAt)/650):Math.min(1,dr.travel/12+0.25);
+    ctx.save();ctx.globalAlpha=CFG.dripAlpha*fade;ctx.strokeStyle=dr.col;ctx.lineWidth=dr.w;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(dr.x,dr.top);ctx.lineTo(dr.x,dr.y);ctx.stroke();
+    ctx.globalAlpha=Math.min(1,(CFG.dripAlpha+0.22))*fade;ctx.fillStyle=dr.col;
+    ctx.beginPath();ctx.ellipse(dr.x,dr.y,dr.w*0.85,dr.w*1.25,0,0,Math.PI*2);ctx.fill();ctx.restore();
+  }
+  if(drops.length||splats.length||drips.length||fx.length)requestAnimationFrame(tick);
+  else{running=false;ctx.clearRect(0,0,VW,VH)}
+}
+/* ---- idle squash-life, tiered by viewport; quiet while reading ---- */
+function idleLoop(){
+  var t=tier();
+  setTimeout(idleLoop,(!RM&&t.idleOn)?rnd(t.idleEvery[0],t.idleEvery[1]):6000);
+  if(RM||!t.idleOn||document.hidden)return;
+  if(Date.now()-lastScrollAt<CFG.idleScrollQuietMs)return;
+  if(Date.now()-lastBlastAt<2500)return;
+  if(document.querySelector('.fruit.hold,.fruit.picked,.fruit.jwig,.fruit.jhop'))return;
+  var fs=document.querySelectorAll('.fruit'),cands=[];
+  for(var i=0;i<fs.length;i++){var f=fs[i];
+    if(f.style.pointerEvents!=='auto')continue;
+    if(f.classList.contains('gone')||f.classList.contains('tap')||f.classList.contains('happy')||f.classList.contains('dizzy'))continue;
+    var r=f.getBoundingClientRect();
+    if(r.bottom<-20||r.top>VH+20||r.right<-20||r.left>VW+20)continue;
+    cands.push(f)}
+  if(!cands.length)return;
+  var fr=cands[(Math.random()*cands.length)|0];
+  var cls=Math.random()<0.62?'jwig':'jhop';
+  fr.classList.add(cls);
+  setTimeout(function(){fr.classList.remove(cls)},720);
+}
+if(!RM)setTimeout(idleLoop,rnd(3000,5000));
+window.__juiceDebug={tier:tier,counts:function(){return{drops:drops.length,splats:splats.length,drips:drips.length,dripsTotal:dripsTotal,fx:fx.length,running:running}}};
+}catch(e){}})();
