@@ -1152,3 +1152,14 @@ body.sb-on #sheet{top:calc(106px + 2*var(--sat))!important}
 a.pill.is-closed,a.mob-cta.is-closed{background:linear-gradient(90deg,#f3dfe8,#e9dde6)!important;color:#7a6a78!important;box-shadow:none!important}
 nav .cta.is-closed{background:#e9dde6!important;color:#7a6a78!important;box-shadow:none!important}
 /* ===== /STATUS BANNER ===== */
+
+/* M Stand icon set: service cards / chat fab / wallet link (2026-11-05) */
+.card .ic{line-height:0}
+.card .ic img{width:58px;height:58px;border-radius:16px;box-shadow:0 6px 16px rgba(43,29,58,.16);display:block}
+#chatFab .ic{display:inline-flex}
+#chatFab .ic img{width:26px;height:26px;border-radius:8px;display:block}
+.wlink .ic{line-height:0}
+.wlink .ic img{width:46px;height:46px;border-radius:12px;box-shadow:0 6px 16px rgba(43,29,58,.16);display:block}
+
+.qsteps .ico{line-height:0}
+.qsteps .ico img{width:52px;height:52px;border-radius:14px;box-shadow:0 6px 16px rgba(43,29,58,.16)}
