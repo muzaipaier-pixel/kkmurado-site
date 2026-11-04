@@ -1108,3 +1108,22 @@ main{display:block}
    long-press interactions) are explicitly restored below. */
 img{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:none}
 .fruit img{-webkit-touch-callout:default;-webkit-user-drag:auto;user-select:auto}
+
+/* ===== FRUIT JUICE GLASS (2026-11-05, appended) =====
+   A full-screen "glass" canvas sits over the page (pointer-events:none, it
+   can never intercept a tap, a scroll or an order) and renders the juice
+   layer of the fruit explosions: flying drops, splats that stick to the
+   glass, slow drips and fading stains. Drawn by the FRUIT JUICE GLASS
+   module appended to site.js; tuning lives in window.JUICE_CFG.
+   Also below: ground shadows + extra squash life for the fruit sprites.
+   Nothing above this block is modified. */
+#juiceGlass{position:fixed;inset:0;z-index:990;pointer-events:none;display:block}
+.fruit::after{content:"";position:absolute;left:11%;bottom:-3.5%;width:78%;height:11%;border-radius:50%;background:radial-gradient(50% 50% at 50% 50%,rgba(43,29,58,.30),rgba(43,29,58,0) 68%);z-index:-1;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
+.fruit.picked::after{transform:scale(1.3,1.15);opacity:.75}
+.fruit.hold::after{transform:scale(1.22);opacity:.85}
+.fruit.hold svg{filter:drop-shadow(4px 7px 0 rgba(43,29,58,.22))}
+.fruit.jwig .fin{animation:juiceWig .62s cubic-bezier(.28,.84,.42,1)}
+.fruit.jhop .fin{animation:juiceHop .58s cubic-bezier(.28,.84,.42,1)}
+@keyframes juiceWig{0%,100%{transform:scale(1,1) rotate(0deg)}22%{transform:scale(1.14,.82) rotate(-3deg)}48%{transform:scale(.93,1.09) rotate(3deg)}72%{transform:scale(1.04,.96) rotate(-1deg)}}
+@keyframes juiceHop{0%{transform:translateY(0) scale(1,1)}30%{transform:translateY(3px) scale(1.12,.84)}58%{transform:translateY(-19px) scale(.95,1.06)}82%{transform:translateY(0) scale(1.05,.95)}100%{transform:translateY(0) scale(1,1)}}
+@media (prefers-reduced-motion: reduce){.fruit.jwig .fin,.fruit.jhop .fin{animation:none}}
