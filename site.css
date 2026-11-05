@@ -1249,3 +1249,6 @@ html:lang(ko) #words{font-family:"Gaegu","Gowun Dodum",sans-serif!important}
 /* Paybox fill + zoom pill restyle (owner 2026-11-05): sheet cropped to content; pill becomes a normal button under the sheet */
 .paybox{display:flex;flex-direction:column}
 .payzoom{position:static;align-self:center;margin-top:14px;transform:none;background:#fff;color:var(--ink);border:2.5px solid var(--ink);box-shadow:0 3px 0 var(--ink);font-size:14.5px;padding:9px 20px}
+
+/* Sheet position (owner 2026-11-05): menu sat too low — cut the 96px top padding */
+#sheet .in{padding-top:26px!important}
