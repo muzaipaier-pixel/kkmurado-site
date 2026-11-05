@@ -60,10 +60,10 @@ let ST=null;const bar=document.getElementById('stBar'),$=i=>document.getElementB
    only derivation is the next-opening TIME when the API omits it
    (F1 fallback: ST.minsToOpen first, else the daily 17:00 JST opening
    from the backend business hours). */
-const BNT={ja:{open:'営業中',closed:'お休み中',paused:'一時休止中',preparing:'準備中',until:'本日 深夜2:00まで',today:'本日',tomorrow:'明日',op:(d,t)=>d+' '+t+' 開店',btn:(d,t)=>'お休み中 · '+d+' '+t+' 再来',cta:'休止中',soon:'まもなく再開します'},
-zh:{open:'营业中',closed:'休息中',paused:'暂停营业',preparing:'准备中',until:'今天到凌晨 2:00',today:'今天',tomorrow:'明天',op:(d,t)=>d+' '+t+' 开门',btn:(d,t)=>'休息中 · '+d+' '+t+' 再来',cta:'休息中',soon:'马上恢复营业'},
-en:{open:'Open now',closed:'Closed',paused:'Paused',preparing:'Getting ready',until:'Today · until 2 am',today:'today',tomorrow:'tomorrow',op:(d,t)=>'Opens '+d+' · '+t,btn:(d,t)=>'Closed · back '+d+' '+t,cta:'Closed',soon:'Back soon'},
-ko:{open:'영업 중',closed:'쉬는 중',paused:'잠시 중단',preparing:'준비 중',until:'오늘 새벽 2시까지',today:'오늘',tomorrow:'내일',op:(d,t)=>d+' '+t+' 오픈',btn:(d,t)=>'쉬는 중 · '+d+' '+t+' 만나요',cta:'쉬는 중',soon:'곧 다시 열어요'}};
+const BNT={ja:{open:'営業中',closed:'お休み中',paused:'一時休止中',preparing:'準備中',until:'本日 深夜2:00まで',today:'本日',tomorrow:'明日',op:(d,t)=>d+' '+t+' 開店',btn:(d,t)=>'お休み中 · '+d+' '+t+' 再来',cta:'休止中',soon:'まもなく再開します',soonOpen:'まもなく開店します'},
+zh:{open:'营业中',closed:'休息中',paused:'暂停营业',preparing:'准备中',until:'今天到凌晨 2:00',today:'今天',tomorrow:'明天',op:(d,t)=>d+' '+t+' 开门',btn:(d,t)=>'休息中 · '+d+' '+t+' 再来',cta:'休息中',soon:'马上恢复营业',soonOpen:'马上开门'},
+en:{open:'Open now',closed:'Closed',paused:'Paused',preparing:'Getting ready',until:'Today · until 2 am',today:'today',tomorrow:'tomorrow',op:(d,t)=>'Opens '+d+' · '+t,btn:(d,t)=>'Closed · back '+d+' '+t,cta:'Closed',soon:'Back soon',soonOpen:'Opening soon'},
+ko:{open:'영업 중',closed:'쉬는 중',paused:'잠시 중단',preparing:'준비 중',until:'오늘 새벽 2시까지',today:'오늘',tomorrow:'내일',op:(d,t)=>d+' '+t+' 오픈',btn:(d,t)=>'쉬는 중 · '+d+' '+t+' 만나요',cta:'쉬는 중',soon:'곧 다시 열어요',soonOpen:'곧 문을 열어요'}};
 const IXL={ja:0,zh:1,en:2,ko:3};
 const jstP=d=>{const o={};new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',hour12:false}).formatToParts(d).forEach(p=>o[p.type]=p.value);return o};
 const nextOpenTs=()=>{if(ST&&ST.minsToOpen!=null)return Date.now()+ST.minsToOpen*60000;const now=new Date(),p=jstP(now),cur=Date.UTC(+p.year,+p.month-1,+p.day,+p.hour%24,+p.minute);let t=Date.UTC(+p.year,+p.month-1,+p.day,17,0);if(cur>=t)t+=864e5;return now.getTime()+(t-cur)};
@@ -71,10 +71,12 @@ const dayLbl=(ts,t)=>{const a=jstP(new Date()),b=jstP(new Date(ts)),da=Date.UTC(
 const timeLbl=ts=>{const b=jstP(new Date(ts)),h=+b.hour%24,m=+b.minute;if(L()==='en'){const ap=h>=12?'pm':'am',h12=h%12||12;return h12+(m?':'+String(m).padStart(2,'0'):'')+' '+ap}return h+':'+String(m).padStart(2,'0')};
 const renderBanner=()=>{const bn=$('stBanner');if(!bn||!ST)return;const t=BNT[L()]||BNT.ja,l=L();bn.hidden=false;document.body.classList.add('sb-on');bn.className='stbn '+ST.state;
  $('stbnMain').textContent=t[ST.state]||t.closed;const ts=nextOpenTs();let sub='';
- if(ST.state==='open')sub=t.until;else if(ST.state==='paused')sub=t.soon;else sub=t.op(dayLbl(ts,t),timeLbl(ts));
- $('stbnSub').textContent=sub;const closed=ST.state!=='open',bl=t.btn(dayLbl(ts,t),timeLbl(ts));
+ if(ST.state==='open')sub=t.until;else if(ST.state==='paused')sub=t.soon;else if(ST.state==='preparing')sub=ST.minsToOpen!=null?t.op(dayLbl(ts,t),timeLbl(ts)):t.soonOpen;else sub=t.op(dayLbl(ts,t),timeLbl(ts));
+ $('stbnSub').textContent=sub;const closed=ST.state!=='open';let bl=t.btn(dayLbl(ts,t),timeLbl(ts)),ctaTxt=t.cta;
+ if(ST.state==='preparing'){bl=t.preparing+' · '+(ST.minsToOpen!=null?t.op(dayLbl(ts,t),timeLbl(ts)):t.soonOpen);ctaTxt=t.preparing}
+ else if(ST.state==='paused'){bl=t.paused+' · '+t.soon;ctaTxt=t.paused}
  document.querySelectorAll('a.pill,a.mob-cta').forEach(a=>{a.classList.toggle('is-closed',closed);if(closed)a.textContent=bl;else{const k=a.dataset.i;if(k&&window.I18N&&window.I18N[k])a.textContent=window.I18N[k][IXL[l]||0]}});
- const cta=document.querySelector('nav .cta');if(cta){cta.classList.toggle('is-closed',closed);cta.textContent=closed?t.cta:window.I18N.cta[IXL[l]||0]}};
+ const cta=document.querySelector('nav .cta');if(cta){cta.classList.toggle('is-closed',closed);cta.textContent=closed?ctaTxt:window.I18N.cta[IXL[l]||0]}};
 const renderBannerFb=()=>{const bn=$('stBanner');if(!bn||ST)return;const t=TX[L()]||TX.ja;bn.hidden=false;document.body.classList.add('sb-on');bn.className='stbn fb';$('stbnMain').textContent='M Stand';$('stbnSub').textContent=t.hours};
 setTimeout(renderBannerFb,4000);
 const renderSt=()=>{if(!ST)return;const t=TX[L()]||TX.ja,l=L();bar.hidden=false;bar.className='stbar '+ST.state;
