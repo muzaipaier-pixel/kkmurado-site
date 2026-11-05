@@ -1023,10 +1023,10 @@ function addBadges(){
   var h=c.querySelector('h3');if(!h)return;
   var fl=fruitList(h.textContent||'');if(!fl.length)return;
   fl.forEach(function(f){
-  var i=document.createElement('img');i.className='pkfb';i.alt='';i.src='icons/'+f+'.png?v=20261105b';
+  var i=document.createElement('img');i.className='pkfb';i.alt='';i.src='icons/'+f+'.png?v=20261105c';
   h.appendChild(i);
   if(RM)return;
-  var closed='icons/'+f+'-c.png?v=20261105b',pre=new Image();
+  var closed='icons/'+f+'-c.png?v=20261105c',pre=new Image();
   pre.onload=function(){var period=2800+Math.random()*3400,open=i.src;
    function tick(){if(!i.isConnected||document.hidden)return;var r=i.getBoundingClientRect();if(r.bottom<-40||r.top>innerHeight+40)return;i.src=closed;setTimeout(function(){i.src=open},170)}
    setTimeout(function(){tick();setInterval(tick,period)},Math.random()*period)};
@@ -1072,7 +1072,8 @@ var box=document.getElementById('paybox');if(!box)return;
 function open(){
  if(document.querySelector('.paylight'))return;
  var ov=document.createElement('div');ov.className='paylight';
- var cl=box.cloneNode(true);cl.removeAttribute('id');cl.removeAttribute('role');cl.removeAttribute('tabindex');
+ var tpl=document.getElementById('paytpl');
+ var cl=tpl?tpl.content.firstElementChild.cloneNode(true):box.cloneNode(true);
  var x=document.createElement('button');x.className='payx';x.setAttribute('aria-label','Close');x.textContent='\u00D7';
  ov.appendChild(cl);ov.appendChild(x);document.body.appendChild(ov);
  document.body.style.overflow='hidden';
