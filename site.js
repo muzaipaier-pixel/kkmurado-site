@@ -1037,3 +1037,31 @@ function addBadges(){
 new MutationObserver(addBadges).observe(document.body,{childList:true,subtree:true});
 addBadges();
 }catch(e){}})();
+
+;(()=>{const w=document.getElementById('words');if(!w)return;
+const M={ja:['ちょっと疲れた日も、うれしい日も。ストローをさしたら、気分がぱっと明るくなる一杯を、ひとつずつ心をこめてつくっています。','池袋の片隅の、小さなスタンドを見つけてくれて、ありがとう。あなたの「いつもの一杯」になれたら、うれしいです。','お仕事帰りの方も、これから夜が始まる方も。今日も一日、おつかれさまでした。この一杯が、ほっとする時間になりますように。','旬の果実をたっぷりと、茶葉は香りで選んでいます。季節が変わるたび、メニューも少しずつ変わります。次の一杯も、お楽しみに。','夜2時まで、明かりをつけて待っています。帰り道の寄り道に、どうぞ。'],
+zh:['累了的时候，开心的时候，插上吸管喝一口，心情就亮起来。每一杯都用心现做。','池袋这么大，谢谢你找到我们这家小店。要是能成为你「每次路过都想买」的那一杯，就太好了。','刚下班的、刚下课的、还在等末班车的——今天辛苦了。愿这一杯，能陪你走完回家的路。','水果挑当季的，茶叶挑香的。季节一换，菜单就悄悄上新。下次来，说不定又有新面孔。','我们开到凌晨两点。你回家的路上，总有一盏灯还亮着——顺路进来坐一会儿也行，带走一杯也行。'],
+en:['Tired day or great day, one sip and things look brighter. We make every cup fresh, one at a time.','Ikebukuro is a big place — thanks for finding our little corner of it. We would love to become your usual.','Clocking out, heading home, or just starting your night — good work today. May this cup keep you company on the way.','Fruit in season, tea chosen by its aroma. When the season turns, the menu quietly changes too. Come and see what is new.','We are the light that is still on at 2 a.m. On your way home, a little detour is always welcome here.'],
+ko:['조금 지친 날도, 기쁜 날도. 빨대를 꽂는 순간 기분이 확 밝아지는 한 잔을, 한 잔 한 잔 정성껏 만들고 있습니다.','넓은 이케부쿠로에서 저희 작은 가게를 찾아주셔서 고맙습니다. 당신의 「단골 한 잔」이 될 수 있으면 좋겠어요.','퇴근길에도, 이제 밤이 시작되는 분께도. 오늘 하루도 수고 많으셨어요. 이 한 잔이 집까지 가는 길에 작은 위로가 되길 바랍니다.','과일은 제철로 듬뿍, 찻잎은 향으로 골라요. 계절이 바뀌면 메뉴도 살짝 바뀝니다. 다음 한 잔도 기대해 주세요.','새벽 2시까지 불을 켜두고 기다릴게요. 집에 가는 길, 잠시 들러도 좋아요.']};
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const E=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+let i=0,vis=false,started=false,busy=false;
+const L=()=>{const l=(document.documentElement.lang||'ja').slice(0,2);return M[l]?l:'ja'};
+function write(txt){
+  const chars=[...txt];
+  w.innerHTML=chars.map(c=>'<span class="wch">'+E(c)+'</span>').join('')+'<span class="wpen" aria-hidden="true"></span>';
+  const sp=w.querySelectorAll('.wch'),pen=w.querySelector('.wpen');
+  if(sp.length&&pen)sp[0].before(pen);
+  if(RM||!sp.length){sp.forEach(s=>s.classList.add('on'));if(pen)pen.remove();return}
+  busy=true;let k=0;const stepMs=Math.max(34,Math.min(85,2600/chars.length));
+  const step=()=>{ if(k>0)sp[k-1].after(pen);
+    if(k>=sp.length){if(pen)pen.remove();busy=false;return}
+    if(!vis||document.hidden){sp.forEach(s=>s.classList.add('on'));if(pen)pen.remove();busy=false;return}
+    sp[k].classList.add('on');k++;setTimeout(step,stepMs)};
+  step();
+}
+function show(n,instant){const arr=M[L()];i=((n%arr.length)+arr.length)%arr.length;
+  if(instant||RM){w.textContent=arr[i];if(window.__split)__split();w.querySelectorAll('span').forEach(s=>s.classList.add('on'));return}
+  if(busy)return;w.style.opacity=0;setTimeout(()=>{w.style.opacity=1;write(arr[i])},380)}
+new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis&&!started){started=true;write(M[L()][i]);if(!RM)setInterval(()=>{if(vis&&!document.hidden)show(i+1)},8000)}},{threshold:.35}).observe(w);
+new MutationObserver(()=>{if(started)setTimeout(()=>show(i,true),90)}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});})();
