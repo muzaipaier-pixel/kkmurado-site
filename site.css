@@ -1190,3 +1190,9 @@ footer::before{content:none}
 #reviews .grv-h b{animation:goldshine 3.6s ease-in-out infinite alternate,mstand-beat 2.8s ease-in-out infinite}
 @keyframes goldshine{from{background-position:0% 0}to{background-position:100% 0}}
 @media (prefers-reduced-motion: reduce){.gm .rt,.gm .st,.grv-st,#reviews .grv-h b{animation:none}}
+
+/* HANDWRITING — Philosophy yellow spot only (owner 2026-11-05): the manifesto paragraph is hand-written; nothing else changes */
+#words{font-family:"Zen Kurenaido","Zen Maru Gothic",sans-serif;font-size:clamp(28px,4.1vw,50px);line-height:1.7;letter-spacing:.01em}
+html:lang(zh) #words{font-family:"Long Cang","XiaolaiHW",sans-serif}
+html:lang(en) #words{font-family:"Caveat","Nunito",sans-serif;font-weight:600}
+html:lang(ko) #words{font-family:"Gaegu","Gowun Dodum",sans-serif}
