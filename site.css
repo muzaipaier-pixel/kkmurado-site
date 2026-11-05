@@ -1196,3 +1196,10 @@ footer::before{content:none}
 html:lang(zh) #words{font-family:"Long Cang","XiaolaiHW",sans-serif}
 html:lang(en) #words{font-family:"Caveat","Nunito",sans-serif;font-weight:600}
 html:lang(ko) #words{font-family:"Gaegu","Gowun Dodum",sans-serif}
+
+#words{transition:opacity .38s ease}
+#words .wch{opacity:0;display:inline-block;transform:translateY(.09em) rotate(-2.5deg) scale(.92);transition:opacity .16s ease,transform .22s ease}
+#words .wch.on{opacity:1;transform:none}
+#words .wpen{display:inline-block;width:.42em;height:.42em;margin-left:.06em;border-radius:50%;background:#ff5e8a;vertical-align:baseline;animation:wpenp .5s ease-in-out infinite alternate}
+@keyframes wpenp{from{transform:scale(.75);opacity:.55}to{transform:scale(1.15);opacity:1}}
+@media (prefers-reduced-motion: reduce){#words .wch{transition:none}#words .wpen{animation:none}}
