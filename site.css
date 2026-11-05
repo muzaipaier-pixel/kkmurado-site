@@ -1241,3 +1241,6 @@ html:lang(ko) #words{font-family:"Gaegu","Gowun Dodum",sans-serif}
 .qsteps p{font-size:16.5px;line-height:1.55}
 .qsteps .ico img{width:64px;height:64px}
 .qsteps .n{width:42px;height:42px;font-size:20px}
+
+/* TEXT FX hardening (owner 2026-11-05): hero gradient painted per-char so it renders on every browser */
+.hero h1 .g .nw .ch{background:linear-gradient(100deg,#ff7ba9 0%,#ffb35c 22%,#f7ce46 40%,#6fd598 60%,#6db9f2 80%,#ff7ba9 100%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent!important;color:transparent;animation:chIn .8s cubic-bezier(.22,1,.36,1) forwards,gflow 7s linear infinite;animation-delay:calc(var(--i,0)*var(--st,32ms) + var(--d0,.15s)),calc(var(--i,0)*-.55s)}
