@@ -1252,3 +1252,6 @@ html:lang(ko) #words{font-family:"Gaegu","Gowun Dodum",sans-serif!important}
 
 /* Sheet position (owner 2026-11-05): menu sat too low — cut the 96px top padding */
 #sheet .in{padding-top:26px!important}
+
+/* Sheet seam fix (owner 2026-11-05): sheet top double-counted the safe-area, leaving a band where the hero showed through sliced */
+body.sb-on #sheet{top:calc(106px + var(--sat))!important}
