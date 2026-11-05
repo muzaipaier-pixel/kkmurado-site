@@ -1084,3 +1084,39 @@ function open(){
 box.addEventListener('click',open);
 box.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
 }catch(e){}})();
+
+/* TEXT FX (owner taste test 2026-11-05): decrypt scramble on the status ribbon */
+(function(){try{
+if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+var el=document.getElementById('stbnMain');if(!el)return;
+var GLYPHS='アイウエオカキクケコサシスセソタチツテト0123456789';
+var busy=false,last=el.textContent||'';
+function scramble(to){
+ if(busy||!to)return;busy=true;
+ var start=performance.now(),dur=Math.min(950,360+to.length*34);
+ function frame(now){
+  var p=Math.min(1,(now-start)/dur),lock=Math.floor(p*to.length),out='';
+  for(var i=0;i<to.length;i++){
+   var ch=to[i];
+   if(i<lock||ch===' '||ch==='・'||ch==='·'||ch==='〜'||ch===':')out+=ch;
+   else out+=GLYPHS[Math.floor(Math.random()*GLYPHS.length)];
+  }
+  el.textContent=out;
+  if(p<1)requestAnimationFrame(frame);else{el.textContent=to;busy=false;last=to}
+ }
+ requestAnimationFrame(frame);
+}
+new MutationObserver(function(){
+ var t=el.textContent||'';
+ if(!busy&&t&&t!==last)scramble(t);
+}).observe(el,{childList:true,characterData:true,subtree:true});
+setTimeout(function(){var t=el.textContent||'';if(t&&t!==last)scramble(t)},700);
+}catch(e){}})();
+
+/* TEXT FX: blur-in for the picks month heading */
+(function(){try{
+if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+var h=document.querySelector('[data-i="nwh"]');if(!h||!window.IntersectionObserver)return;
+h.classList.add('fxb');
+new IntersectionObserver(function(es,o){es.forEach(function(e){if(e.isIntersecting){h.classList.add('on');o.disconnect()}})},{threshold:.4}).observe(h);
+}catch(e){}})();
