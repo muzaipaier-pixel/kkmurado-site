@@ -1227,3 +1227,11 @@ html:lang(ko) #words{font-family:"Gaegu","Gowun Dodum",sans-serif}
 #gift .gbub{display:inline-flex;align-items:center;gap:7px}
 #gift .gbub .awic{width:24px;height:24px;border-radius:6px;display:block}
 .awtm{font-size:10.5px;line-height:1.5;color:#a09aa8;text-align:center;margin:10px auto 0;max-width:520px}
+
+/* TEXT FX (owner taste test 2026-11-05): flowing macaron gradient on the hero's key word + blur-in heading */
+.hero h1 .g .nw,.hB h1 .g .nw{background:linear-gradient(100deg,#ff7ba9 0%,#ffb35c 22%,#f7ce46 40%,#6fd598 60%,#6db9f2 80%,#ff7ba9 100%)!important;background-size:200% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;animation:gflow 9s linear infinite}
+@keyframes gflow{from{background-position:0% 0}to{background-position:200% 0}}
+@media(prefers-reduced-motion:reduce){.hero h1 .g .nw,.hB h1 .g .nw{animation:none}}
+.fxb{opacity:0;filter:blur(10px);transform:translateY(8px)}
+.fxb.on{opacity:1;filter:blur(0);transform:none;transition:opacity .85s ease,filter .85s ease,transform .85s ease}
+.hero h1 .g .nw *,.hB h1 .g .nw *{-webkit-text-fill-color:transparent!important;background:none!important}
