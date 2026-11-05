@@ -1235,3 +1235,9 @@ html:lang(ko) #words{font-family:"Gaegu","Gowun Dodum",sans-serif}
 .fxb{opacity:0;filter:blur(10px);transform:translateY(8px)}
 .fxb.on{opacity:1;filter:blur(0);transform:none;transition:opacity .85s ease,filter .85s ease,transform .85s ease}
 .hero h1 .g .nw *,.hB h1 .g .nw *{-webkit-text-fill-color:transparent!important;background:none!important}
+
+/* QSTEPS type bump (owner 2026-11-05): bigger step titles + captions */
+.qsteps h3{font-size:23px}
+.qsteps p{font-size:16.5px;line-height:1.55}
+.qsteps .ico img{width:64px;height:64px}
+.qsteps .n{width:42px;height:42px;font-size:20px}
