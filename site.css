@@ -1204,3 +1204,26 @@ html:lang(ko) #words{font-family:"Gaegu","Gowun Dodum",sans-serif}
 #words .wpen{display:inline-block;width:.42em;height:.42em;margin-left:.06em;border-radius:50%;background:#ff5e8a;vertical-align:baseline;animation:wpenp .5s ease-in-out infinite alternate}
 @keyframes wpenp{from{transform:scale(.75);opacity:.55}to{transform:scale(1.15);opacity:1}}
 @media (prefers-reduced-motion: reduce){#words .wch{transition:none}#words .wpen{animation:none}}
+
+/* PAYMENT GRID + WALLET ICON (owner 2026-11-05): individual brand tiles, tap to enlarge */
+.info .paybox{position:relative;cursor:pointer}
+.paygrp{margin:0 0 16px}.paygrp:last-of-type{margin-bottom:10px}
+.paygrp h4{font-size:12.5px;font-weight:800;letter-spacing:.06em;color:var(--ink);opacity:.75;margin:0 0 8px}
+.payrow{display:flex;flex-wrap:wrap;gap:8px}
+.pbt{background:#fff;border:1.5px solid rgba(43,29,58,.16);border-radius:12px;display:flex;align-items:center;justify-content:center;height:54px;padding:6px 8px;box-sizing:border-box}
+.payrow.r7 .pbt{flex:1 1 21%}
+.payrow.r9 .pbt{flex:1 1 29%}
+.payrow.r2 .pbt{flex:1 1 40%}
+.info .paybox .pbt img{display:block;width:auto;height:auto;max-height:36px;max-width:88%;object-fit:contain}
+.paysq{display:flex;align-items:center;gap:9px;margin-top:2px;font-size:12px;color:#86868b}
+.info .paybox .paysq img{display:block;width:auto;height:22px;max-width:none}
+.payzoom{position:absolute;right:14px;bottom:12px;background:var(--ink);color:#fff;font-size:11.5px;font-weight:800;padding:5px 11px;border-radius:999px;pointer-events:none}
+.paylight{position:fixed;inset:0;z-index:1200;background:rgba(24,14,36,.74);display:flex;align-items:center;justify-content:center;padding:16px}
+.paylight .paybox{width:min(700px,96vw);max-height:90vh;overflow:auto;cursor:default}
+.paylight .pbt{height:70px}
+.paylight .paybox .pbt img{max-height:48px}
+.paylight .payzoom{display:none}
+.payx{position:absolute;top:14px;right:14px;width:42px;height:42px;border-radius:50%;border:3px solid var(--ink);background:#fff;color:var(--ink);font-size:22px;font-weight:900;line-height:1;cursor:pointer}
+#gift .gbub{display:inline-flex;align-items:center;gap:7px}
+#gift .gbub .awic{width:24px;height:24px;border-radius:6px;display:block}
+.awtm{font-size:10.5px;line-height:1.5;color:#a09aa8;text-align:center;margin:10px auto 0;max-width:520px}
