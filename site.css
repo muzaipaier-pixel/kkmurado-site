@@ -1255,3 +1255,12 @@ html:lang(ko) #words{font-family:"Gaegu","Gowun Dodum",sans-serif!important}
 
 /* Sheet seam fix (owner 2026-11-05): sheet top double-counted the safe-area, leaving a band where the hero showed through sliced */
 body.sb-on #sheet{top:calc(106px + var(--sat))!important}
+
+/* ==== MU 2026-11-06 tablet hardening: hero grid / status bar / manifesto fit ==== */
+.hwrap>*{min-width:0}
+.cups{max-width:100%}
+.cups img{max-width:52%}
+.stbar .wrap>*{min-width:0}
+.stbar .bz{white-space:nowrap;position:static;width:auto;height:auto;margin:0;pointer-events:auto;z-index:auto;animation:none}
+#stSold{overflow-wrap:anywhere}
+@media(max-width:1200px){#words{font-size:clamp(24px,4.4vw,46px)}}
