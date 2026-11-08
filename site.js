@@ -26,17 +26,38 @@ window.__tick=tick;if(R)sp.forEach(s=>s.classList.add('on'));else{addEventListen
 (()=>{const q=new URLSearchParams(location.search);const API=(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&q.get('chatapi'))||'https://order.kkmurado.com';
 const TX={ja:['こんにちは！M Stand です🧋\nご予約・まとめ注文・メニューなど、お気軽にどうぞ。','原文を表示','メッセージを入力…','送信'],zh:['你好！这里是 M Stand 🧋\n预约、批量订购、菜单等都可以咨询。','显示原文','输入消息…','发送'],en:["Hi! This is M Stand 🧋\nAsk us anything — reservations, bulk orders, the menu.",'Show original','Type a message…','Send'],ko:['안녕하세요! M Stand입니다🧋\n예약·단체 주문·메뉴 등 편하게 문의하세요.','원문 보기','메시지를 입력하세요…','보내기']};let t=TX.ja;
 const $=i=>document.getElementById(i),P=$('chatP'),B=$('chatB');const NM={ja:['お名前（任意）','閉じる','ご相談'],zh:['您的名字（选填）','关闭','咨询'],en:['Your name (optional)','Close','Chat'],ko:['이름 (선택)','닫기','상담']};
-window.__chatLang=l=>{t=TX[l]||TX.ja;$('hello').textContent=t[0];$('chatT').placeholder=t[2];$('chatF').querySelector('button').textContent=t[3];const n=NM[l]||NM.ja;$('chatN').placeholder=n[0];$('chatN').setAttribute('aria-label',n[0]);$('chatT').setAttribute('aria-label',t[2]);$('chatX').setAttribute('aria-label',n[1]);$('chatFab').setAttribute('aria-label',n[2]);P.setAttribute('aria-label',n[2]);document.querySelectorAll('#chatB .tg').forEach(b=>b.textContent=t[1])};__chatLang(curLang());
+const NT={ja:'新着メッセージ',zh:'新消息',en:'New message',ko:'새 메시지'};
+window.__chatLang=l=>{t=TX[l]||TX.ja;$('hello').textContent=t[0];$('chatT').placeholder=t[2];$('chatF').querySelector('button').textContent=t[3];const n=NM[l]||NM.ja;$('chatN').placeholder=n[0];$('chatN').setAttribute('aria-label',n[0]);$('chatT').setAttribute('aria-label',t[2]);$('chatX').setAttribute('aria-label',n[1]);$('chatFab').setAttribute('aria-label',n[2]);P.setAttribute('aria-label',n[2]);document.querySelectorAll('#chatB .tg').forEach(b=>b.textContent=t[1]);const te=$('chatToastT');if(te)te.textContent=NT[l]||NT.ja};__chatLang(curLang());
 let S={};try{S=JSON.parse(localStorage.msChat||'{}')}catch(e){}let since=0,seen=new Set(),tm=null;
-const add=m=>{const k=m.at+m.f;if(seen.has(k))return;seen.add(k);const d=document.createElement('div');d.className='mg '+m.f;d.textContent=m.t;
- if(m.orig){const b=document.createElement('button');b.type='button';b.className='tg';b.textContent=t[1];const o=document.createElement('div');o.className='og';o.textContent=m.orig;b.onclick=()=>d.classList.toggle('so');d.append(b,o)}
- B.appendChild(d);B.scrollTop=1e6;since=Math.max(since,m.at)};
-const poll=async()=>{if(!S.cid)return;try{const r=await fetch(API+'/api/sitechat/poll?cid='+S.cid+'&token='+S.token+'&since='+since);if(r.status===404){S={};localStorage.removeItem('msChat');return}const j=await r.json();(j.msgs||[]).forEach(add)}catch(e){}};
-const open=o=>{P.classList.toggle('open',o);clearInterval(tm);if(o){poll();tm=setInterval(poll,5000)}};
+const AV0='icons/chat.png?v=20261108b',AVC='icons/chat-c.png?v=20261108b';new Image().src=AVC;
+const fmtT=ts=>{try{return new Date(ts||Date.now()).toLocaleTimeString(curLang()==='zh'?'zh-CN':curLang()==='en'?'en-US':curLang()==='ko'?'ko-KR':'ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})}catch(e){return ''}};
+let unread=0,baseDone=false;const bdg=$('chatBdg'),tst=$('chatToast'),tstB=$('chatToastB');let tstTm=null;
+const setBdg=()=>{if(!bdg)return;bdg.hidden=!unread;bdg.textContent=unread;if(unread){bdg.classList.remove('pop');void bdg.offsetWidth;bdg.classList.add('pop')}};
+const showToast=tx=>{if(!tst||!tstB)return;const g=$('greet');if(g)g.hidden=true;tstB.textContent=tx.length>46?tx.slice(0,46)+'…':tx;tst.hidden=false;clearTimeout(tstTm);tstTm=setTimeout(()=>{tst.hidden=true},4600)};
+let typEl=null;const typing=on=>{if(on){if(typEl)return;typEl=document.createElement('div');typEl.className='mg s typ';const av=document.createElement('img');av.className='av cav';av.src=AV0;av.alt='';const col=document.createElement('div');col.className='col';const db=document.createElement('div');db.className='tx dots';db.innerHTML='<i></i><i></i><i></i>';col.appendChild(db);typEl.append(av,col);B.appendChild(typEl);B.scrollTop=1e6}else if(typEl){typEl.remove();typEl=null}};
+window.__chatTyping=typing;
+const add=m=>{const k=m.at+m.f;if(seen.has(k))return;seen.add(k);const d=document.createElement('div');d.className='mg '+m.f;
+ const tx=document.createElement('div');tx.className='tx';tx.textContent=m.t;const tmEl=document.createElement('span');tmEl.className='tm';tmEl.textContent=fmtT(m.at);
+ if(m.f==='s'){const av=document.createElement('img');av.className='av cav';av.src=AV0;av.alt='';const col=document.createElement('div');col.className='col';col.appendChild(tx);
+  if(m.orig){const b=document.createElement('button');b.type='button';b.className='tg';b.textContent=t[1];const o=document.createElement('div');o.className='og';o.textContent=m.orig;b.onclick=()=>d.classList.toggle('so');col.append(b,o)}
+  col.appendChild(tmEl);d.append(av,col)}
+ else d.append(tx,tmEl);
+ B.appendChild(d);B.scrollTop=1e6;since=Math.max(since,m.at);
+ if(m.f==='s'&&baseDone&&!P.classList.contains('open')){unread++;setBdg();showToast(m.t)}};
+const poll=async()=>{if(!S.cid)return;try{const r=await fetch(API+'/api/sitechat/poll?cid='+S.cid+'&token='+S.token+'&since='+since);if(r.status===404){S={};localStorage.removeItem('msChat');return}const j=await r.json();(j.msgs||[]).forEach(add);baseDone=true}catch(e){}};
+setInterval(()=>{if(S.cid&&!P.classList.contains('open'))poll()},30000);
+const open=o=>{P.classList.toggle('open',o);clearInterval(tm);if(o){unread=0;setBdg();if(tst)tst.hidden=true;poll();tm=setInterval(poll,5000)}};
+if(tst)tst.onclick=()=>open(true);
+(function blink(){setTimeout(()=>{document.querySelectorAll('img.cav').forEach(im=>{im.src=AVC});setTimeout(()=>{document.querySelectorAll('img.cav').forEach(im=>{im.src=AV0})},170);blink()},2600+Math.random()*2200)})();
 window.__chatOpen=open;$('chatFab').onclick=()=>open(!P.classList.contains('open'));$('chatX').onclick=()=>open(false);if(S.name)$('chatN').value=S.name;
-$('chatF').onsubmit=async e=>{e.preventDefault();const tx=$('chatT').value.trim();if(!tx)return;$('chatErr').textContent='';if(!e.force&&window.__faq&&await __faq(tx)){$('chatT').value='';return}
- try{const r=await fetch(API+'/api/sitechat/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cid:S.cid,token:S.token,name:$('chatN').value,text:tx,hp:$('chatHp').value,lang:curLang()})});const j=await r.json();
-  if(!r.ok){$('chatErr').textContent=j.error||'Error';return}S={cid:j.cid||S.cid,token:j.token||S.token,name:$('chatN').value};localStorage.msChat=JSON.stringify(S);$('chatT').value='';poll()}catch(e){$('chatErr').textContent='通信エラー / Network error'}};
+$('chatF').onsubmit=async e=>{e.preventDefault();const tx=$('chatT').value.trim();if(!tx)return;$('chatErr').textContent='';if(!e.force&&window.__faq&&await __faq(tx)){$('chatT').value='';fitT();return}
+ typing(true);try{const r=await fetch(API+'/api/sitechat/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cid:S.cid,token:S.token,name:$('chatN').value,text:tx,hp:$('chatHp').value,lang:curLang()})});const j=await r.json();
+  if(!r.ok){typing(false);$('chatErr').textContent=j.error||'Error';return}S={cid:j.cid||S.cid,token:j.token||S.token,name:$('chatN').value};localStorage.msChat=JSON.stringify(S);$('chatT').value='';fitT();poll();typing(false)}catch(e){typing(false);$('chatErr').textContent='通信エラー / Network error'}};
+const TA=$('chatT'),SBN=$('chatSend')||$('chatF').querySelector('button');
+const fitT=()=>{TA.style.height='auto';TA.style.height=Math.min(TA.scrollHeight,96)+'px';if(SBN)SBN.disabled=!TA.value.trim()};
+TA.addEventListener('input',fitT);
+TA.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&TA.value.trim()&&matchMedia('(hover:hover) and (pointer:fine)').matches){e.preventDefault();$('chatF').requestSubmit()}});
+fitT();
 })();
 ;
 (()=>{const q=new URLSearchParams(location.search);const API=(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&q.get('chatapi'))||'https://order.kkmurado.com';
@@ -109,6 +130,11 @@ const $=i=>document.getElementById(i),L=()=>curLang(),B=$('chatB'),esc=t=>String
 const U={mob:'https://order.kkmurado.com',sq:'https://mstandikebukuro.square.site',uber:'https://www.ubereats.com/jp/store/%E3%82%A8%E3%83%A0-%E3%82%B9%E3%82%BF%E3%83%B3%E3%83%88-m-stand/uZXQD-OoRt6Z8nKJGpW4Fg',gift:'https://app.squareup.com/gift/MLP8SFCN6960P/order',map:'https://www.google.com/maps/search/?api=1&query=M+Stand+%E6%B1%A0%E8%A2%8B+%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-24-5'};
 const lk=(u,t)=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`;
 const LB={ja:'自動応答',zh:'自动回复',en:'Auto-reply',ko:'자동 응답'},ASK={ja:'スタッフに聞く',zh:'转人工客服',en:'Ask our staff',ko:'직원에게 묻기'};
+const CST={ja:'今、開いてる？',zh:'现在开门吗？',en:'Open now?',ko:'지금 열었나요?'};
+const CIC={hours:'hours.png',access:'pin.png',status:'sparkle.png',order:'order.png',pay:'card.png',busy:'fruittea.png',sold:'cart.png',custom:'f-brownsugar.png',gift:'apple-wallet.png'};
+const SN={ja:{open:'営業中',preparing:'準備中',paused:'一時休止中',closed:'営業時間外'},zh:{open:'营业中',preparing:'准备中',paused:'暂停营业',closed:'非营业时间'},en:{open:'Open now',preparing:'Getting ready',paused:'Paused',closed:'Closed'},ko:{open:'영업 중',preparing:'준비 중',paused:'잠시 중단',closed:'영업시간 외'}};
+const CL={ja:{busy:'混雑状況',wait:'待ち時間',hrsL:'営業時間',hrsS:'17:00〜翌2:00',none:'売り切れはありません',order:'スマホで注文する',waitV:m=>m?`約${m}分`:'ほぼなし',toOpen:m=>`開店まであと約${Math.floor(m/60)?Math.floor(m/60)+'時間':''}${m%60}分`,toClose:m=>`閉店まであと約${Math.floor(m/60)?Math.floor(m/60)+'時間':''}${m%60}分`},zh:{busy:'拥挤程度',wait:'预计等待',hrsL:'营业时间',hrsS:'17:00 – 次日 2:00',none:'暂无售罄',order:'去点单',waitV:m=>m?`约${m}分钟`:'基本无需等待',toOpen:m=>`距开门约${Math.floor(m/60)?Math.floor(m/60)+'小时':''}${m%60}分钟`,toClose:m=>`距打烊约${Math.floor(m/60)?Math.floor(m/60)+'小时':''}${m%60}分钟`},en:{busy:'How busy',wait:'Wait',hrsL:'Hours',hrsS:'5 pm – 2 am',none:'Nothing sold out',order:'Order now',waitV:m=>m?`~${m} min`:'Little to none',toOpen:m=>`Opens in about ${Math.floor(m/60)?Math.floor(m/60)+'h ':''}${m%60}m`,toClose:m=>`Closes in about ${Math.floor(m/60)?Math.floor(m/60)+'h ':''}${m%60}m`},ko:{busy:'혼잡도',wait:'대기 시간',hrsL:'영업시간',hrsS:'17:00~다음 날 2:00',none:'품절 없음',order:'주문하기',waitV:m=>m?`약 ${m}분`:'거의 없음',toOpen:m=>`개점까지 약 ${Math.floor(m/60)?Math.floor(m/60)+'시간 ':''}${m%60}분`,toClose:m=>`마감까지 약 ${Math.floor(m/60)?Math.floor(m/60)+'시간 ':''}${m%60}분`}};
+const STQ=/開いてる|開いている|やってる|営業中|営業して|開店中|现在开|开门了吗|开门没|在营业|营业吗|營業中|open now|are you open|is (it|the shop) open|지금 열|영업 중|열었/i;
 const CH={ja:['営業時間','アクセス','お支払い','注文方法','今の混雑','売り切れ','甘さ・トッピング','プリペイドカード'],zh:['营业时间','地址交通','支付方式','点单方式','现在人多吗','售罄','甜度・加料','礼品卡'],en:['Hours','Location','Payment','How to order','Busy now?','Sold out','Sweetness & toppings','Gift cards'],ko:['영업시간','오시는 길','결제','주문 방법','지금 붐비나요?','품절','당도·토핑','기프트 카드']};
 const K=['hours','access','pay','order','busy','sold','custom','gift'];
 const KW={hours:/営業|何時|時間|開店|閉店|休み|定休|营业|几点|开门|关门|打烊|休息|hour|open|close|time/i,
@@ -136,15 +162,33 @@ async function live(k){const l=L(),t=T[l];let j;try{j=await (await fetch(API+'/a
  const st=t[j.state]||t.closed;
  if(k==='busy'){if(j.state!=='open')return st+(j.minsToOpen!=null?'\n'+t.toOpen(j.minsToOpen):'');return st+'\n'+(t.busy[j.busy]||'')+'。'.replace(/^。$/,l==='en'?'.':'。')+'\n'+t.wait(j.wait||0)}
  if(j.state==='closed')return st;const so=(j.soldOut||[]).map(x=>x[l]||x.ja);return so.length?t.so(so.join(t.sep)):t.none}
-function bubble(html,q){const d=document.createElement('div');d.className='mg a';d.innerHTML=`<span class="al">${LB[L()]}</span>${html}`;
- if(q){const b=document.createElement('button');b.type='button';b.className='ask';b.textContent=ASK[L()];b.onclick=()=>{b.remove();const ta=$('chatT');ta.value=q;const f=$('chatF'),ev=new Event('submit',{cancelable:true});ev.force=true;f.onsubmit(ev)};d.appendChild(b)}
- B.appendChild(d);B.scrollTop=1e6}
-function me(t){const d=document.createElement('div');d.className='mg c';d.textContent=t;B.appendChild(d)}
-async function answer(k){return (k==='busy'||k==='sold')?esc(await live(k)):A[k][L()]}
-window.__faq=async tx=>{if(tx.length>80)return false;const k=K.find(x=>KW[x].test(tx))||(KW.order.test(tx)?'order':null);
+const fmtT2=ts=>{try{return new Date(ts||Date.now()).toLocaleTimeString(L()==='zh'?'zh-CN':L()==='en'?'en-US':L()==='ko'?'ko-KR':'ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})}catch(e){return ''}};
+async function statusCard(){const l=L(),t=T[l],c=CL[l];let j;try{const r=await fetch(API+'/api/site/status');if(!r.ok)return null;j=await r.json();if(!j||!j.state)return null}catch(e){return null}
+ const st=j.state;let rows='';
+ if(st==='open'){if(t.busy[j.busy])rows+='<div class="row2"><span>'+c.busy+'</span><span>'+esc(t.busy[j.busy])+'</span></div>';
+  rows+='<div class="row2"><span>'+c.wait+'</span><span>'+c.waitV(j.wait||0)+'</span></div>';
+  if(j.minsToClose!=null)rows+='<div class="sc-note">'+c.toClose(j.minsToClose)+'</div>'}
+ else{if(j.minsToOpen!=null)rows+='<div class="sc-note">'+c.toOpen(j.minsToOpen)+'</div>';
+  rows+='<div class="row2"><span>'+c.hrsL+'</span><span>'+c.hrsS+'</span></div>'}
+ const so=(j.soldOut||[]).map(x=>x&&(x[l]||x.ja)).filter(Boolean);
+ rows+='<div class="sc-so">'+(so.length?esc(t.so(so.join(t.sep))):c.none)+'</div>';
+ return '<div class="sc"><div class="sc-h"><span class="sc-dot '+st+'"></span><b>'+esc(SN[l][st]||SN[l].closed)+'</b><span class="sc-hrs">'+c.hrsS+'</span></div><div class="sc-b">'+rows+'</div><a class="sc-btn" href="'+U.mob+'" target="_blank" rel="noopener">'+c.order+'</a></div>'}
+function bubble(html,q,card){const d=document.createElement('div');d.className='mg a';
+ const av=document.createElement('img');av.className='av cav';av.src='icons/chat.png?v=20261108b';av.alt='';
+ const col=document.createElement('div');col.className='col';
+ const lb=document.createElement('span');lb.className='al';lb.textContent=LB[L()];
+ const tx=document.createElement('div');tx.className='tx'+(card?' card':'');tx.innerHTML=html;col.append(lb,tx);
+ if(q){const b=document.createElement('button');b.type='button';b.className='ask';b.textContent=ASK[L()];b.onclick=()=>{b.remove();const ta=$('chatT');ta.value=q;const f=$('chatF'),ev=new Event('submit',{cancelable:true});ev.force=true;f.onsubmit(ev)};col.appendChild(b)}
+ const tmEl=document.createElement('span');tmEl.className='tm';tmEl.textContent=fmtT2(Date.now());col.appendChild(tmEl);
+ d.append(av,col);B.appendChild(d);B.scrollTop=1e6}
+function me(t){const d=document.createElement('div');d.className='mg c';const tx=document.createElement('div');tx.className='tx';tx.textContent=t;const tmEl=document.createElement('span');tmEl.className='tm';tmEl.textContent=fmtT2(Date.now());d.append(tx,tmEl);B.appendChild(d);B.scrollTop=1e6}
+async function answer(k){if(k==='status'){const cd=await statusCard();return cd?{h:cd,card:1}:{h:A.hours[L()]}}return (k==='busy'||k==='sold')?{h:esc(await live(k))}:{h:A[k][L()]}}
+const ask2=async(k,q)=>{const ty=window.__chatTyping;ty&&ty(true);const p=answer(k);await new Promise(r=>setTimeout(r,700));try{const rs=await p;bubble(rs.h,q,rs.card)}finally{ty&&ty(false)}};
+window.__faq=async tx=>{if(tx.length>80)return false;const k=STQ.test(tx)?'status':(K.find(x=>KW[x].test(tx))||(KW.order.test(tx)?'order':null));
  // order before busy/sold priority handled by K order; gift before order
- if(!k)return false;me(tx);bubble(await answer(k),tx);return true};
-const chips=()=>{const c=$('chips');c.innerHTML='';CH[L()].forEach((n,i)=>{const b=document.createElement('button');b.type='button';b.textContent=n;b.onclick=async()=>{me(n);bubble(await answer(K[i]))};c.appendChild(b)})};
+ if(!k)return false;me(tx);await ask2(k,tx);return true};
+const chips=()=>{const c=$('chips');c.innerHTML='';const es=K.map((k,i)=>({k,n:CH[L()][i]}));es.splice(2,0,{k:'status',n:CST[L()]});
+ es.forEach(it=>{const b=document.createElement('button');b.type='button';const im=document.createElement('img');im.src='icons/'+CIC[it.k]+'?v=20261108b';im.alt='';const sp=document.createElement('span');sp.textContent=it.n;b.append(im,sp);b.onclick=()=>{me(it.n);ask2(it.k)};c.appendChild(b)})};
 chips();(window.__relang=window.__relang||[]).push(chips);
 // ---- FAB width for mobile order bar, greeting
 const fab=$('chatFab'),g=$('greet');const fw=()=>document.documentElement.style.setProperty('--fabw',fab.offsetWidth+'px');fw();addEventListener('resize',fw);window.__relang.push(()=>setTimeout(fw,0));
