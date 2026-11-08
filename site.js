@@ -1025,10 +1025,10 @@ function addBadges(){
   var h=c.querySelector('h3');if(!h)return;
   var fl=fruitList(h.textContent||'');if(!fl.length)return;
   fl.forEach(function(f){
-  var i=document.createElement('img');i.className='pkfb';i.alt='';i.src='icons/'+f+'.png?v=20261108a';
+  var i=document.createElement('img');i.className='pkfb';i.alt='';i.src='icons/'+f+'.png?v=20261108b';
   h.appendChild(i);
   if(RM)return;
-  var closed='icons/'+f+'-c.png?v=20261108a',pre=new Image();
+  var closed='icons/'+f+'-c.png?v=20261108b',pre=new Image();
   pre.onload=function(){var period=2800+Math.random()*3400,open=i.src;
    function tick(){if(!i.isConnected||document.hidden)return;var r=i.getBoundingClientRect();if(r.bottom<-40||r.top>innerHeight+40)return;i.src=closed;setTimeout(function(){i.src=open},170)}
    setTimeout(function(){tick();setInterval(tick,period)},Math.random()*period)};
