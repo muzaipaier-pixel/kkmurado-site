@@ -905,7 +905,7 @@ var CFG={
   gravity:1500,idleScrollQuietMs:3500
 };
 window.JUICE_CFG=CFG;
-var BB=false;try{BB=/[?&]blast=b(?:&|$)/.test(location.search)}catch(e){}
+var BB=true;/* B-mode is the default since 2026-11-11 (owner: 全部上线) */
 if(BB){CFG.tiers.forEach(function(t){t.particles=560;t.splats=42});CFG._b=1}
 function tier(){var w=innerWidth;for(var i=0;i<CFG.tiers.length;i++){if(w>=CFG.tiers[i].minW)return CFG.tiers[i]}return CFG.tiers[CFG.tiers.length-1]}
 function rnd(a,b){return a+Math.random()*(b-a)}
