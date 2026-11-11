@@ -400,7 +400,7 @@ footer{background:#070707!important;color:#7d776c!important;border-top:1px solid
 .eyebrow{background:linear-gradient(90deg,#d9a05b,#f0c98a)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;-webkit-text-fill-color:transparent!important}
 h1 .g,h1 .g .nw{-webkit-text-fill-color:#f0c98a!important}
 .cfd button{background:rgba(255,255,255,.22)}
-.meter i{background:#2a2620!important}
+.meter i{background:#2a2620}
 .ch li{background:#221f1a!important;color:#f2ede4!important}
 .ch li span{background:#332e26!important;color:var(--mut)!important}
 .ch li span.on{background:rgba(48,194,90,.16)!important;color:#5fd17f!important}
