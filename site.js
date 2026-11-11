@@ -905,6 +905,8 @@ var CFG={
   gravity:1500,idleScrollQuietMs:3500
 };
 window.JUICE_CFG=CFG;
+var BB=false;try{BB=/[?&]blast=b(?:&|$)/.test(location.search)}catch(e){}
+if(BB){CFG.tiers.forEach(function(t){t.particles=560;t.splats=42});CFG._b=1}
 function tier(){var w=innerWidth;for(var i=0;i<CFG.tiers.length;i++){if(w>=CFG.tiers[i].minW)return CFG.tiers[i]}return CFG.tiers[CFG.tiers.length-1]}
 function rnd(a,b){return a+Math.random()*(b-a)}
 function shade(hex,f){var n=parseInt(hex.slice(1),16);if(isNaN(n))return hex;var r=Math.min(255,((n>>16)&255)*f),g=Math.min(255,((n>>8)&255)*f),b=Math.min(255,(n&255)*f);return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')'}
@@ -929,7 +931,7 @@ function addSplat(x,y,r,col,now,thin){
     holdMs:RM?CFG.rmFadeMs*0.4:CFG.splatFadeMs*0.5,
     fadeMs:(RM?CFG.rmFadeMs*0.6:CFG.splatFadeMs)*rnd(0.85,1.2),dripAt:0};
   if(!RM&&!thin&&Math.random()<CFG.dripChance&&r>=13&&y<VH-90)s.dripAt=now+rnd(500,2600);
-  if(splats.length>=110)return;
+  if(splats.length>=(CFG._b?150:110))return;
   splats.push(s);
 }
 var dripsTotal=0;
@@ -944,19 +946,19 @@ window.__juiceBlast=function(cx,cy,col,fid){
   lastBlastAt=Date.now();
   var now=performance.now(),t=tier();
   var n=RM?CFG.rmParticles:t.particles;
-  fx.push({type:'flash',x:cx,y:cy,col:col,born:now,life:RM?180:280,r1:RM?60:150});
-  if(!RM)for(var s=0;s<10;s++)fx.push({type:'streak',x:cx,y:cy,ang:Math.random()*Math.PI*2,len:rnd(70,170),col:col,born:now,life:rnd(180,260)});
+  fx.push({type:'flash',x:cx,y:cy,col:col,born:now,life:RM?180:(CFG._b?340:280),r1:RM?60:(CFG._b?240:150)});if(CFG._b&&!RM)fx.push({type:'ring',x:cx,y:cy,col:col,born:now,life:460,r1:Math.min(VW,VH)*0.46});
+  if(!RM)for(var s=0;s<(CFG._b?20:10);s++)fx.push({type:'streak',x:cx,y:cy,ang:Math.random()*Math.PI*2,len:CFG._b?rnd(90,260):rnd(70,170),col:col,born:now,life:rnd(180,260)});
   var dark=shade(col,0.8),lite=shade(col,1.12);
   for(var i=0;i<n;i++){
     var mist=i>=n*0.82;
     var lob=!mist&&Math.random()<0.26; /* lobbed high: dies near its apex so the top of the glass gets stained too */
     var ang,sp,life;
-    if(lob){ang=-Math.PI*(0.15+Math.random()*0.7);sp=rnd(700,1250);life=rnd(0.5,0.95)}
-    else if(mist){ang=Math.random()*Math.PI*2;sp=rnd(420,980);life=rnd(0.35,0.7)}
-    else{ang=Math.random()*Math.PI*2;sp=240+Math.pow(Math.random(),1.6)*980;life=rnd(0.85,1.75)}
+    if(lob){ang=-Math.PI*(0.15+Math.random()*0.7);sp=rnd(700,CFG._b?1500:1250);life=rnd(0.5,0.95)}
+    else if(mist){ang=Math.random()*Math.PI*2;sp=rnd(420,CFG._b?1200:980);life=rnd(0.35,0.7)}
+    else{ang=Math.random()*Math.PI*2;sp=240+Math.pow(Math.random(),1.6)*(CFG._b?1460:980);life=rnd(0.85,1.75)}
     var roll=Math.random();
     drops.push({x:cx,y:cy,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-(lob?0:140),
-      r:mist?rnd(1,2.2):rnd(2,6.8),
+      r:mist?(CFG._b?rnd(1.2,2.6):rnd(1,2.2)):(CFG._b?rnd(2.4,8.6):rnd(2,6.8)),
       col:roll<0.18?dark:(roll>0.86?lite:col),
       age:0,life:life,mist:mist});
   }
@@ -974,7 +976,8 @@ function tick(now){
   fx=fx.filter(function(f){return now-f.born<f.life});
   fx.forEach(function(f){var k=(now-f.born)/f.life;
     if(f.type==='flash'){ctx.save();ctx.translate(f.x,f.y);var r=f.r1*(0.35+0.65*k);ctx.scale(r,r);ctx.globalAlpha=0.5*(1-k);ctx.fillStyle=f.col;ctx.fill(UNIT);ctx.restore()}
-    else{ctx.save();ctx.globalAlpha=0.3*(1-k);ctx.strokeStyle=f.col;ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(f.x,f.y);ctx.lineTo(f.x+Math.cos(f.ang)*f.len*k,f.y+Math.sin(f.ang)*f.len*k);ctx.stroke();ctx.restore()}
+    else if(f.type==='ring'){ctx.save();ctx.globalAlpha=0.55*(1-k);ctx.strokeStyle=f.col;ctx.lineWidth=5*(1-k)+1;ctx.beginPath();ctx.arc(f.x,f.y,f.r1*(1-Math.pow(1-k,3)),0,Math.PI*2);ctx.stroke();ctx.restore()}
+    else{ctx.save();ctx.globalAlpha=0.3*(1-k);ctx.strokeStyle=f.col;ctx.lineWidth=CFG._b?4:3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(f.x,f.y);ctx.lineTo(f.x+Math.cos(f.ang)*f.len*k,f.y+Math.sin(f.ang)*f.len*k);ctx.stroke();ctx.restore()}
   });
   /* flying drops */
   for(var i=drops.length-1;i>=0;i--){var d=drops[i];d.age+=dt;d.vy+=CFG.gravity*dt;d.x+=d.vx*dt;d.y+=d.vy*dt;
