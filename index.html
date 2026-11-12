@@ -155,4 +155,80 @@
 
 
 <script src="site.js?v=20261111c"></script>
+
+<style id="mscStyle">
+#mscPet{position:fixed;left:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9990;width:84px;height:84px}
+#mscBtn{background:none;border:0;padding:0;margin:0;cursor:pointer;width:100%;height:100%;display:block;-webkit-tap-highlight-color:transparent}
+#mscBtn:focus-visible{outline:2px solid #b48ec7;outline-offset:2px;border-radius:50%}
+#mscImg{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(43,29,58,.25));transform-origin:50% 100%;will-change:transform;pointer-events:none}
+#mscBubble{position:absolute;left:76px;bottom:60px;min-width:118px;max-width:208px;background:#fff;color:#2b1d3a;border-radius:16px;padding:9px 12px;font-size:13px;line-height:1.45;box-shadow:0 8px 24px rgba(43,29,58,.18);opacity:0;transform:translateY(6px) scale(.92);transform-origin:0 100%;transition:opacity .18s ease,transform .18s ease;pointer-events:none}
+#mscBubble.on{opacity:1;transform:none}
+#mscBubble::after{content:"";position:absolute;left:-5px;bottom:16px;width:12px;height:12px;background:#fff;transform:rotate(45deg);border-radius:3px}
+#mscZzz{position:absolute;top:-10px;right:0;font-weight:700;color:#8a7bb8;font-size:19px;animation:mscZ 2.6s ease-in-out infinite;pointer-events:none}
+@keyframes mscZ{0%{transform:translateY(2px) rotate(-8deg);opacity:0}25%{opacity:1}100%{transform:translateY(-16px) rotate(12deg);opacity:0}}
+@media (prefers-reduced-motion: reduce){#mscZzz{animation:none}}
+</style>
+<div id="mscPet">
+  <div id="mscBubble" hidden></div>
+  <button id="mscBtn" type="button" aria-label="M Stand mascot">
+    <span id="mscZzz" hidden>Z</span>
+    <img id="mscImg" src="icons/f-strawberry.png?v=20261108e" alt="" width="120" height="120" decoding="async">
+  </button>
+</div>
+<script id="mscScript">
+(function(){
+  var pet=document.getElementById('mscPet'); if(!pet) return;
+  var img=document.getElementById('mscImg'), btn=document.getElementById('mscBtn'),
+      bub=document.getElementById('mscBubble'), zzz=document.getElementById('mscZzz');
+  var OPEN='icons/f-strawberry.png?v=20261108e', SHUT='icons/f-strawberry-c.png?v=20261108e';
+  var RM = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function lang(){ try{ return (document.documentElement.lang||'ja').slice(0,2); }catch(e){ return 'ja'; } }
+  var PH = {
+    ja:['いちごだよ〜','今日もフレッシュ！','タップしてね','のど、かわいてない？'],
+    zh:['我是小草莓','今天也新鲜现做','点我玩一下','口渴了吗？来一杯'],
+    en:['I am Berry!','Fresh today, too!','Tap me!','Thirsty? Grab a cup'],
+    ko:['딸기예요','오늘도 신선하게!','눌러보세요','목마르지 않아요?']
+  };
+  var ST = {
+    ja:{open:'いま営業中だよ',prep:'準備中…もうすぐ！',closed:'また明日ね',ext:'今日は延長中！'},
+    zh:{open:'现在营业中哦',prep:'准备中，快好了',closed:'明天见啦',ext:'今天延长营业中！'},
+    en:{open:'We are open now!',prep:'Getting ready…',closed:'See you tomorrow',ext:'Open late today!'},
+    ko:{open:'지금 영업 중이에요',prep:'준비 중…곧 열어요',closed:'내일 만나요',ext:'오늘은 연장 영업!'}
+  };
+  var mood='open', extOn=false, pi=-1, bubT=null;
+  function say(txt){ bub.textContent=txt; bub.hidden=false;
+    requestAnimationFrame(function(){ bub.classList.add('on'); });
+    clearTimeout(bubT); bubT=setTimeout(function(){ bub.classList.remove('on');
+      setTimeout(function(){ bub.hidden=true; },200); },2600); }
+  function phrase(){ var L=lang(), s=(ST[L]||ST.ja), pool=(PH[L]||PH.ja).slice();
+    pool.push(mood==='closed'?s.closed:(mood==='open'?s.open:s.prep));
+    if(extOn) pool.push(s.ext);
+    pi=(pi+1)%pool.length; return pool[pi]; }
+  var sy=1, vy=0, hy=0, hv=0, rot=0, tRot=0;
+  function frame(){ vy += (1-sy)*0.16; vy *= 0.74; sy += vy;
+    hv += (0-hy)*0.12; hv *= 0.78; hy += hv;
+    rot += (tRot-rot)*0.06;
+    var sx = 1/Math.sqrt(Math.max(0.55, Math.min(1.6, sy)));
+    img.style.transform='translateY('+hy.toFixed(2)+'px) rotate('+rot.toFixed(2)+'deg) scale('+sx.toFixed(3)+','+sy.toFixed(3)+')';
+    requestAnimationFrame(frame); }
+  if(!RM) requestAnimationFrame(frame);
+  function blink(){ if(mood!=='closed'){ img.src=SHUT;
+      setTimeout(function(){ if(mood!=='closed') img.src=OPEN; },130); }
+    setTimeout(blink, 2400+Math.random()*3200); }
+  if(!RM) setTimeout(blink, 1800);
+  window.addEventListener('pointermove', function(e){ if(RM) return;
+    var w=window.innerWidth||1; tRot=((e.clientX/w)-0.5)*7; }, {passive:true});
+  btn.addEventListener('click', function(){ if(!RM){ vy-=2.6; hv-=7; } say(phrase()); });
+  function poll(){ fetch('/api/site/status',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(d){
+      if(!d) return; extOn=!!d.ext; var st=d.state||'open';
+      mood=(st==='closed')?'closed':st;
+      if(mood==='closed'){ img.src=SHUT; zzz.hidden=false; }
+      else { zzz.hidden=true; if(img.getAttribute('src')===SHUT) img.src=OPEN; }
+    }).catch(function(){}); }
+  poll(); setInterval(poll, 90000);
+  try{ if(!sessionStorage.getItem('msc_hi')){ sessionStorage.setItem('msc_hi','1');
+    setTimeout(function(){ if(!RM){ vy-=2.2; hv-=6; } say(phrase()); }, 1400); } }catch(e){}
+})();
+</script>
+
 </body></html>
