@@ -224,10 +224,10 @@ poll();setInterval(poll,90000);
 var sy=1,vy=0,hy=0,hv=0,raf=null;
 function loop(){var ay=(1-sy)*220-vy*11;vy+=ay/60;sy+=vy/60;var ah=(0-hy)*170-hv*10;hv+=ah/60;hy+=hv/60;img.style.transform='translateY('+(-hy).toFixed(1)+'px) scaleX('+(2-sy).toFixed(3)+') scaleY('+sy.toFixed(3)+')';if(Math.abs(vy)>.001||Math.abs(sy-1)>.001||Math.abs(hv)>.05||Math.abs(hy)>.05){raf=requestAnimationFrame(loop);}else{img.style.transform='';raf=null;}}
 function cdLine(){var l=L(),m=st.minsToOpen;if(m>=120)return CD.h[l].replace('{h}',String(Math.round(m/60)));if(m>=60)return CD.h1[l];return CD.m[l].replace('{m}',String(m));}
-var cdSaid=false,tapLog=[];
+var cdSaid=false,tapN=0,tapTimer=null;
 var SECRET={ja:'ひみつのダンス、見ちゃった？',zh:'被你发现啦，秘密舞蹈！',en:'You found the secret dance!',ko:'비밀 댄스, 들켰다!'};
 function dance(){say(SECRET[L()]);if(reduced)return;pet.classList.remove('dance');void pet.offsetWidth;pet.classList.add('dance');setTimeout(function(){pet.classList.remove('dance');},1000);var cols=['#ffd166','#ff8fab','#a3c585','#7cc7ff'];for(var i=0;i<12;i++){var sp=document.createElement('span');sp.className='mscSp';sp.style.background=cols[i%4];sp.style.setProperty('--dx',(Math.random()*130-65).toFixed(0)+'px');sp.style.setProperty('--dy',(-(30+Math.random()*80)).toFixed(0)+'px');pet.appendChild(sp);(function(el){setTimeout(function(){el.remove();},850);})(sp);}}
-function kick(){var nowT=Date.now();tapLog.push(nowT);tapLog=tapLog.filter(function(t){return nowT-t<2800;});if(tapLog.length>=5){tapLog=[];dance();return;}var s;if(!cdSaid&&st&&st.state==='closed'&&st.minsToOpen!=null){cdSaid=true;s=cdLine();}else s=pick();if(reduced){say(s);return;}vy-=7;hv+=130;if(!raf)raf=requestAnimationFrame(loop);say(s);}
+function kick(){tapN++;if(tapTimer)clearTimeout(tapTimer);tapTimer=setTimeout(function(){tapN=0;},1200);if(tapN>=5){tapN=0;if(tapTimer)clearTimeout(tapTimer);dance();return;}var s;if(!cdSaid&&st&&st.state==='closed'&&st.minsToOpen!=null){cdSaid=true;s=cdLine();}else s=pick();if(reduced){say(s);return;}vy-=7;hv+=130;if(!raf)raf=requestAnimationFrame(loop);say(s);}
 btn.addEventListener('click',kick);
 /* blink */
 function blink(){if(!sleeping){img.src=SHUT;setTimeout(function(){if(!sleeping)img.src=OPEN;},150);}setTimeout(blink,2400+Math.random()*3200);}
