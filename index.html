@@ -172,7 +172,7 @@
   <div id="mscBubble" hidden></div>
   <button id="mscBtn" type="button" aria-label="M Stand mascot">
     <span id="mscZzz" hidden>Z</span>
-    <img id="mscImg" src="icons/f-strawberry.png?v=20261108e" alt="" width="120" height="120" decoding="async">
+    <img id="mscImg" src="icons/f-matcha.png?v=20261108e" alt="" width="120" height="120" decoding="async">
   </button>
 </div>
 <script id="mscScript">
@@ -180,14 +180,14 @@
   var pet=document.getElementById('mscPet'); if(!pet) return;
   var img=document.getElementById('mscImg'), btn=document.getElementById('mscBtn'),
       bub=document.getElementById('mscBubble'), zzz=document.getElementById('mscZzz');
-  var OPEN='icons/f-strawberry.png?v=20261108e', SHUT='icons/f-strawberry-c.png?v=20261108e';
+  var OPEN='icons/f-matcha.png?v=20261108e', SHUT='icons/f-matcha-c.png?v=20261108e';
   var RM = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   function lang(){ try{ return (document.documentElement.lang||'ja').slice(0,2); }catch(e){ return 'ja'; } }
   var PH = {
-    ja:['いちごだよ〜','今日もフレッシュ！','タップしてね','のど、かわいてない？'],
-    zh:['我是小草莓','今天也新鲜现做','点我玩一下','口渴了吗？来一杯'],
-    en:['I am Berry!','Fresh today, too!','Tap me!','Thirsty? Grab a cup'],
-    ko:['딸기예요','오늘도 신선하게!','눌러보세요','목마르지 않아요?']
+    ja:['抹茶だよ〜','今日もフレッシュ！','タップしてね','のど、かわいてない？'],
+    zh:['我是小抹茶','今天也新鲜现做','点我玩一下','口渴了吗？来一杯'],
+    en:['I am Matcha!','Fresh today, too!','Tap me!','Thirsty? Grab a cup'],
+    ko:['말차예요','오늘도 신선하게!','눌러보세요','목마르지 않아요?']
   };
   var ST = {
     ja:{open:'いま営業中だよ',prep:'準備中…もうすぐ！',closed:'また明日ね',ext:'今日は延長中！'},
@@ -219,7 +219,7 @@
   window.addEventListener('pointermove', function(e){ if(RM) return;
     var w=window.innerWidth||1; tRot=((e.clientX/w)-0.5)*7; }, {passive:true});
   btn.addEventListener('click', function(){ if(!RM){ vy-=2.6; hv-=7; } say(phrase()); });
-  function poll(){ fetch('/api/site/status',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(d){
+  function poll(){ fetch('https://order.kkmurado.com/api/site/status',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(d){
       if(!d) return; extOn=!!d.ext; var st=d.state||'open';
       mood=(st==='closed')?'closed':st;
       if(mood==='closed'){ img.src=SHUT; zzz.hidden=false; }
