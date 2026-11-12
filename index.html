@@ -157,78 +157,77 @@
 <script src="site.js?v=20261111c"></script>
 
 <style id="mscStyle">
-#mscPet{position:fixed;left:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9990;width:84px;height:84px}
-#mscBtn{background:none;border:0;padding:0;margin:0;cursor:pointer;width:100%;height:100%;display:block;-webkit-tap-highlight-color:transparent}
-#mscBtn:focus-visible{outline:2px solid #b48ec7;outline-offset:2px;border-radius:50%}
-#mscImg{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(43,29,58,.25));transform-origin:50% 100%;will-change:transform;pointer-events:none}
-#mscBubble{position:absolute;left:76px;bottom:60px;min-width:118px;max-width:208px;background:#fff;color:#2b1d3a;border-radius:16px;padding:9px 12px;font-size:13px;line-height:1.45;box-shadow:0 8px 24px rgba(43,29,58,.18);opacity:0;transform:translateY(6px) scale(.92);transform-origin:0 100%;transition:opacity .18s ease,transform .18s ease;pointer-events:none}
-#mscBubble.on{opacity:1;transform:none}
-#mscBubble::after{content:"";position:absolute;left:-5px;bottom:16px;width:12px;height:12px;background:#fff;transform:rotate(45deg);border-radius:3px}
-#mscZzz{position:absolute;top:-10px;right:0;font-weight:700;color:#8a7bb8;font-size:19px;animation:mscZ 2.6s ease-in-out infinite;pointer-events:none}
-@keyframes mscZ{0%{transform:translateY(2px) rotate(-8deg);opacity:0}25%{opacity:1}100%{transform:translateY(-16px) rotate(12deg);opacity:0}}
-@media (prefers-reduced-motion: reduce){#mscZzz{animation:none}}
+#mscPet{position:fixed;left:14px;bottom:14px;z-index:9990;width:84px;height:84px;-webkit-tap-highlight-color:transparent}
+#mscBtn{display:block;width:100%;height:100%;padding:0;border:0;background:none;cursor:pointer}
+#mscImg{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(43,29,58,.25));transform-origin:50% 100%;will-change:transform}
+#mscBubble{position:absolute;left:88px;bottom:52px;min-width:120px;max-width:210px;background:#fff;color:#2b1d3a;border:2px solid #2b1d3a;border-radius:14px;padding:7px 10px;font-size:13px;font-weight:700;line-height:1.45;opacity:0;transform:translateY(4px) scale(.92);transform-origin:0 100%;transition:opacity .18s,transform .18s;pointer-events:none;box-shadow:0 6px 16px rgba(43,29,58,.18)}
+#mscBubble.on{opacity:1;transform:none;pointer-events:auto}
+#mscBubble:after{content:"";position:absolute;left:-7px;bottom:12px;width:10px;height:10px;background:#fff;border-left:2px solid #2b1d3a;border-bottom:2px solid #2b1d3a;transform:rotate(45deg)}
+#mscNav{display:none;margin-top:6px;flex-wrap:wrap;gap:4px}
+#mscBubble.on #mscNav{display:flex}
+.mscChip{border:1.5px solid #2b1d3a;background:#f3edff;color:#2b1d3a;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.mscChip:active{background:#e3d7ff}
+#mscZzz{position:absolute;right:2px;top:-8px;font-weight:900;color:#8b7bb8;font-size:16px;opacity:0;pointer-events:none}
+#mscPet.sleep #mscZzz{animation:mscZ 2.6s ease-in-out infinite}
+@keyframes mscZ{0%{opacity:0;transform:translate(0,4px) scale(.8) rotate(-8deg)}30%{opacity:1}100%{opacity:0;transform:translate(7px,-16px) scale(1.15) rotate(10deg)}}
+@media (max-width:480px){#mscPet{width:72px;height:72px;left:10px;bottom:10px}}
 </style>
-<div id="mscPet">
-  <div id="mscBubble" hidden></div>
-  <button id="mscBtn" type="button" aria-label="M Stand mascot">
-    <span id="mscZzz" hidden>Z</span>
-    <img id="mscImg" src="icons/f-matcha.png?v=20261108e" alt="" width="120" height="120" decoding="async">
-  </button>
+<div id="mscPet" aria-hidden="false">
+  <span id="mscZzz">Z</span>
+  <div id="mscBubble"><span id="mscTxt"></span><div id="mscNav"></div></div>
+  <button id="mscBtn" type="button" aria-label="M Stand mascot"><img id="mscImg" src="icons/f-matcha.png?v=20261108e" alt=""></button>
 </div>
 <script id="mscScript">
 (function(){
-  var pet=document.getElementById('mscPet'); if(!pet) return;
-  var img=document.getElementById('mscImg'), btn=document.getElementById('mscBtn'),
-      bub=document.getElementById('mscBubble'), zzz=document.getElementById('mscZzz');
-  var OPEN='icons/f-matcha.png?v=20261108e', SHUT='icons/f-matcha-c.png?v=20261108e';
-  var RM = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-  function lang(){ try{ return (document.documentElement.lang||'ja').slice(0,2); }catch(e){ return 'ja'; } }
-  var PH = {
-    ja:['抹茶だよ〜','今日もフレッシュ！','タップしてね','のど、かわいてない？'],
-    zh:['我是小抹茶','今天也新鲜现做','点我玩一下','口渴了吗？来一杯'],
-    en:['I am Matcha!','Fresh today, too!','Tap me!','Thirsty? Grab a cup'],
-    ko:['말차예요','오늘도 신선하게!','눌러보세요','목마르지 않아요?']
-  };
-  var ST = {
-    ja:{open:'いま営業中だよ',prep:'準備中…もうすぐ！',closed:'また明日ね',ext:'今日は延長中！'},
-    zh:{open:'现在营业中哦',prep:'准备中，快好了',closed:'明天见啦',ext:'今天延长营业中！'},
-    en:{open:'We are open now!',prep:'Getting ready…',closed:'See you tomorrow',ext:'Open late today!'},
-    ko:{open:'지금 영업 중이에요',prep:'준비 중…곧 열어요',closed:'내일 만나요',ext:'오늘은 연장 영업!'}
-  };
-  var mood='open', extOn=false, pi=-1, bubT=null;
-  function say(txt){ bub.textContent=txt; bub.hidden=false;
-    requestAnimationFrame(function(){ bub.classList.add('on'); });
-    clearTimeout(bubT); bubT=setTimeout(function(){ bub.classList.remove('on');
-      setTimeout(function(){ bub.hidden=true; },200); },2600); }
-  function phrase(){ var L=lang(), s=(ST[L]||ST.ja), pool=(PH[L]||PH.ja).slice();
-    pool.push(mood==='closed'?s.closed:(mood==='open'?s.open:s.prep));
-    if(extOn) pool.push(s.ext);
-    pi=(pi+1)%pool.length; return pool[pi]; }
-  var sy=1, vy=0, hy=0, hv=0, rot=0, tRot=0;
-  function frame(){ vy += (1-sy)*0.16; vy *= 0.74; sy += vy;
-    hv += (0-hy)*0.12; hv *= 0.78; hy += hv;
-    rot += (tRot-rot)*0.06;
-    var sx = 1/Math.sqrt(Math.max(0.55, Math.min(1.6, sy)));
-    img.style.transform='translateY('+hy.toFixed(2)+'px) rotate('+rot.toFixed(2)+'deg) scale('+sx.toFixed(3)+','+sy.toFixed(3)+')';
-    requestAnimationFrame(frame); }
-  if(!RM) requestAnimationFrame(frame);
-  function blink(){ if(mood!=='closed'){ img.src=SHUT;
-      setTimeout(function(){ if(mood!=='closed') img.src=OPEN; },130); }
-    setTimeout(blink, 2400+Math.random()*3200); }
-  if(!RM) setTimeout(blink, 1800);
-  window.addEventListener('pointermove', function(e){ if(RM) return;
-    var w=window.innerWidth||1; tRot=((e.clientX/w)-0.5)*7; }, {passive:true});
-  btn.addEventListener('click', function(){ if(!RM){ vy-=2.6; hv-=7; } say(phrase()); });
-  function poll(){ fetch('https://order.kkmurado.com/api/site/status',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(d){
-      if(!d) return; extOn=!!d.ext; var st=d.state||'open';
-      mood=(st==='closed')?'closed':st;
-      if(mood==='closed'){ img.src=SHUT; zzz.hidden=false; }
-      else { zzz.hidden=true; if(img.getAttribute('src')===SHUT) img.src=OPEN; }
-    }).catch(function(){}); }
-  poll(); setInterval(poll, 90000);
-  try{ if(!sessionStorage.getItem('msc_hi')){ sessionStorage.setItem('msc_hi','1');
-    setTimeout(function(){ if(!RM){ vy-=2.2; hv-=6; } say(phrase()); }, 1400); } }catch(e){}
+"use strict";
+var ROSTER=[['matcha','抹茶','抹茶','Matcha','말차'],['avocado','アボカド','牛油果','Avocado','아보카도'],['mango','マンゴー','芒果','Mango','망고'],['cherry','チェリー','樱桃','Cherry','체리'],['coconut','ココナッツ','椰子','Coconut','코코넛'],['dragonfruit','ドラゴンフルーツ','火龙果','Dragon Fruit','용과'],['grapefruit','グレープフルーツ','西柚','Grapefruit','자몽'],['lemon','レモン','柠檬','Lemon','레몬'],['lime','ライム','青柠','Lime','라임'],['orange','オレンジ','橙子','Orange','오렌지'],['pineapple','パイナップル','菠萝','Pineapple','파인애플'],['passionfruit','パッションフルーツ','百香果','Passion Fruit','패션프루트'],['taro','タロ','芋头','Taro','타로'],['blueberry','ブルーベリー','蓝莓','Blueberry','블루베리'],['blackberry','ブラックベリー','黑莓','Blackberry','블랙베리'],['cranberry','クランベリー','蔓越莓','Cranberry','크랜베리'],['brownsugar','黒糖','黑糖','Brown Sugar','흑당'],['hibiscus','ハイビスカス','洛神花','Hibiscus','히비스커스'],['jasmine','ジャスミン','茉莉','Jasmine','자스민'],['sijichun','四季春','四季春','Sijichun','사계춘'],['cow','ミルク','牛奶','Milk','우유'],['wintermelon','冬瓜','冬瓜','Winter Melon','동과'],['yuzu','ゆず','柚子','Yuzu','유자']];
+var V='?v=20261108e';
+var pet=document.getElementById('mscPet'),btn=document.getElementById('mscBtn'),img=document.getElementById('mscImg'),bub=document.getElementById('mscBubble'),txt=document.getElementById('mscTxt'),nav=document.getElementById('mscNav');
+if(!pet||!btn||!img)return;
+function L(){var l=(document.documentElement.lang||'ja').toLowerCase();if(l.indexOf('zh')===0)return'zh';if(l.indexOf('ko')===0)return'ko';if(l.indexOf('en')===0)return'en';return'ja';}
+var LI={ja:1,zh:2,en:3,ko:4};
+function jst(){try{var p=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',hour12:false}).formatToParts(new Date()),o={};p.forEach(function(x){o[x.type]=+x.value;});return o;}catch(e){var d=new Date(Date.now()+9*3600000);return{year:d.getUTCFullYear(),month:d.getUTCMonth()+1,day:d.getUTCDate(),hour:d.getUTCHours()%24};}}
+function dayNum(){var t=jst();return Math.floor(Date.UTC(t.year,t.month-1,t.day)/86400000);}
+var curDay=-1,today=null;
+function applyChar(){var dn=dayNum();if(dn===curDay&&today)return;curDay=dn;today=ROSTER[((dn%ROSTER.length)+ROSTER.length)%ROSTER.length];img.src='icons/f-'+today[0]+'.png'+V;img.alt=today[LI[L()]];}
+applyChar();
+function nm(){return today[LI[L()]];}
+var BASE={ja:['ぽよん！','今日もフレッシュ！','タピオカもちもちだよ','氷の量、えらべるよ','甘さも調整できるよ','どれにする？ まよっちゃうね','一口どうぞ！','のど かわいてない？'],zh:['啵哟！','今天也新鲜现做！','珍珠超Q弹的','冰量可以选哦','甜度也能调','选哪杯呢？好纠结','来一口吧！','渴不渴呀？'],en:['Boing!','Freshly made today!','Our boba is extra chewy','You can pick the ice level','Sweetness is adjustable too','Which one will you choose?','Have a sip!','Thirsty?'],ko:['뽀용!','오늘도 신선하게 만들어요!','타피오카가 쫀득쫀득해요','얼음 양을 고를 수 있어요','당도 조절도 돼요','뭘로 할래요? 고민되죠','한 입 어때요?','목마르지 않아요?']};
+var PART={morning:{ja:['おはよう！今日は17時オープンだよ','朝のうちにメニュー見ておこ？','今日のごほうび、もう決めた？'],zh:['早上好！今天17点开门哦','先看看菜单预习一下？','今天的犒劳想好了吗？'],en:['Good morning! We open at 5 PM today','Want to peek at the menu early?','Picked your treat for today?'],ko:['좋은 아침! 오늘은 17시에 열어요','메뉴 미리 구경할래요?','오늘의 간식 정했어요?']},afternoon:{ja:['こんにちは！オープンまであと少し','夕方のお楽しみ、準備中…','17時からだよ、まっててね'],zh:['下午好！离营业还有一会','傍晚的小确幸，准备中…','17点见，等你哦'],en:['Hello! Opening a little later','Your evening treat is getting ready…','See you at 5 PM!'],ko:['안녕하세요! 오픈까지 조금 남았어요','저녁 간식 준비 중…','17시에 만나요']},evening:{ja:['いらっしゃいませ！','今夜もやってるよ','池袋の夜はこれから！'],zh:['欢迎光临！','今晚也营业中','池袋的夜才刚开始！'],en:['Welcome in!','We are open tonight','Ikebukuro nights start here!'],ko:['어서 오세요!','오늘 밤도 영업 중','이케부쿠로의 밤은 지금부터!']},late:{ja:['夜ふかしさん、いらっしゃい','深夜の一杯、しみるよね','夜更かしのお供にどうぞ'],zh:['夜猫子，欢迎呀','深夜来一杯，特别治愈','熬夜的时候陪你'],en:['Night owl, welcome!','A late-night cup hits different','Here for your late night'],ko:['밤 올빼미님 환영해요','심야의 한 잔, 특별하죠','늦은 밤 함께해요']}};
+var SP={intro:{ja:'今日の当番は{name}！よろしくね',zh:'今天站岗的是{name}！请多关照',en:'Your guard today: {name}!',ko:'오늘 당번은 {name}! 잘 부탁해요'},self:{ja:'ぼく、{name}！',zh:'我是{name}！',en:'I am {name}!',ko:'저는 {name}!'},soon:{ja:'もうすぐ開店！わくわく',zh:'马上就开门啦！期待',en:'Opening very soon!',ko:'곧 열어요! 두근두근'},closing:{ja:'あと少しで閉店…！かけこみ歓迎',zh:'快打烊啦…！要赶最后一杯吗',en:'Closing soon…! Last orders',ko:'곧 닫아요…! 막차 어때요'},soldout:{ja:'{item}は今日売り切れ…ごめんね',zh:'{item}今天卖完啦…抱歉哦',en:'{item} is sold out today… sorry!',ko:'{item}은 오늘 품절… 미안해요'},ext:{ja:'今夜は延長中！まだまだやってるよ',zh:'今晚延长营业！还开着哦',en:'Extended hours tonight!',ko:'오늘은 연장 영업 중!'},sleep:{ja:'…おやすみ中',zh:'…睡着啦',en:'…sleeping',ko:'…자는 중'}};
+var NAVL={ja:['メニュー','注文する','アクセス','相談する'],zh:['看菜单','去点单','怎么走','问客服'],en:['Menu','Order','Access','Ask us'],ko:['메뉴','주문하기','오시는 길','상담하기']};
+function buildNav(){var l=L(),labels=NAVL[l]||NAVL.ja;nav.innerHTML='';var acts=[function(){var el=document.getElementById('menu');if(el)el.scrollIntoView({behavior:'smooth'});},function(){location.href='https://order.kkmurado.com/';},function(){var el=document.getElementById('access');if(el)el.scrollIntoView({behavior:'smooth'});},function(){var f=document.getElementById('chatFab');if(f)f.click();}];labels.forEach(function(t,i){var b=document.createElement('button');b.type='button';b.className='mscChip';b.textContent=t;b.addEventListener('click',function(ev){ev.stopPropagation();acts[i]();});nav.appendChild(b);});}
+buildNav();
+var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var sleeping=false,st=null,sayTimer=null,lastSay='';
+function fill(s){return s.replace('{name}',nm());}
+function pick(){var l=L(),pool=BASE[l].slice();var h=jst().hour,part=h>=5&&h<11?'morning':h>=11&&h<17?'afternoon':h>=17&&h<23?'evening':'late';pool=pool.concat(PART[part][l]);pool.push(fill(SP.self[l]));
+ if(st){if(st.ext)pool.push(SP.ext[l],SP.ext[l]);
+  if(st.state==='open'){if(st.minsToClose!=null&&st.minsToClose<=45)pool.push(SP.closing[l],SP.closing[l]);if(st.soldOut&&st.soldOut.length){var it=st.soldOut[0];var nmIt=it&&(it[l]||it.ja);if(nmIt)pool.push(SP.soldout[l].replace('{item}',nmIt));}}
+  else if(st.state==='closed'){if(st.minsToOpen!=null&&st.minsToOpen<=90)pool.push(SP.soon[l],SP.soon[l]);else if(sleeping)pool.push(SP.sleep[l]);}}
+ var s,tries=0;do{s=pool[Math.floor(Math.random()*pool.length)];tries++;}while(s===lastSay&&tries<6);lastSay=s;return s;}
+function say(s){txt.textContent=s;bub.classList.add('on');if(sayTimer)clearTimeout(sayTimer);sayTimer=setTimeout(function(){bub.classList.remove('on');},6500);}
+var OPEN='',SHUT='';
+function syncImgs(){OPEN='icons/f-'+today[0]+'.png'+V;SHUT='icons/f-'+today[0]+'-c.png'+V;}
+syncImgs();
+var _ac=applyChar;applyChar=function(){_ac();syncImgs();if(!sleeping)img.src=OPEN;else img.src=SHUT;};
+function setSleep(on){sleeping=on;pet.classList.toggle('sleep',on);img.src=on?SHUT:OPEN;}
+function poll(){applyChar();fetch('https://order.kkmurado.com/api/site/status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){st=d;setSleep(d.state==='closed');}).catch(function(){});}
+poll();setInterval(poll,90000);
+/* springs */
+var sy=1,vy=0,hy=0,hv=0,raf=null;
+function loop(){var ay=(1-sy)*220-vy*11;vy+=ay/60;sy+=vy/60;var ah=(0-hy)*170-hv*10;hv+=ah/60;hy+=hv/60;img.style.transform='translateY('+(-hy).toFixed(1)+'px) scaleX('+(2-sy).toFixed(3)+') scaleY('+sy.toFixed(3)+')';if(Math.abs(vy)>.001||Math.abs(sy-1)>.001||Math.abs(hv)>.05||Math.abs(hy)>.05){raf=requestAnimationFrame(loop);}else{img.style.transform='';raf=null;}}
+function kick(){if(reduced){say(pick());return;}vy-=7;hv+=130;if(!raf)raf=requestAnimationFrame(loop);say(pick());}
+btn.addEventListener('click',kick);
+/* blink */
+function blink(){if(!sleeping){img.src=SHUT;setTimeout(function(){if(!sleeping)img.src=OPEN;},150);}setTimeout(blink,2400+Math.random()*3200);}
+setTimeout(blink,1800);
+/* tilt */
+if(window.matchMedia&&window.matchMedia('(pointer: fine)').matches&&!reduced){document.addEventListener('pointermove',function(e){var r=btn.getBoundingClientRect(),cx=r.left+r.width/2,d=Math.max(-1,Math.min(1,(e.clientX-cx)/300));img.style.rotate=d*5+'deg';});}
+/* hello once per day */
+try{var key='msc_hi_'+dayNum();if(!sessionStorage.getItem(key)){sessionStorage.setItem(key,'1');setTimeout(function(){if(!reduced){vy-=5;hv+=90;if(!raf)raf=requestAnimationFrame(loop);}say(fill(SP.intro[L()]));},900);}}catch(e){}
 })();
 </script>
+<!-- mscEnd -->
 
 </body></html>
