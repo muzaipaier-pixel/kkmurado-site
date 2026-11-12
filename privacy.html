@@ -12,32 +12,64 @@ h2{font-size:17px;margin:30px 0 6px}
 p,li{font-size:14.5px}
 .sub{color:#8a7a99;font-size:13px;margin-bottom:28px}
 a{color:#b565a7}
+.langs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.langs button{font:inherit;font-size:13px;font-weight:700;padding:6px 14px;border-radius:999px;border:2px solid #2b1d3a;background:#fff;color:#2b1d3a;cursor:pointer}
+.langs button.on{background:#2b1d3a;color:#fff}
 </style>
 </head>
 <body>
 <main>
-<h1>プライバシーポリシー</h1>
-<p class="sub">M Stand Sync（店舗管理システム）における Google Business Profile API の利用について</p>
+<div class="langs" role="group" aria-label="Language">
+<button type="button" data-l="ja">日本語</button>
+<button type="button" data-l="zh">中文</button>
+<button type="button" data-l="en">English</button>
+<button type="button" data-l="ko">한국어</button>
+</div>
+<h1 data-t="h1">プライバシーポリシー</h1>
+<p class="sub" data-t="sub">M Stand Sync（店舗管理システム）における Google Business Profile API の利用について</p>
 
-<p>本ポリシーは、M Stand（池袋）が運用する店舗管理システム「M Stand Sync」が、Google Business Profile API を利用する際の情報の取り扱いについて定めるものです。</p>
+<p data-t="intro">本ポリシーは、M Stand（池袋）が運用する店舗管理システム「M Stand Sync」が、Google Business Profile API を利用する際の情報の取り扱いについて定めるものです。</p>
 
-<h2>利用する情報</h2>
-<p>本システムは、当店自身の Google ビジネスプロフィールに関する情報（店舗情報、営業時間、クチコミ、パフォーマンス指標など）を、店舗情報の管理およびクチコミへの対応の目的でのみ利用します。</p>
+<h2 data-t="h2a">利用する情報</h2>
+<p data-t="pa">本システムは、当店自身の Google ビジネスプロフィールに関する情報（店舗情報、営業時間、クチコミ、パフォーマンス指標など）を、店舗情報の管理およびクチコミへの対応の目的でのみ利用します。</p>
 
-<h2>個人情報の取得について</h2>
-<p>本システムを通じて、お客様の個人情報を取得することはありません。クチコミ情報は、Google が公開している範囲でのみ取り扱います。</p>
+<h2 data-t="h2b">個人情報の取得について</h2>
+<p data-t="pb">本システムを通じて、お客様の個人情報を取得することはありません。クチコミ情報は、Google が公開している範囲でのみ取り扱います。</p>
 
-<h2>第三者への提供</h2>
-<p>取得した情報を、第三者に提供・販売することはありません。</p>
+<h2 data-t="h2c">第三者への提供</h2>
+<p data-t="pc">取得した情報を、第三者に提供・販売することはありません。</p>
 
-<h2>情報の管理</h2>
-<p>アクセストークン等の認証情報は、当店の管理サーバーに保管し、不正アクセスのないよう適切に管理します。</p>
+<h2 data-t="h2d">情報の管理</h2>
+<p data-t="pd">アクセストークン等の認証情報は、当店の管理サーバーに保管し、不正アクセスのないよう適切に管理します。</p>
 
-<h2>お問い合わせ</h2>
-<p>M Stand<br>メール：muzaipaier@gmail.com<br>電話：03-6687-0668</p>
+<h2 data-t="h2e">お問い合わせ</h2>
+<p data-t="pe">M Stand<br>メール：muzaipaier@gmail.com<br>電話：03-6687-0668</p>
 
-<p class="sub">制定日：2026年11月11日</p>
-<p><a href="/">← トップへ戻る</a></p>
+<p class="sub" data-t="date">制定日：2026年11月11日</p>
+<p><a href="/" data-t="back">← トップへ戻る</a></p>
 </main>
+<script>
+var T={
+ja:{h1:"プライバシーポリシー",sub:"M Stand Sync（店舗管理システム）における Google Business Profile API の利用について",intro:"本ポリシーは、M Stand（池袋）が運用する店舗管理システム「M Stand Sync」が、Google Business Profile API を利用する際の情報の取り扱いについて定めるものです。",h2a:"利用する情報",pa:"本システムは、当店自身の Google ビジネスプロフィールに関する情報（店舗情報、営業時間、クチコミ、パフォーマンス指標など）を、店舗情報の管理およびクチコミへの対応の目的でのみ利用します。",h2b:"個人情報の取得について",pb:"本システムを通じて、お客様の個人情報を取得することはありません。クチコミ情報は、Google が公開している範囲でのみ取り扱います。",h2c:"第三者への提供",pc:"取得した情報を、第三者に提供・販売することはありません。",h2d:"情報の管理",pd:"アクセストークン等の認証情報は、当店の管理サーバーに保管し、不正アクセスのないよう適切に管理します。",h2e:"お問い合わせ",pe:"M Stand<br>メール：muzaipaier@gmail.com<br>電話：03-6687-0668",date:"制定日：2026年11月11日",back:"← トップへ戻る"},
+zh:{h1:"隐私政策",sub:"关于 M Stand Sync（门店管理系统）使用 Google Business Profile API 的说明",intro:"本政策说明 M Stand（池袋）运营的门店管理系统「M Stand Sync」在使用 Google Business Profile API 时的信息处理方式。",h2a:"我们使用的信息",pa:"本系统仅出于管理门店信息、回复顾客评价之目的，使用本店自身的 Google 商家资料相关信息（门店信息、营业时间、评价、效果指标等）。",h2b:"关于个人信息的获取",pb:"本系统不会获取顾客的个人信息。评价信息仅在 Google 公开的范围内处理。",h2c:"向第三方提供",pc:"不会向第三方提供或出售所获取的信息。",h2d:"信息的管理",pd:"访问令牌等认证信息保存在本店的管理服务器上，并妥善管理，防止未经授权的访问。",h2e:"联系我们",pe:"M Stand<br>邮箱：muzaipaier@gmail.com<br>电话：03-6687-0668",date:"制定日期：2026年11月11日",back:"← 返回首页"},
+en:{h1:"Privacy Policy",sub:"How M Stand Sync (our store management system) uses the Google Business Profile API",intro:"This policy describes how “M Stand Sync,” the store management system operated by M Stand (Ikebukuro), handles information when using the Google Business Profile API.",h2a:"Information we use",pa:"This system uses information about our own Google Business Profile (store details, opening hours, reviews, performance metrics, and the like) solely for the purposes of managing our store information and responding to reviews.",h2b:"Personal information",pb:"This system does not collect customers’ personal information. Review information is handled only within the scope made public by Google.",h2c:"Sharing with third parties",pc:"We do not provide or sell the information obtained to any third party.",h2d:"How we manage information",pd:"Credentials such as access tokens are stored on our own management server and appropriately safeguarded against unauthorized access.",h2e:"Contact",pe:"M Stand<br>Email: muzaipaier@gmail.com<br>Phone: 03-6687-0668",date:"Effective date: November 11, 2026",back:"← Back to top"},
+ko:{h1:"개인정보 처리방침",sub:"M Stand Sync(매장 관리 시스템)의 Google Business Profile API 이용에 대해",intro:"본 방침은 M Stand(이케부쿠로)가 운영하는 매장 관리 시스템 “M Stand Sync”가 Google Business Profile API를 이용할 때의 정보 취급에 대해 정한 것입니다.",h2a:"이용하는 정보",pa:"본 시스템은 매장 정보의 관리 및 리뷰 대응 목적으로만, 당점 자체의 Google 비즈니스 프로필 관련 정보(매장 정보, 영업시간, 리뷰, 실적 지표 등)를 이용합니다.",h2b:"개인정보 수집에 대해",pb:"본 시스템을 통해 고객의 개인정보를 수집하지 않습니다. 리뷰 정보는 Google이 공개한 범위 내에서만 취급합니다.",h2c:"제3자 제공",pc:"취득한 정보를 제3자에게 제공·판매하지 않습니다.",h2d:"정보 관리",pd:"액세스 토큰 등의 인증 정보는 당점의 관리 서버에 보관하며, 부정 액세스가 없도록 적절히 관리합니다.",h2e:"문의",pe:"M Stand<br>이메일: muzaipaier@gmail.com<br>전화: 03-6687-0668",date:"제정일: 2026년 11월 11일",back:"← 메인으로 돌아가기"}
+};
+function setLang(l){
+  if(!T[l])l="ja";
+  document.documentElement.lang=l;
+  document.title=T[l].h1+" | M Stand";
+  document.querySelectorAll("[data-t]").forEach(function(e){var k=e.getAttribute("data-t");if(T[l][k])e.innerHTML=T[l][k];});
+  document.querySelectorAll(".langs button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-l")===l);});
+  try{localStorage.setItem("mstand-lang",l);}catch(e){}
+}
+document.querySelectorAll(".langs button").forEach(function(b){b.addEventListener("click",function(){setLang(b.getAttribute("data-l"));});});
+(function(){
+  var l=null;
+  try{l=localStorage.getItem("mstand-lang");}catch(e){}
+  if(!l){var n=(navigator.language||"ja").toLowerCase();l=n.indexOf("zh")===0?"zh":n.indexOf("ko")===0?"ko":n.indexOf("en")===0?"en":"ja";}
+  setLang(l);
+})();
+</script>
 </body>
 </html>
