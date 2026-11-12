@@ -57,6 +57,15 @@
       h1{font-size:clamp(26px,5.4vw,40px);font-weight:800;margin:0 0 10px;line-height:1.25;}
       h1 .hl{color:var(--pink-deep);}
       .lead{color:var(--ink-soft);font-size:clamp(14px,2.6vw,16px);font-weight:500;margin:0 auto;max-width:560px;line-height:1.7;}
+      .langbar{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+      .langbar button{
+        font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;
+        padding:7px 15px;border-radius:999px;min-height:38px;
+        border:2px solid var(--card-border);background:var(--card);color:var(--ink-soft);
+        transition:background .2s,color .2s,border-color .2s;
+      }
+      .langbar button.on{background:var(--pink-deep);border-color:var(--pink-deep);color:#fff;}
+      .langbar button:focus-visible{outline:3px solid var(--pink);outline-offset:2px;}
 
       .stage{
         display:flex;gap:34px;align-items:flex-start;justify-content:center;
@@ -338,6 +347,12 @@
   </head>
   <body><a href="/" style="position:fixed;top:10px;left:10px;z-index:99;background:#fff;color:#2b1d3a;border:2px solid #2b1d3a;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;text-decoration:none;font-family:'Hiragino Maru Gothic ProN',sans-serif">← M Stand トップへ</a>
     <div class="wrap">
+      <div class="langbar" role="group" aria-label="Language">
+        <button type="button" data-lang="ja">日本語</button>
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">English</button>
+        <button type="button" data-lang="ko">한국어</button>
+      </div>
       <header>
         <span class="badge">iPhone のお客さまへ</span>
         <h1>M Stand を<span class="hl">ホーム画面</span>に<br />追加しませんか？</h1>
@@ -507,12 +522,167 @@
         var restartBtn = document.getElementById('restartBtn');
         var stepEls = Array.prototype.slice.call(document.querySelectorAll('.step'));
 
-        var CAPTIONS = {
-          1: '共有ボタンをタップ',
-          2: '「ホーム画面に追加」を選ぶ',
-          3: '右上の「追加」をタップ',
-          4: 'できあがり！ホーム画面に追加されました'
+        var ICON_SVG = '<svg class="share-ic" width="14" height="17" viewBox="0 0 19 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1v13M4.5 5.5 9.5.8l5 4.7M4 10H2.8A1.8 1.8 0 0 0 1 11.8V21a1.8 1.8 0 0 0 1.8 1.8h13.4A1.8 1.8 0 0 0 18 21v-9.2A1.8 1.8 0 0 0 16.2 10H15"/></svg>';
+
+        var I18N = {
+          ja: {
+            title: 'ホーム画面に追加する方法 | M Stand',
+            badge: 'iPhone のお客さまへ',
+            h1: 'M Stand を<span class="hl">ホーム画面</span>に<br />追加しませんか？',
+            lead: 'アプリみたいに、アイコンをタップするだけですぐ開けます。<br />下のアニメーションの順番でやってみてください。',
+            pause: '一時停止', play: '再生する', restart: '最初から見る',
+            stepsLabel: '手順',
+            step1t: '共有ボタンをタップ',
+            step1p: 'Safari で kkmurado.com を開いて、画面の下にある[icon]のマークを押します。',
+            step2t: '「ホーム画面に追加」を選ぶ',
+            step2p: '出てきたメニューを少し下にスクロールするとあります。「＋」のマークが目印です。',
+            step3t: '右上の「追加」をタップ',
+            step3p: 'アイコンと名前（M Stand）を確認したら、「追加」を押すだけ。名前はそのままで OK です。',
+            step4t: 'できあがり！',
+            step4p: 'ホーム画面に M Stand のアイコンが増えます。次からはタップひとつでお店のページが開きます。',
+            cap: { 1: '共有ボタンをタップ', 2: '「ホーム画面に追加」を選ぶ', 3: '右上の「追加」をタップ', 4: 'できあがり！ホーム画面に追加されました' },
+            sheetTitle: 'M Stand｜池袋のドリンクスタンド',
+            copy: 'コピー', reading: 'リーディングリストに追加', addHome: 'ホーム画面に追加', bookmark: 'ブックマークに追加',
+            cancel: 'キャンセル', add: '追加',
+            addNote: 'このアイコンがホーム画面に置かれます。名前はそのままで大丈夫です。',
+            date: '11月12日 木曜日',
+            done: 'ホーム画面に追加できました',
+            note: '※ iPhone の Safari での手順です。Android の方はブラウザのメニューから「ホーム画面に追加」を選んでください。<br />うまくいかないときは、お気軽にスタッフまでどうぞ。',
+            apps: { phone: '電話', weather: '天気', camera: 'カメラ', notes: 'メモ', music: 'ミュージック', maps: 'マップ', calendar: 'カレンダー', messages: 'メッセージ', settings: '設定', clock: '時計' }
+          },
+          zh: {
+            title: '如何添加到主屏幕 | M Stand',
+            badge: '给 iPhone 用户',
+            h1: '把 M Stand<br />加到<span class="hl">主屏幕</span>吧？',
+            lead: '像 App 一样，点一下图标就能立刻打开。<br />跟着下面的动画，一步一步试试看。',
+            pause: '暂停', play: '播放', restart: '从头看',
+            stepsLabel: '步骤',
+            step1t: '点按"共享"按钮',
+            step1p: '在 Safari 中打开 kkmurado.com，点按画面下方的 [icon] 标记。',
+            step2t: '选择"添加到主屏幕"',
+            step2p: '在弹出的菜单里稍微向下滚动就能找到，认准"+"标记。',
+            step3t: '点按右上角的"添加"',
+            step3p: '确认图标和名称（M Stand）后，点按"添加"就行。名称保持默认即可。',
+            step4t: '完成啦！',
+            step4p: '主屏幕上会多出 M Stand 的图标。以后点一下就能打开店铺页面。',
+            cap: { 1: '点按"共享"按钮', 2: '选择"添加到主屏幕"', 3: '点按右上角的"添加"', 4: '完成啦！已添加到主屏幕' },
+            sheetTitle: 'M Stand｜池袋的饮品店',
+            copy: '拷贝', reading: '加入阅读列表', addHome: '添加到主屏幕', bookmark: '添加书签',
+            cancel: '取消', add: '添加',
+            addNote: '这个图标会被放到主屏幕上。名称保持默认就可以。',
+            date: '11月12日 星期四',
+            done: '已添加到主屏幕',
+            note: '※ 以上是 iPhone Safari 的操作步骤。Android 用户请从浏览器菜单中选择"添加到主屏幕"。<br />如果遇到问题，随时问店员就好。',
+            apps: { phone: '电话', weather: '天气', camera: '相机', notes: '备忘录', music: '音乐', maps: '地图', calendar: '日历', messages: '信息', settings: '设置', clock: '时钟' }
+          },
+          en: {
+            title: 'How to Add to Home Screen | M Stand',
+            badge: 'For iPhone users',
+            h1: 'Add M Stand to your<br /><span class="hl">Home Screen</span>?',
+            lead: 'Just like an app — tap the icon and it opens right away.<br />Follow the steps in the animation below.',
+            pause: 'Pause', play: 'Play', restart: 'Restart',
+            stepsLabel: 'Steps',
+            step1t: 'Tap the Share button',
+            step1p: 'Open kkmurado.com in Safari and tap the [icon] icon at the bottom of the screen.',
+            step2t: 'Choose "Add to Home Screen"',
+            step2p: 'Scroll down a little in the menu that appears. Look for the "+" icon.',
+            step3t: 'Tap "Add" in the top right',
+            step3p: 'Check the icon and name (M Stand), then tap "Add". You can leave the name as it is.',
+            step4t: 'All done!',
+            step4p: 'The M Stand icon will appear on your Home Screen. From now on, one tap opens the shop\'s page.',
+            cap: { 1: 'Tap the Share button', 2: 'Choose "Add to Home Screen"', 3: 'Tap "Add" in the top right', 4: 'Done! Added to your Home Screen' },
+            sheetTitle: 'M Stand | Drink Stand in Ikebukuro',
+            copy: 'Copy', reading: 'Add to Reading List', addHome: 'Add to Home Screen', bookmark: 'Add Bookmark',
+            cancel: 'Cancel', add: 'Add',
+            addNote: 'This icon will be placed on your Home Screen. You can leave the name as it is.',
+            date: 'Thursday, November 12',
+            done: 'Added to Home Screen',
+            note: '* These steps are for Safari on iPhone. On Android, open your browser menu and choose "Add to Home screen".<br />If you get stuck, feel free to ask our staff.',
+            apps: { phone: 'Phone', weather: 'Weather', camera: 'Camera', notes: 'Notes', music: 'Music', maps: 'Maps', calendar: 'Calendar', messages: 'Messages', settings: 'Settings', clock: 'Clock' }
+          },
+          ko: {
+            title: '홈 화면에 추가하는 방법 | M Stand',
+            badge: 'iPhone 고객님께',
+            h1: 'M Stand를 <span class="hl">홈 화면</span>에<br />추가해 보세요',
+            lead: '앱처럼 아이콘을 탭하면 바로 열려요.<br />아래 애니메이션 순서대로 따라 해 보세요.',
+            pause: '일시정지', play: '재생', restart: '처음부터 보기',
+            stepsLabel: '순서',
+            step1t: '공유 버튼을 탭하세요',
+            step1p: 'Safari에서 kkmurado.com을 열고, 화면 아래의 [icon] 아이콘을 눌러 주세요.',
+            step2t: '\'홈 화면에 추가\'를 선택하세요',
+            step2p: '나타난 메뉴를 조금 아래로 스크롤하면 있어요. \'+\' 아이콘이 표시예요.',
+            step3t: '오른쪽 위의 \'추가\'를 탭하세요',
+            step3p: '아이콘과 이름(M Stand)을 확인하고 \'추가\'를 누르면 끝. 이름은 그대로 두면 돼요.',
+            step4t: '완성!',
+            step4p: '홈 화면에 M Stand 아이콘이 생겨요. 다음부터는 한 번의 탭으로 가게 페이지가 열립니다.',
+            cap: { 1: '공유 버튼을 탭하세요', 2: '\'홈 화면에 추가\'를 선택하세요', 3: '오른쪽 위의 \'추가\'를 탭하세요', 4: '완성! 홈 화면에 추가됐어요' },
+            sheetTitle: 'M Stand｜이케부쿠로 드링크 스탠드',
+            copy: '복사', reading: '읽기 목록에 추가', addHome: '홈 화면에 추가', bookmark: '책갈피 추가',
+            cancel: '취소', add: '추가',
+            addNote: '이 아이콘이 홈 화면에 놓여요. 이름은 그대로 두셔도 됩니다.',
+            date: '11월 12일 목요일',
+            done: '홈 화면에 추가됐어요',
+            note: '※ iPhone의 Safari 기준 순서입니다. Android는 브라우저 메뉴에서 \'홈 화면에 추가\'를 선택해 주세요.<br />잘 안 되면 편하게 스태프에게 물어봐 주세요.',
+            apps: { phone: '전화', weather: '날씨', camera: '카메라', notes: '메모', music: '음악', maps: '지도', calendar: '캘린더', messages: '메시지', settings: '설정', clock: '시계' }
+          }
         };
+
+        var cur = 'ja';
+        var CAPTIONS = I18N.ja.cap;
+
+        function q(s) { return document.querySelector(s); }
+        function qa(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
+        function setText(sel, txt) { var el = q(sel); if (el) el.textContent = txt; }
+        function setHTML(sel, html) { var el = q(sel); if (el) el.innerHTML = html; }
+
+        function applyLang(lang) {
+          if (!I18N[lang]) lang = 'ja';
+          cur = lang;
+          var T = I18N[lang];
+          CAPTIONS = T.cap;
+          document.documentElement.lang = (lang === 'zh' ? 'zh-CN' : lang);
+          document.title = T.title;
+          setText('.badge', T.badge);
+          setHTML('h1', T.h1);
+          setHTML('.lead', T.lead);
+          setText('#restartBtn', T.restart);
+          playBtn.textContent = playing ? T.pause : T.play;
+          var stepsBox = q('.steps');
+          if (stepsBox) stepsBox.setAttribute('aria-label', T.stepsLabel);
+          stepEls.forEach(function (el, i) {
+            var n = i + 1;
+            var h = el.querySelector('h3');
+            var p = el.querySelector('p');
+            if (h) h.textContent = T['step' + n + 't'];
+            if (p) p.innerHTML = T['step' + n + 'p'].split('[icon]').join(ICON_SVG);
+          });
+          setText('.sheet-head b', T.sheetTitle);
+          var rows = qa('.sheet-row');
+          var rowTxt = [T.copy, T.reading, T.addHome, T.bookmark];
+          rows.forEach(function (row, i) {
+            if (row.childNodes[0] && row.childNodes[0].nodeType === 3) row.childNodes[0].nodeValue = rowTxt[i];
+          });
+          setText('.sheet-cancel', T.cancel);
+          setText('.add-nav .cancel', T.cancel);
+          setText('.add-nav .ttl', T.addHome);
+          setText('.addbtn', T.add);
+          setText('.add-note', T.addNote);
+          setText('.home-clock .date', T.date);
+          var done = q('.done-badge');
+          if (done) {
+            for (var k = 0; k < done.childNodes.length; k++) {
+              if (done.childNodes[k].nodeType === 3) done.childNodes[k].nodeValue = T.done;
+            }
+          }
+          var appKeys = ['phone', null, 'weather', 'camera', 'notes', 'music', 'maps', 'calendar', null, 'messages', 'settings', 'clock'];
+          qa('.home-grid .app small').forEach(function (sm, i) {
+            if (appKeys[i]) sm.textContent = T.apps[appKeys[i]];
+          });
+          setHTML('.note', T.note);
+          qa('.langbar button').forEach(function (b) {
+            b.classList.toggle('on', b.getAttribute('data-lang') === lang);
+          });
+        }
 
         // Timeline: each phase sets the scene, then schedules the next.
         var PHASES = [
@@ -551,13 +721,13 @@
         }
         function play() {
           playing = true;
-          playBtn.textContent = '一時停止';
+          playBtn.textContent = I18N[cur].pause;
           schedule();
         }
         function pause() {
           playing = false;
           clearTimeout(timer);
-          playBtn.textContent = '再生する';
+          playBtn.textContent = I18N[cur].play;
         }
         function restart() {
           idx = 0;
@@ -582,6 +752,24 @@
         stepEls.forEach(function (el) {
           el.addEventListener('click', function () { goToStep(parseInt(el.getAttribute('data-goto'), 10)); });
         });
+
+        qa('.langbar button').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var l = b.getAttribute('data-lang');
+            try { localStorage.setItem('mstand-lang', l); } catch (e) {}
+            applyLang(l);
+            apply(idx);
+          });
+        });
+
+        var savedLang = null;
+        try { savedLang = localStorage.getItem('mstand-lang'); } catch (e) {}
+        var navLang = (navigator.language || 'ja').toLowerCase();
+        var detected = (savedLang && I18N[savedLang]) ? savedLang
+          : navLang.indexOf('zh') === 0 ? 'zh'
+          : navLang.indexOf('ko') === 0 ? 'ko'
+          : navLang.indexOf('en') === 0 ? 'en' : 'ja';
+        applyLang(detected);
 
         apply(0);
         var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
