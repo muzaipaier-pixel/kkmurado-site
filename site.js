@@ -26,38 +26,17 @@ window.__tick=tick;if(R)sp.forEach(s=>s.classList.add('on'));else{addEventListen
 (()=>{const q=new URLSearchParams(location.search);const API=(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&q.get('chatapi'))||'https://order.kkmurado.com';
 const TX={ja:['こんにちは！M Stand です🧋\nご予約・まとめ注文・メニューなど、お気軽にどうぞ。','原文を表示','メッセージを入力…','送信'],zh:['你好！这里是 M Stand 🧋\n预约、批量订购、菜单等都可以咨询。','显示原文','输入消息…','发送'],en:["Hi! This is M Stand 🧋\nAsk us anything — reservations, bulk orders, the menu.",'Show original','Type a message…','Send'],ko:['안녕하세요! M Stand입니다🧋\n예약·단체 주문·메뉴 등 편하게 문의하세요.','원문 보기','메시지를 입력하세요…','보내기']};let t=TX.ja;
 const $=i=>document.getElementById(i),P=$('chatP'),B=$('chatB');const NM={ja:['お名前（任意）','閉じる','ご相談'],zh:['您的名字（选填）','关闭','咨询'],en:['Your name (optional)','Close','Chat'],ko:['이름 (선택)','닫기','상담']};
-const NT={ja:'新着メッセージ',zh:'新消息',en:'New message',ko:'새 메시지'};
-window.__chatLang=l=>{t=TX[l]||TX.ja;$('hello').textContent=t[0];$('chatT').placeholder=t[2];$('chatF').querySelector('button').textContent=t[3];const n=NM[l]||NM.ja;$('chatN').placeholder=n[0];$('chatN').setAttribute('aria-label',n[0]);$('chatT').setAttribute('aria-label',t[2]);$('chatX').setAttribute('aria-label',n[1]);$('chatFab').setAttribute('aria-label',n[2]);P.setAttribute('aria-label',n[2]);document.querySelectorAll('#chatB .tg').forEach(b=>b.textContent=t[1]);const te=$('chatToastT');if(te)te.textContent=NT[l]||NT.ja};__chatLang(curLang());
+window.__chatLang=l=>{t=TX[l]||TX.ja;$('hello').textContent=t[0];$('chatT').placeholder=t[2];$('chatF').querySelector('button').textContent=t[3];const n=NM[l]||NM.ja;$('chatN').placeholder=n[0];$('chatN').setAttribute('aria-label',n[0]);$('chatT').setAttribute('aria-label',t[2]);$('chatX').setAttribute('aria-label',n[1]);$('chatFab').setAttribute('aria-label',n[2]);P.setAttribute('aria-label',n[2]);document.querySelectorAll('#chatB .tg').forEach(b=>b.textContent=t[1])};__chatLang(curLang());
 let S={};try{S=JSON.parse(localStorage.msChat||'{}')}catch(e){}let since=0,seen=new Set(),tm=null;
-const AV0='icons/chat.png?v=20261108e',AVC='icons/chat-c.png?v=20261108e';new Image().src=AVC;
-const fmtT=ts=>{try{return new Date(ts||Date.now()).toLocaleTimeString(curLang()==='zh'?'zh-CN':curLang()==='en'?'en-US':curLang()==='ko'?'ko-KR':'ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})}catch(e){return ''}};
-let unread=0,baseDone=false;const bdg=$('chatBdg'),tst=$('chatToast'),tstB=$('chatToastB');let tstTm=null;
-const setBdg=()=>{if(!bdg)return;bdg.hidden=!unread;bdg.textContent=unread;if(unread){bdg.classList.remove('pop');void bdg.offsetWidth;bdg.classList.add('pop')}};
-const showToast=tx=>{if(!tst||!tstB)return;const g=$('greet');if(g)g.hidden=true;tstB.textContent=tx.length>46?tx.slice(0,46)+'…':tx;tst.hidden=false;clearTimeout(tstTm);tstTm=setTimeout(()=>{tst.hidden=true},4600)};
-let typEl=null;const typing=on=>{if(on){if(typEl)return;typEl=document.createElement('div');typEl.className='mg s typ';const av=document.createElement('img');av.className='av cav';av.src=AV0;av.alt='';const col=document.createElement('div');col.className='col';const db=document.createElement('div');db.className='tx dots';db.innerHTML='<i></i><i></i><i></i>';col.appendChild(db);typEl.append(av,col);B.appendChild(typEl);B.scrollTop=1e6}else if(typEl){typEl.remove();typEl=null}};
-window.__chatTyping=typing;
-const add=m=>{const k=m.at+m.f;if(seen.has(k))return;seen.add(k);const d=document.createElement('div');d.className='mg '+m.f;
- const tx=document.createElement('div');tx.className='tx';tx.textContent=m.t;const tmEl=document.createElement('span');tmEl.className='tm';tmEl.textContent=fmtT(m.at);
- if(m.f==='s'){const av=document.createElement('img');av.className='av cav';av.src=AV0;av.alt='';const col=document.createElement('div');col.className='col';col.appendChild(tx);
-  if(m.orig){const b=document.createElement('button');b.type='button';b.className='tg';b.textContent=t[1];const o=document.createElement('div');o.className='og';o.textContent=m.orig;b.onclick=()=>d.classList.toggle('so');col.append(b,o)}
-  col.appendChild(tmEl);d.append(av,col)}
- else d.append(tx,tmEl);
- B.appendChild(d);B.scrollTop=1e6;since=Math.max(since,m.at);
- if(m.f==='s'&&baseDone&&!P.classList.contains('open')){unread++;setBdg();showToast(m.t)}};
-const poll=async()=>{if(!S.cid)return;try{const r=await fetch(API+'/api/sitechat/poll?cid='+S.cid+'&token='+S.token+'&since='+since);if(r.status===404){S={};localStorage.removeItem('msChat');return}const j=await r.json();(j.msgs||[]).forEach(add);baseDone=true}catch(e){}};
-setInterval(()=>{if(S.cid&&!P.classList.contains('open'))poll()},30000);
-const open=o=>{P.classList.toggle('open',o);clearInterval(tm);if(o){unread=0;setBdg();if(tst)tst.hidden=true;poll();tm=setInterval(poll,5000)}};
-if(tst)tst.onclick=()=>open(true);
-(function blink(){setTimeout(()=>{document.querySelectorAll('img.cav').forEach(im=>{im.src=AVC});setTimeout(()=>{document.querySelectorAll('img.cav').forEach(im=>{im.src=AV0})},170);blink()},2600+Math.random()*2200)})();
+const add=m=>{const k=m.at+m.f;if(seen.has(k))return;seen.add(k);const d=document.createElement('div');d.className='mg '+m.f;d.textContent=m.t;
+ if(m.orig){const b=document.createElement('button');b.type='button';b.className='tg';b.textContent=t[1];const o=document.createElement('div');o.className='og';o.textContent=m.orig;b.onclick=()=>d.classList.toggle('so');d.append(b,o)}
+ B.appendChild(d);B.scrollTop=1e6;since=Math.max(since,m.at)};
+const poll=async()=>{if(!S.cid)return;try{const r=await fetch(API+'/api/sitechat/poll?cid='+S.cid+'&token='+S.token+'&since='+since);if(r.status===404){S={};localStorage.removeItem('msChat');return}const j=await r.json();(j.msgs||[]).forEach(add)}catch(e){}};
+const open=o=>{P.classList.toggle('open',o);clearInterval(tm);if(o){poll();tm=setInterval(poll,5000)}};
 window.__chatOpen=open;$('chatFab').onclick=()=>open(!P.classList.contains('open'));$('chatX').onclick=()=>open(false);if(S.name)$('chatN').value=S.name;
-$('chatF').onsubmit=async e=>{e.preventDefault();const tx=$('chatT').value.trim();if(!tx)return;$('chatErr').textContent='';if(!e.force&&window.__faq&&await __faq(tx)){$('chatT').value='';fitT();return}
- typing(true);try{const r=await fetch(API+'/api/sitechat/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cid:S.cid,token:S.token,name:$('chatN').value,text:tx,hp:$('chatHp').value,lang:curLang()})});const j=await r.json();
-  if(!r.ok){typing(false);$('chatErr').textContent=j.error||'Error';return}S={cid:j.cid||S.cid,token:j.token||S.token,name:$('chatN').value};localStorage.msChat=JSON.stringify(S);$('chatT').value='';fitT();poll();typing(false)}catch(e){typing(false);$('chatErr').textContent='通信エラー / Network error'}};
-const TA=$('chatT'),SBN=$('chatSend')||$('chatF').querySelector('button');
-const fitT=()=>{TA.style.height='auto';TA.style.height=Math.min(TA.scrollHeight,96)+'px';if(SBN)SBN.disabled=!TA.value.trim()};
-TA.addEventListener('input',fitT);
-TA.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&TA.value.trim()&&matchMedia('(hover:hover) and (pointer:fine)').matches){e.preventDefault();$('chatF').requestSubmit()}});
-fitT();
+$('chatF').onsubmit=async e=>{e.preventDefault();const tx=$('chatT').value.trim();if(!tx)return;$('chatErr').textContent='';if(!e.force&&window.__faq&&await __faq(tx)){$('chatT').value='';return}
+ try{const r=await fetch(API+'/api/sitechat/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cid:S.cid,token:S.token,name:$('chatN').value,text:tx,hp:$('chatHp').value,lang:curLang()})});const j=await r.json();
+  if(!r.ok){$('chatErr').textContent=j.error||'Error';return}S={cid:j.cid||S.cid,token:j.token||S.token,name:$('chatN').value};localStorage.msChat=JSON.stringify(S);$('chatT').value='';poll()}catch(e){$('chatErr').textContent='通信エラー / Network error'}};
 })();
 ;
 (()=>{const q=new URLSearchParams(location.search);const API=(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&q.get('chatapi'))||'https://order.kkmurado.com';
@@ -130,11 +109,6 @@ const $=i=>document.getElementById(i),L=()=>curLang(),B=$('chatB'),esc=t=>String
 const U={mob:'https://order.kkmurado.com',sq:'https://mstandikebukuro.square.site',uber:'https://www.ubereats.com/jp/store/%E3%82%A8%E3%83%A0-%E3%82%B9%E3%82%BF%E3%83%B3%E3%83%88-m-stand/uZXQD-OoRt6Z8nKJGpW4Fg',gift:'https://app.squareup.com/gift/MLP8SFCN6960P/order',map:'https://www.google.com/maps/search/?api=1&query=M+Stand+%E6%B1%A0%E8%A2%8B+%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-24-5'};
 const lk=(u,t)=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`;
 const LB={ja:'自動応答',zh:'自动回复',en:'Auto-reply',ko:'자동 응답'},ASK={ja:'スタッフに聞く',zh:'转人工客服',en:'Ask our staff',ko:'직원에게 묻기'};
-const CST={ja:'今、開いてる？',zh:'现在开门吗？',en:'Open now?',ko:'지금 열었나요?'};
-const CIC={hours:'hours.png',access:'pin.png',status:'sparkle.png',order:'order.png',pay:'card.png',busy:'fruittea.png',sold:'cart.png',custom:'f-brownsugar.png',gift:'apple-wallet.png'};
-const SN={ja:{open:'営業中',preparing:'準備中',paused:'一時休止中',closed:'営業時間外'},zh:{open:'营业中',preparing:'准备中',paused:'暂停营业',closed:'非营业时间'},en:{open:'Open now',preparing:'Getting ready',paused:'Paused',closed:'Closed'},ko:{open:'영업 중',preparing:'준비 중',paused:'잠시 중단',closed:'영업시간 외'}};
-const CL={ja:{busy:'混雑状況',wait:'待ち時間',hrsL:'営業時間',hrsS:'17:00〜翌2:00',none:'売り切れはありません',order:'スマホで注文する',waitV:m=>m?`約${m}分`:'ほぼなし',toOpen:m=>`開店まであと約${Math.floor(m/60)?Math.floor(m/60)+'時間':''}${m%60}分`,toClose:m=>`閉店まであと約${Math.floor(m/60)?Math.floor(m/60)+'時間':''}${m%60}分`},zh:{busy:'拥挤程度',wait:'预计等待',hrsL:'营业时间',hrsS:'17:00 – 次日 2:00',none:'暂无售罄',order:'去点单',waitV:m=>m?`约${m}分钟`:'基本无需等待',toOpen:m=>`距开门约${Math.floor(m/60)?Math.floor(m/60)+'小时':''}${m%60}分钟`,toClose:m=>`距打烊约${Math.floor(m/60)?Math.floor(m/60)+'小时':''}${m%60}分钟`},en:{busy:'How busy',wait:'Wait',hrsL:'Hours',hrsS:'5 pm – 2 am',none:'Nothing sold out',order:'Order now',waitV:m=>m?`~${m} min`:'Little to none',toOpen:m=>`Opens in about ${Math.floor(m/60)?Math.floor(m/60)+'h ':''}${m%60}m`,toClose:m=>`Closes in about ${Math.floor(m/60)?Math.floor(m/60)+'h ':''}${m%60}m`},ko:{busy:'혼잡도',wait:'대기 시간',hrsL:'영업시간',hrsS:'17:00~다음 날 2:00',none:'품절 없음',order:'주문하기',waitV:m=>m?`약 ${m}분`:'거의 없음',toOpen:m=>`개점까지 약 ${Math.floor(m/60)?Math.floor(m/60)+'시간 ':''}${m%60}분`,toClose:m=>`마감까지 약 ${Math.floor(m/60)?Math.floor(m/60)+'시간 ':''}${m%60}분`}};
-const STQ=/開いてる|開いている|やってる|営業中|営業して|開店中|现在开|开门了吗|开门没|在营业|营业吗|營業中|open now|are you open|is (it|the shop) open|지금 열|영업 중|열었/i;
 const CH={ja:['営業時間','アクセス','お支払い','注文方法','今の混雑','売り切れ','甘さ・トッピング','プリペイドカード'],zh:['营业时间','地址交通','支付方式','点单方式','现在人多吗','售罄','甜度・加料','礼品卡'],en:['Hours','Location','Payment','How to order','Busy now?','Sold out','Sweetness & toppings','Gift cards'],ko:['영업시간','오시는 길','결제','주문 방법','지금 붐비나요?','품절','당도·토핑','기프트 카드']};
 const K=['hours','access','pay','order','busy','sold','custom','gift'];
 const KW={hours:/営業|何時|時間|開店|閉店|休み|定休|营业|几点|开门|关门|打烊|休息|hour|open|close|time/i,
@@ -162,33 +136,15 @@ async function live(k){const l=L(),t=T[l];let j;try{j=await (await fetch(API+'/a
  const st=t[j.state]||t.closed;
  if(k==='busy'){if(j.state!=='open')return st+(j.minsToOpen!=null?'\n'+t.toOpen(j.minsToOpen):'');return st+'\n'+(t.busy[j.busy]||'')+'。'.replace(/^。$/,l==='en'?'.':'。')+'\n'+t.wait(j.wait||0)}
  if(j.state==='closed')return st;const so=(j.soldOut||[]).map(x=>x[l]||x.ja);return so.length?t.so(so.join(t.sep)):t.none}
-const fmtT2=ts=>{try{return new Date(ts||Date.now()).toLocaleTimeString(L()==='zh'?'zh-CN':L()==='en'?'en-US':L()==='ko'?'ko-KR':'ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})}catch(e){return ''}};
-async function statusCard(){const l=L(),t=T[l],c=CL[l];let j;try{const r=await fetch(API+'/api/site/status');if(!r.ok)return null;j=await r.json();if(!j||!j.state)return null}catch(e){return null}
- const st=j.state;let rows='';
- if(st==='open'){if(t.busy[j.busy])rows+='<div class="row2"><span>'+c.busy+'</span><span>'+esc(t.busy[j.busy])+'</span></div>';
-  rows+='<div class="row2"><span>'+c.wait+'</span><span>'+c.waitV(j.wait||0)+'</span></div>';
-  if(j.minsToClose!=null)rows+='<div class="sc-note">'+c.toClose(j.minsToClose)+'</div>'}
- else{if(j.minsToOpen!=null)rows+='<div class="sc-note">'+c.toOpen(j.minsToOpen)+'</div>';
-  rows+='<div class="row2"><span>'+c.hrsL+'</span><span>'+c.hrsS+'</span></div>'}
- const so=(j.soldOut||[]).map(x=>x&&(x[l]||x.ja)).filter(Boolean);
- rows+='<div class="sc-so">'+(so.length?esc(t.so(so.join(t.sep))):c.none)+'</div>';
- return '<div class="sc"><div class="sc-h"><span class="sc-dot '+st+'"></span><b>'+esc(SN[l][st]||SN[l].closed)+'</b><span class="sc-hrs">'+c.hrsS+'</span></div><div class="sc-b">'+rows+'</div><a class="sc-btn" href="'+U.mob+'" target="_blank" rel="noopener">'+c.order+'</a></div>'}
-function bubble(html,q,card){const d=document.createElement('div');d.className='mg a';
- const av=document.createElement('img');av.className='av cav';av.src='icons/chat.png?v=20261108e';av.alt='';
- const col=document.createElement('div');col.className='col';
- const lb=document.createElement('span');lb.className='al';lb.textContent=LB[L()];
- const tx=document.createElement('div');tx.className='tx'+(card?' card':'');tx.innerHTML=html;col.append(lb,tx);
- if(q){const b=document.createElement('button');b.type='button';b.className='ask';b.textContent=ASK[L()];b.onclick=()=>{b.remove();const ta=$('chatT');ta.value=q;const f=$('chatF'),ev=new Event('submit',{cancelable:true});ev.force=true;f.onsubmit(ev)};col.appendChild(b)}
- const tmEl=document.createElement('span');tmEl.className='tm';tmEl.textContent=fmtT2(Date.now());col.appendChild(tmEl);
- d.append(av,col);B.appendChild(d);B.scrollTop=1e6}
-function me(t){const d=document.createElement('div');d.className='mg c';const tx=document.createElement('div');tx.className='tx';tx.textContent=t;const tmEl=document.createElement('span');tmEl.className='tm';tmEl.textContent=fmtT2(Date.now());d.append(tx,tmEl);B.appendChild(d);B.scrollTop=1e6}
-async function answer(k){if(k==='status'){const cd=await statusCard();return cd?{h:cd,card:1}:{h:A.hours[L()]}}return (k==='busy'||k==='sold')?{h:esc(await live(k))}:{h:A[k][L()]}}
-const ask2=async(k,q)=>{const ty=window.__chatTyping;ty&&ty(true);const p=answer(k);await new Promise(r=>setTimeout(r,700));try{const rs=await p;bubble(rs.h,q,rs.card)}finally{ty&&ty(false)}};
-window.__faq=async tx=>{if(tx.length>80)return false;const k=STQ.test(tx)?'status':(K.find(x=>KW[x].test(tx))||(KW.order.test(tx)?'order':null));
+function bubble(html,q){const d=document.createElement('div');d.className='mg a';d.innerHTML=`<span class="al">${LB[L()]}</span>${html}`;
+ if(q){const b=document.createElement('button');b.type='button';b.className='ask';b.textContent=ASK[L()];b.onclick=()=>{b.remove();const ta=$('chatT');ta.value=q;const f=$('chatF'),ev=new Event('submit',{cancelable:true});ev.force=true;f.onsubmit(ev)};d.appendChild(b)}
+ B.appendChild(d);B.scrollTop=1e6}
+function me(t){const d=document.createElement('div');d.className='mg c';d.textContent=t;B.appendChild(d)}
+async function answer(k){return (k==='busy'||k==='sold')?esc(await live(k)):A[k][L()]}
+window.__faq=async tx=>{if(tx.length>80)return false;const k=K.find(x=>KW[x].test(tx))||(KW.order.test(tx)?'order':null);
  // order before busy/sold priority handled by K order; gift before order
- if(!k)return false;me(tx);await ask2(k,tx);return true};
-const chips=()=>{const c=$('chips');c.innerHTML='';const es=K.map((k,i)=>({k,n:CH[L()][i]}));es.splice(2,0,{k:'status',n:CST[L()]});
- es.forEach(it=>{const b=document.createElement('button');b.type='button';const im=document.createElement('img');im.src='icons/'+CIC[it.k]+'?v=20261108e';im.alt='';const sp=document.createElement('span');sp.textContent=it.n;b.append(im,sp);b.onclick=()=>{me(it.n);ask2(it.k)};c.appendChild(b)})};
+ if(!k)return false;me(tx);bubble(await answer(k),tx);return true};
+const chips=()=>{const c=$('chips');c.innerHTML='';CH[L()].forEach((n,i)=>{const b=document.createElement('button');b.type='button';b.textContent=n;b.onclick=async()=>{me(n);bubble(await answer(K[i]))};c.appendChild(b)})};
 chips();(window.__relang=window.__relang||[]).push(chips);
 // ---- FAB width for mobile order bar, greeting
 const fab=$('chatFab'),g=$('greet');const fw=()=>document.documentElement.style.setProperty('--fabw',fab.offsetWidth+'px');fw();addEventListener('resize',fw);window.__relang.push(()=>setTimeout(fw,0));
@@ -519,28 +475,38 @@ if(flags.eyes!==false&&cups&&!RM){
   setInterval(()=>{if(document.hidden)return;if(Date.now()-last>2600){px=innerWidth*(0.2+Math.random()*0.6);py=140+Math.random()*300;look()}},2400);
   look();
 }
-/* language hint bubble */
+/* language hint bubble - daily guide: up to 3 showings per day, rotating
+   language -> order -> chat, so new guests learn the site (owner rule, 2026-11-12) */
 const el=document.getElementById('lhint');
 if(flags.bubble!==false&&el){
-  const T={ja:'言語の切り替えはココだよ！',zh:'切换语言在这里哦！',en:'Switch language here!',ko:'언어 전환은 여기예요!'};
-  let seen=false;try{seen=!!localStorage.getItem('ms_lh_site')}catch(e){}
-  if(!seen){
-    const lang=()=> (document.documentElement.lang||'ja').slice(0,2);
-    const hide=set=>{el.hidden=true;if(set){try{localStorage.setItem('ms_lh_site','1')}catch(e){}}};
+  const STOPS=[
+    {sel:'nav .lang',fb:'burger',T:{ja:'言語の切り替えはココだよ！',zh:'切换语言在这里哦！',en:'Switch language here!',ko:'언어 전환은 여기예요!'},cls:'.lang button,#burger'},
+    {sel:'a.cta',fb:null,T:{ja:'ご注文はココから！',zh:'点单从这里进哦！',en:'Order from here!',ko:'주문은 여기예요!'},cls:'a.cta'},
+    {sel:'#chatFab',fb:null,T:{ja:'困ったらココで相談してね',zh:'有问题点这里咨询哦',en:'Questions? Ask us here!',ko:'궁금하면 여기서 상담해요!'},cls:'#chatFab'}
+  ];
+  const lang=()=> (document.documentElement.lang||'ja').slice(0,2);
+  const todayJST=()=>{try{return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}catch(e){return new Date().toISOString().slice(0,10);}};
+  let rec={d:'',n:0};try{const raw=localStorage.getItem('ms_lh2');if(raw)rec=JSON.parse(raw);}catch(e){}
+  if(rec.d!==todayJST())rec={d:todayJST(),n:0};
+  if(rec.n<STOPS.length){
+    const stop=STOPS[rec.n];
+    const hide=()=>{el.hidden=true;};
     setTimeout(()=>{
-      const lg=document.querySelector('nav .lang');
-      const bg=document.getElementById('burger');
-      const anchor=(lg&&lg.offsetParent&&lg.getBoundingClientRect().width>40)?lg:bg;
-      if(!anchor)return;
+      let anchor=document.querySelector(stop.sel);
+      if((!anchor||!anchor.offsetParent)&&stop.fb)anchor=document.getElementById(stop.fb);
+      if(!anchor||!anchor.offsetParent)return;
       const r=anchor.getBoundingClientRect();
-      el.textContent=T[lang()]||T.ja;
-      el.style.top=(r.bottom+12)+'px';
+      if(r.width<8)return;
+      rec.n+=1;try{localStorage.setItem('ms_lh2',JSON.stringify(rec));}catch(e){}
+      el.textContent=stop.T[lang()]||stop.T.ja;
       el.style.right=Math.max(8,innerWidth-r.right+2)+'px';
+      if(r.top>innerHeight*0.55){el.style.top='auto';el.style.bottom=(innerHeight-r.top+12)+'px';}
+      else{el.style.bottom='auto';el.style.top=(r.bottom+12)+'px';}
       el.hidden=false;el.classList.add('pop');
-      setTimeout(()=>hide(true),9000);
+      setTimeout(hide,9000);
     },1200);
-    el.addEventListener('click',()=>hide(true));
-    document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.lang button,#burger'))hide(true)},true);
+    el.addEventListener('click',hide);
+    document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest(stop.cls))hide()},true);
   }
 }
 };
@@ -905,8 +871,6 @@ var CFG={
   gravity:1500,idleScrollQuietMs:3500
 };
 window.JUICE_CFG=CFG;
-var BB=true;/* B-mode is the default since 2026-11-11 (owner: 全部上线) */
-if(BB){CFG.tiers.forEach(function(t){t.particles=560;t.splats=42});CFG._b=1}
 function tier(){var w=innerWidth;for(var i=0;i<CFG.tiers.length;i++){if(w>=CFG.tiers[i].minW)return CFG.tiers[i]}return CFG.tiers[CFG.tiers.length-1]}
 function rnd(a,b){return a+Math.random()*(b-a)}
 function shade(hex,f){var n=parseInt(hex.slice(1),16);if(isNaN(n))return hex;var r=Math.min(255,((n>>16)&255)*f),g=Math.min(255,((n>>8)&255)*f),b=Math.min(255,(n&255)*f);return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')'}
@@ -931,7 +895,7 @@ function addSplat(x,y,r,col,now,thin){
     holdMs:RM?CFG.rmFadeMs*0.4:CFG.splatFadeMs*0.5,
     fadeMs:(RM?CFG.rmFadeMs*0.6:CFG.splatFadeMs)*rnd(0.85,1.2),dripAt:0};
   if(!RM&&!thin&&Math.random()<CFG.dripChance&&r>=13&&y<VH-90)s.dripAt=now+rnd(500,2600);
-  if(splats.length>=(CFG._b?150:110))return;
+  if(splats.length>=110)return;
   splats.push(s);
 }
 var dripsTotal=0;
@@ -946,19 +910,19 @@ window.__juiceBlast=function(cx,cy,col,fid){
   lastBlastAt=Date.now();
   var now=performance.now(),t=tier();
   var n=RM?CFG.rmParticles:t.particles;
-  fx.push({type:'flash',x:cx,y:cy,col:col,born:now,life:RM?180:(CFG._b?340:280),r1:RM?60:(CFG._b?240:150)});if(CFG._b&&!RM)fx.push({type:'ring',x:cx,y:cy,col:col,born:now,life:460,r1:Math.min(VW,VH)*0.46});
-  if(!RM)for(var s=0;s<(CFG._b?20:10);s++)fx.push({type:'streak',x:cx,y:cy,ang:Math.random()*Math.PI*2,len:CFG._b?rnd(90,260):rnd(70,170),col:col,born:now,life:rnd(180,260)});
+  fx.push({type:'flash',x:cx,y:cy,col:col,born:now,life:RM?180:280,r1:RM?60:150});
+  if(!RM)for(var s=0;s<10;s++)fx.push({type:'streak',x:cx,y:cy,ang:Math.random()*Math.PI*2,len:rnd(70,170),col:col,born:now,life:rnd(180,260)});
   var dark=shade(col,0.8),lite=shade(col,1.12);
   for(var i=0;i<n;i++){
     var mist=i>=n*0.82;
     var lob=!mist&&Math.random()<0.26; /* lobbed high: dies near its apex so the top of the glass gets stained too */
     var ang,sp,life;
-    if(lob){ang=-Math.PI*(0.15+Math.random()*0.7);sp=rnd(700,CFG._b?1500:1250);life=rnd(0.5,0.95)}
-    else if(mist){ang=Math.random()*Math.PI*2;sp=rnd(420,CFG._b?1200:980);life=rnd(0.35,0.7)}
-    else{ang=Math.random()*Math.PI*2;sp=240+Math.pow(Math.random(),1.6)*(CFG._b?1460:980);life=rnd(0.85,1.75)}
+    if(lob){ang=-Math.PI*(0.15+Math.random()*0.7);sp=rnd(700,1250);life=rnd(0.5,0.95)}
+    else if(mist){ang=Math.random()*Math.PI*2;sp=rnd(420,980);life=rnd(0.35,0.7)}
+    else{ang=Math.random()*Math.PI*2;sp=240+Math.pow(Math.random(),1.6)*980;life=rnd(0.85,1.75)}
     var roll=Math.random();
     drops.push({x:cx,y:cy,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-(lob?0:140),
-      r:mist?(CFG._b?rnd(1.2,2.6):rnd(1,2.2)):(CFG._b?rnd(2.4,8.6):rnd(2,6.8)),
+      r:mist?rnd(1,2.2):rnd(2,6.8),
       col:roll<0.18?dark:(roll>0.86?lite:col),
       age:0,life:life,mist:mist});
   }
@@ -976,8 +940,7 @@ function tick(now){
   fx=fx.filter(function(f){return now-f.born<f.life});
   fx.forEach(function(f){var k=(now-f.born)/f.life;
     if(f.type==='flash'){ctx.save();ctx.translate(f.x,f.y);var r=f.r1*(0.35+0.65*k);ctx.scale(r,r);ctx.globalAlpha=0.5*(1-k);ctx.fillStyle=f.col;ctx.fill(UNIT);ctx.restore()}
-    else if(f.type==='ring'){ctx.save();ctx.globalAlpha=0.55*(1-k);ctx.strokeStyle=f.col;ctx.lineWidth=5*(1-k)+1;ctx.beginPath();ctx.arc(f.x,f.y,f.r1*(1-Math.pow(1-k,3)),0,Math.PI*2);ctx.stroke();ctx.restore()}
-    else{ctx.save();ctx.globalAlpha=0.3*(1-k);ctx.strokeStyle=f.col;ctx.lineWidth=CFG._b?4:3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(f.x,f.y);ctx.lineTo(f.x+Math.cos(f.ang)*f.len*k,f.y+Math.sin(f.ang)*f.len*k);ctx.stroke();ctx.restore()}
+    else{ctx.save();ctx.globalAlpha=0.3*(1-k);ctx.strokeStyle=f.col;ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(f.x,f.y);ctx.lineTo(f.x+Math.cos(f.ang)*f.len*k,f.y+Math.sin(f.ang)*f.len*k);ctx.stroke();ctx.restore()}
   });
   /* flying drops */
   for(var i=drops.length-1;i>=0;i--){var d=drops[i];d.age+=dt;d.vy+=CFG.gravity*dt;d.x+=d.vx*dt;d.y+=d.vy*dt;
@@ -1072,10 +1035,10 @@ function addBadges(){
   var h=c.querySelector('h3');if(!h)return;
   var fl=fruitList(h.textContent||'');if(!fl.length)return;
   fl.forEach(function(f){
-  var i=document.createElement('img');i.className='pkfb';i.alt='';i.src='icons/'+f+'.png?v=20261108e';
+  var i=document.createElement('img');i.className='pkfb';i.alt='';i.src='icons/'+f+'.png?v=20261105c';
   h.appendChild(i);
   if(RM)return;
-  var closed='icons/'+f+'-c.png?v=20261108e',pre=new Image();
+  var closed='icons/'+f+'-c.png?v=20261105c',pre=new Image();
   pre.onload=function(){var period=2800+Math.random()*3400,open=i.src;
    function tick(){if(!i.isConnected||document.hidden)return;var r=i.getBoundingClientRect();if(r.bottom<-40||r.top>innerHeight+40)return;i.src=closed;setTimeout(function(){i.src=open},170)}
    setTimeout(function(){tick();setInterval(tick,period)},Math.random()*period)};
