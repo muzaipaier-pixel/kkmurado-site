@@ -504,7 +504,7 @@ if(flags.bubble!==false&&el){
       else{el.style.bottom='auto';el.style.top=(r.bottom+12)+'px';}
       el.hidden=false;el.classList.add('pop');
       setTimeout(hide,9000);
-    },1200);
+    },12000);
     el.addEventListener('click',hide);
     document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest(stop.cls))hide()},true);
   }
