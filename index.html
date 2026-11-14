@@ -290,4 +290,91 @@ try{var key='msc_hi_'+dayNum();if(!sessionStorage.getItem(key)){sessionStorage.s
 </script>
 <!-- mscEnd -->
 
+<style id="btnFxStyle">
+/* btnFx 2026-11-15 — button motion params (owner's note): press-spring k260/c12, ripple 450ms/2.4x/0.28, magnetic k150/c15, like-burst k300/c10 */
+@media (prefers-reduced-motion: no-preference){
+.fxp{transition:transform .55s cubic-bezier(.34,2.1,.64,1),box-shadow .55s cubic-bezier(.34,2.1,.64,1),background-color .3s ease}
+.fxp.fxd{transform:scale(.94);box-shadow:0 1px 5px rgba(43,29,58,.28);transition:transform .07s ease-out,box-shadow .07s ease-out}
+.fxr{overflow:hidden}
+.fx-rip{position:absolute;border-radius:50%;background:#fff;opacity:.28;pointer-events:none;transform:scale(0);animation:fxRip .45s ease-out forwards;z-index:1}
+@keyframes fxRip{to{transform:scale(1);opacity:0}}
+.fx-burst{position:fixed;pointer-events:none;z-index:9997}
+.fx-burst .fx-heart{position:absolute;left:-14px;top:-14px;width:28px;height:28px;animation:fxHeart .55s cubic-bezier(.34,2.2,.64,1) forwards}
+@keyframes fxHeart{0%{transform:scale(0)}45%{transform:scale(1.3)}100%{transform:scale(1);opacity:0}}
+.fx-burst .fx-dot{position:absolute;width:8px;height:8px;border-radius:50%;left:-4px;top:-4px}
+}
+</style>
+<script id="btnFxScript">
+(function(){
+if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+function springStep(o,dt){var a=-o.k*(o.x-o.t)-o.c*o.v;o.v+=a*dt;o.x+=o.v*dt;}
+/* ---- 1. Press & Spring Back (scale .94, k260 c12 feel via overshoot bezier) + 3. Touch Ripple (450ms, 2.4x, .28) ---- */
+var pressSel='.pill, .cta, #chatFab, #mscNav button';
+document.querySelectorAll('.pill, .cta, #chatFab').forEach(function(el){
+  if(el.closest&&el.closest('.hero'))return;
+  el.classList.add('fxp');
+});
+document.querySelectorAll('.pill, .cta').forEach(function(el){el.classList.add('fxr');});
+function pressEl(e){var t=e.target.closest&&e.target.closest(pressSel);return t||null;}
+document.addEventListener('pointerdown',function(e){
+  var t=pressEl(e);
+  if(t&&!(t.closest&&t.closest('.hero'))){t.classList.add('fxp');t.classList.add('fxd');}
+  var r=e.target.closest&&e.target.closest('.pill, .cta');
+  if(r){
+    var rect=r.getBoundingClientRect(),d=rect.width*2.4,s=document.createElement('span');
+    s.className='fx-rip';s.style.width=s.style.height=d+'px';
+    s.style.left=(e.clientX-rect.left-d/2)+'px';s.style.top=(e.clientY-rect.top-d/2)+'px';
+    s.addEventListener('animationend',function(){s.remove();});
+    r.appendChild(s);
+  }
+},true);
+function release(e){document.querySelectorAll('.fxd').forEach(function(el){el.classList.remove('fxd');});}
+document.addEventListener('pointerup',release,true);
+document.addEventListener('pointercancel',release,true);
+/* ---- 6. Magnetic Button (radius 120px, strength .35, spring k150 c15) on hero CTA; its press uses k260 c12 spring ---- */
+var mag=document.querySelector('.hero a.pill');
+if(mag&&window.matchMedia&&matchMedia('(pointer:fine)').matches){
+  var P={x:0,v:0,t:0,k:150,c:15},Q={x:0,v:0,t:0,k:150,c:15},S={x:1,v:0,t:1,k:260,c:12};
+  var running=false,last=0,near=false,pressed=false;
+  function kick(){if(!running){running=true;last=performance.now();requestAnimationFrame(loop);}}
+  function loop(now){
+    var dt=Math.min(.033,(now-last)/1000||0.016);last=now;
+    springStep(P,dt);springStep(Q,dt);springStep(S,dt);
+    mag.style.transform='translate('+P.x.toFixed(1)+'px,'+Q.x.toFixed(1)+'px) scale('+S.x.toFixed(3)+')';
+    var settled=Math.abs(P.x-P.t)<.15&&Math.abs(P.v)<4&&Math.abs(Q.x-Q.t)<.15&&Math.abs(Q.v)<4&&Math.abs(S.x-S.t)<.004&&Math.abs(S.v)<.05;
+    if(settled&&!near&&!pressed){mag.style.transform='';running=false;return;}
+    requestAnimationFrame(loop);
+  }
+  document.addEventListener('pointermove',function(e){
+    var r=mag.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    var dx=e.clientX-cx,dy=e.clientY-cy,dist=Math.hypot(dx,dy),reach=120+Math.max(r.width,r.height)/2;
+    if(dist<reach){near=true;var mx=dx*.35,my=dy*.35,m=Math.hypot(mx,my);if(m>30){mx*=30/m;my*=30/m;}P.t=mx;Q.t=my;}
+    else{near=false;P.t=0;Q.t=0;}
+    kick();
+  },{passive:true});
+  mag.addEventListener('pointerdown',function(){pressed=true;S.t=.94;kick();});
+  document.addEventListener('pointerup',function(){pressed=false;S.t=1;kick();},true);
+  document.addEventListener('pointercancel',function(){pressed=false;S.t=1;kick();},true);
+}
+/* ---- 4. Like Burst (heart 1.3 spring-back + 8 dots) on mascot tap ---- */
+var petBtn=document.getElementById('mscBtn'),pet=document.getElementById('mscPet');
+if(petBtn&&pet){
+  var COLORS=['#ff5b9e','#ffd166','#7bdcc3','#ff8fc7'];
+  petBtn.addEventListener('click',function(){
+    var r=pet.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    var box=document.createElement('div');box.className='fx-burst';box.style.left=cx+'px';box.style.top=cy+'px';
+    box.innerHTML='<svg class="fx-heart" viewBox="0 0 32 29" aria-hidden="true"><path d="M16 29C8 22 0 16.6 0 9.3 0 4.2 3.9.5 8.6.5c3 0 5.9 1.7 7.4 4.3C17.5 2.2 20.4.5 23.4.5 28.1.5 32 4.2 32 9.3c0 7.3-8 12.7-16 19.7z" fill="#ff5b9e"/></svg>';
+    for(var i=0;i<8;i++){
+      var dot=document.createElement('span');dot.className='fx-dot';dot.style.background=COLORS[i%4];
+      box.appendChild(dot);
+      var ang=(Math.PI*2/8)*i+0.4,len=36+(i%3)*9;
+      dot.animate([{transform:'translate(0,0)',opacity:1},{transform:'translate('+(Math.cos(ang)*len).toFixed(1)+'px,'+(Math.sin(ang)*len).toFixed(1)+'px)',opacity:0}],{duration:560,easing:'cubic-bezier(.17,.67,.35,1)'});
+    }
+    document.body.appendChild(box);
+    setTimeout(function(){box.remove();},650);
+  });
+}
+})();
+</script>
+
 </body></html>
