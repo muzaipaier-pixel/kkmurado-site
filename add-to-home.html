@@ -1010,5 +1010,88 @@
       })();
 
     </script>
-  </body>
+  
+<script>
+/* Tap feedback v3 - same module as the main site (added 2026-11-14: this page never had it) */
+/* Tap feedback v3.
+   iOS: an invisible <input switch> is laid over LEAF interactive elements only, so the
+   user's real tap toggles it (fires on iOS 17.4 through 26.5+; programmatic label click
+   covers older paths). Containers with interactive children are never covered.
+   Android: navigator.vibrate. Disable with localStorage ms_haptics=0. */
+(function () {
+  if (window.__msHap3) return; window.__msHap3 = 1;
+  var off = false; try { off = localStorage.getItem('ms_haptics') === '0'; } catch (e) {}
+  if (off) return;
+  var SEL = 'button,a.cta,.xbtn,.lnk,.lgbtn,.tab,.opt>div,.paym,.card,.go,.pill,#ptbtn,#pay,#bar';
+  var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (!isIOS) {
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t && t.closest && (t.closest(SEL) || t.closest('.opt'))) { try { navigator.vibrate && navigator.vibrate(8); } catch (err) {} }
+    }, true);
+    return;
+  }
+  var lab = null;
+  function tick() {
+    try {
+      if (!lab) {
+        lab = document.createElement('label');
+        lab.setAttribute('aria-hidden', 'true');
+        lab.style.cssText = 'position:fixed;right:0;bottom:0;width:2px;height:2px;opacity:0;overflow:hidden;pointer-events:none;z-index:-1';
+        var s = document.createElement('input');
+        s.type = 'checkbox'; s.setAttribute('switch', ''); s.tabIndex = -1;
+        s.style.cssText = 'width:1px;height:1px;opacity:0';
+        lab.appendChild(s); document.body.appendChild(lab);
+      }
+      lab.click();
+    } catch (e) {}
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t && t.closest && (t.closest(SEL) || t.closest('.opt')) && !t.closest('input[switch]')) {
+      var h = t.closest('a,button,[onclick]');
+      if (h && h.__hapSw) return; /* a native host toggles its own switch */
+      tick();
+    }
+  }, true);
+  function cover(el) {
+    if (!el || el.__hapC) return; el.__hapC = 1;
+    var native = false;
+    try { native = (el.tagName === 'A' || el.tagName === 'BUTTON' || el.hasAttribute('onclick')); } catch (e) {}
+    try { if (el.querySelector('button,a,input,select,textarea,[onclick]')) return; } catch (e) {}
+    try { if (getComputedStyle(el).position === 'static') el.style.position = 'relative'; } catch (e) {}
+    var sw = document.createElement('input');
+    sw.type = 'checkbox'; sw.setAttribute('switch', ''); sw.tabIndex = -1;
+    sw.setAttribute('aria-hidden', 'true');
+    if (native) {
+      /* Native links/buttons: the real tap must reach the host itself (a cover
+         that takes the tap fires the haptic but swallows navigation — the bug
+         fixed 2026-11-04; skipping the cover entirely left only the synthetic
+         label-click tick, which does not buzz on current iOS). So the switch
+         rides along pointer-events:none and is toggled from the host's own
+         pointerdown — inside the genuine user gesture, on the element itself —
+         while the tap itself proceeds to the host untouched. The click
+         fallback covers keyboard activation (no pointerdown). */
+      sw.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;z-index:5;pointer-events:none;-webkit-tap-highlight-color:transparent';
+      sw.addEventListener('click', function (e) { e.stopPropagation(); });
+      el.__hapSw = sw; el.__hapT = 0;
+      el.addEventListener('pointerdown', function () { el.__hapT = Date.now(); try { sw.click(); } catch (err) {} }, { passive: true });
+      el.addEventListener('click', function () { if (Date.now() - el.__hapT > 600) { try { sw.click(); } catch (err) {} } });
+    } else {
+      sw.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;z-index:5;-webkit-tap-highlight-color:transparent';
+    }
+    el.appendChild(sw);
+  }
+  var scanning = false;
+  function scan() {
+    if (scanning) return; scanning = true;
+    try { document.querySelectorAll(SEL).forEach(cover); } catch (e) {}
+    scanning = false;
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scan); else scan();
+  try { new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
+})();
+</script>
+</body>
 </html>
